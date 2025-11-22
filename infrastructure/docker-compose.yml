@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - runalytics-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - runalytics-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui-runalytics
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    depends_on:
+      - kafka
+    networks:
+      - runalytics-net
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb-runalytics
+    ports:
+      - "27017:27017"
+    networks:
+      - runalytics-net
+    volumes:
+      - mongo-data:/data/db
+
+  postgres:
+    image: postgres:15
+    container_name: postgres-runalytics
+    environment:
+      POSTGRES_USER: runalytics
+      POSTGRES_PASSWORD: runalytics
+      POSTGRES_DB: runalytics
+    ports:
+      - "5432:5432"
+    networks:
+      - runalytics-net
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  
+  activity-service:
+    build:
+      context: ../activity-service
+      dockerfile: Dockerfile
+    container_name: activity-service-runalytics
+    ports:
+      - "8082:8082"
+    depends_on:
+      - kafka
+      - postgres
+    networks:
+      - runalytics-net
+
+volumes:
+  postgres-data:
+    driver: local
+  mongo-data:
+    driver: local
+
+networks:
+  runalytics-net:
+    driver: bridge
