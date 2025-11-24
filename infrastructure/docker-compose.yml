@@ -1,71 +1,141 @@
 version: "3.9"
 
 services:
+  # ═══════════════════════════════════════════════════════
+  # ZOOKEEPER
+  # ═══════════════════════════════════════════════════════
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper-runalytics
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
     networks:
       - runalytics-net
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # ═══════════════════════════════════════════════════════
+  # KAFKA
+  # ═══════════════════════════════════════════════════════
   kafka:
     image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka-runalytics
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "9092:9092"
-      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://kafka:9092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:29092,EXTERNAL://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     networks:
       - runalytics-net
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
+  # ═══════════════════════════════════════════════════════
+  # KAFKA UI
+  # ═══════════════════════════════════════════════════════
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui-runalytics
     ports:
-      - "8081:8080"
+      - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     networks:
       - runalytics-net
 
+  # ═══════════════════════════════════════════════════════
+  # MONGODB
+  # ═══════════════════════════════════════════════════════
   mongodb:
-    image: mongo:6.0
+    image: mongo:7.0
     container_name: mongodb-runalytics
     ports:
       - "27017:27017"
-    networks:
-      - runalytics-net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: runalytics
+      MONGO_INITDB_ROOT_PASSWORD: runalytics
+      MONGO_INITDB_DATABASE: runalytics_raw
     volumes:
       - mongo-data:/data/db
-
-  postgres:
-    image: postgres:15
-    container_name: postgres-runalytics
-    environment:
-      POSTGRES_USER: runalytics
-      POSTGRES_PASSWORD: runalytics
-      POSTGRES_DB: runalytics
-    ports:
-      - "5432:5432"
     networks:
       - runalytics-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # POSTGRESQL
+  # ═══════════════════════════════════════════════════════
+  postgres:
+    image: pgvector/pgvector:pg15
+    container_name: postgres-runalytics
+    environment:
+      POSTGRES_DB: runalytics
+      POSTGRES_USER: runalytics
+      POSTGRES_PASSWORD: runalytics
+    ports:
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-  
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - runalytics-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U runalytics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # REDIS
+  # ═══════════════════════════════════════════════════════
+  redis:
+    image: redis:7-alpine
+    container_name: redis-runalytics
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - runalytics-net
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ═══════════════════════════════════════════════════════
+  # ACTIVITY SERVICE
+  # ═══════════════════════════════════════════════════════
   activity-service:
     build:
       context: ../activity-service
@@ -73,18 +143,48 @@ services:
     container_name: activity-service-runalytics
     ports:
       - "8082:8082"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MONGODB_URI: mongodb://runalytics:runalytics@mongodb:27017/runalytics_raw?authSource=admin
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/runalytics
+      POSTGRES_USER: runalytics
+      POSTGRES_PASSWORD: runalytics
     depends_on:
-      - kafka
-      - postgres
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     networks:
       - runalytics-net
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
+# ═══════════════════════════════════════════════════════
+# VOLUMES
+# ═══════════════════════════════════════════════════════
 volumes:
+  zookeeper-data:
+    driver: local
+  zookeeper-logs:
+    driver: local
+  kafka-data:
+    driver: local
   postgres-data:
     driver: local
   mongo-data:
     driver: local
+  redis-data:
+    driver: local
 
+# ═══════════════════════════════════════════════════════
+# NETWORKS
+# ═══════════════════════════════════════════════════════
 networks:
   runalytics-net:
     driver: bridge

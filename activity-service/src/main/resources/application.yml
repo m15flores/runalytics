@@ -2,8 +2,90 @@ server:
   port: 8082
 
 spring:
+  application:
+    name: activity-service
+
+  # Kafka Configuration
   kafka:
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        "[spring.json.add.type.headers]": false
+    consumer:
+      group-id: activity-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        "[spring.json.trusted.packages]": "*"
+
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://runalytics:runalytics@mongodb:27017/runalytics_raw?authSource=admin}
+      auto-index-creation: true
+
+  # PostgreSQL Configuration
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://postgres:5432/runalytics}
+    username: ${POSTGRES_USER:runalytics}
+    password: ${POSTGRES_PASSWORD:runalytics}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Management/Actuator endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+# Custom Kafka Topics
+runalytics:
+  kafka:
+    topics:
+      raw-ingested: activities.raw.ingested
+      normalized: activities.normalized
+      metrics-calculated: activities.metrics.calculated
+      aggregated-weekly: activities.aggregated.weekly
+      ai-insights: analytics.ai.insights
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.runalitycs: DEBUG
+    org.springframework.kafka: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha

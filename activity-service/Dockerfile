@@ -1,14 +1,32 @@
-# Runtime stage: solo Java para correr la app
-FROM eclipse-temurin:17-jdk
+# ═══════════════════════════════════════════════════════
+# Stage 1: Build con Maven
+# ═══════════════════════════════════════════════════════
+FROM maven:3.9-eclipse-temurin-17 AS build
 
-# Carpeta de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar el JAR generado por Maven desde tu máquina local
-COPY target/activity-service-0.0.1-SNAPSHOT.jar app.jar
+# Copiar solo pom.xml primero (para cachear dependencias)
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Puerto donde escuchará el microservicio
+# Copiar código fuente y compilar
+COPY src ./src
+RUN mvn clean package -DskipTests -B
+
+# ═══════════════════════════════════════════════════════
+# Stage 2: Runtime (imagen final pequeña)
+# ═══════════════════════════════════════════════════════
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+
+# Copiar JAR desde el stage de build
+COPY --from=build /app/target/activity-service-*.jar app.jar
+
 EXPOSE 8082
 
-# Comando para arrancar la aplicación
+# Healthcheck (opcional pero recomendado)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
