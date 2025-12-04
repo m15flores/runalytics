@@ -18,6 +18,7 @@ Microservicio de ingestión y análisis de actividades deportivas.
 ```text
 runalytics/
 ├── activity-service/    # Microservicio Spring Boot
+├── activity-normalizer/    # Microservicio Spring Boot
 ├── infrastructure/     # Docker Compose y redes
 ├── README.md
 └── .gitignore
