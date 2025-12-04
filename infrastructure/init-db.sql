@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS activities (
     started_at TIMESTAMP WITH TIME ZONE NOT NULL,
     duration_seconds INTEGER,
     distance_meters NUMERIC(10, 2),
-    raw_data JSONB,
+    samples JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

@@ -72,6 +72,7 @@ logging:
   level:
     root: INFO
     com.runalitycs: DEBUG
+    com.runalitycs.activity: DEBUG
     org.springframework.kafka: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG

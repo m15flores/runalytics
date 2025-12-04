@@ -90,6 +90,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
 
   # ═══════════════════════════════════════════════════════
   # POSTGRESQL
@@ -164,6 +165,27 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+  
+  # ═══════════════════════════════════════════════════════
+  # ACTIVITY SERVICE
+  # ═══════════════════════════════════════════════════════
+  activity-normalizer:
+    build:
+      context: ../activity-normalizer
+      dockerfile: Dockerfile
+    container_name: activity-normalizer-runalytics
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/runalytics
+      POSTGRES_USER: runalytics
+      POSTGRES_PASSWORD: runalytics
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - runalytics-net
 
 # ═══════════════════════════════════════════════════════
 # VOLUMES

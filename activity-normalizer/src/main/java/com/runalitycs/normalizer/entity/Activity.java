@@ -1,8 +1,9 @@
 package com.runalitycs.normalizer.entity;
 
-import com.runalitycs.normalizer.converter.JsonbConverter;
 import com.runalitycs.normalizer.dto.ActivitySample;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,7 +34,7 @@ public class Activity {
     private BigDecimal distanceMeters;
 
     @Column(name = "samples", columnDefinition = "jsonb")
-    @Convert(converter = JsonbConverter.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     private List<ActivitySample> samples;
 
     @Column(name = "created_at", nullable = false, updatable = false)

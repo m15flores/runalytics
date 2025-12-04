@@ -25,7 +25,7 @@ public class ActivityProducer {
     }
 
     public void publishActivity(ActivityDto dto) {
-        log.debug("Publishing activity for user: {} to topic: {}", dto.userId(), rawIngestedTopic);
+        log.info("Publishing activity for user: {} to topic: {}", dto.userId(), rawIngestedTopic);
 
         CompletableFuture<SendResult<String, ActivityDto>> future =
                 kafkaTemplate.send(rawIngestedTopic, dto.userId(), dto);
