@@ -78,13 +78,13 @@ public class ActivityMetrics {
     private Integer maxCadence;
 
     // Running Dynamics
-    @Column(name = "average_vertical_oscillation", precision = 5, scale = 2)
+    @Column(name = "average_vertical_oscillation")
     private Double averageVerticalOscillation;
 
-    @Column(name = "average_stance_time", precision = 6, scale = 2)
+    @Column(name = "average_stance_time")
     private Double averageStanceTime;
 
-    @Column(name = "average_vertical_ratio", precision = 4, scale = 2)
+    @Column(name = "average_vertical_ratio")
     private Double averageVerticalRatio;
 
     @Column(name = "average_step_length")
@@ -112,13 +112,13 @@ public class ActivityMetrics {
     private Integer totalDescent;
 
     // Training Load
-    @Column(name = "training_effect", precision = 3, scale = 1)
+    @Column(name = "training_effect")
     private Double trainingEffect;
 
-    @Column(name = "anaerobic_training_effect", precision = 3, scale = 1)
+    @Column(name = "anaerobic_training_effect")
     private Double anaerobicTrainingEffect;
 
-    @Column(name = "training_load_peak", precision = 10, scale = 2)
+    @Column(name = "training_load_peak")
     private Double trainingLoadPeak;
 
     // Subjective
