@@ -223,6 +223,11 @@ public class ActivityMetricsCalculator {
         // Calcular maxPace desde laps
         Integer maxPace = calculateMaxPaceFromLaps(lapMetrics);
 
+        // Normalizar hrZones: null -> Map vacío (consistente con hrZonesPercentage)
+        Map<String, Integer> hrZones = session.timeInHrZones() != null
+                ? session.timeInHrZones()
+                : Map.of();
+
         // Construir DTO con todo
         return new ActivityMetricsDto(
                 input.activityId(),
@@ -239,7 +244,7 @@ public class ActivityMetricsCalculator {
                 session.avgHeartRate(),
                 session.maxHeartRate(),
                 minHeartRate,
-                session.timeInHrZones(),
+                hrZones,
                 hrZonesPercentage,
                 session.avgCadence(),
                 session.maxCadence(),

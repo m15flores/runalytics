@@ -1,0 +1,38 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  kafka:
+    consumer:
+      group-id: metrics-engine-test-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: ActivityNormalizedDto:com.runalitycs.metrics_engine.dto.ActivityNormalizedDto
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        "[spring.json.add.type.headers]": false
+
+runalytics:
+  kafka:
+    topics:
+      normalized: activities.normalized
+      metrics-calculated: activities.metrics.calculated
+      normalized-dlq: activities.normalized.dlq
+
+logging:
+  level:
+    com.runalitycs.metrics: DEBUG
+    org.springframework.kafka: INFO
+    org.hibernate.SQL: DEBUG
