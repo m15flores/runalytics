@@ -39,6 +39,7 @@ runalytics:
     topics:
       normalized: activities.normalized
       metrics-calculated: activities.metrics.calculated
+      normalized-dlq: activities.normalized.dlq
 
 logging:
   level:
