@@ -16,6 +16,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @Testcontainers
@@ -150,4 +151,45 @@ class AthleteProfileRepositoryTest {
         Optional<AthleteProfile> found = repository.findByUserId(userId);
         assertThat(found).isEmpty();
     }
+
+    @Test
+    void shouldReturnTrueIfUserExists() {
+        // Given
+        AthleteProfile profile = AthleteProfile.builder()
+                .userId("test-runner")
+                .name("Runner")
+                .age(30)
+                .weight(70.0)
+                .maxHeartRate(190)
+                .build();
+
+        repository.save(profile);
+
+        // When
+        boolean existsTestRunnerUser = repository.existsByUserId("test-runner");
+
+        // Then
+        assertTrue(existsTestRunnerUser);
+    }
+
+    @Test
+    void shouldReturnFalseIfUserDoesNotExist() {
+        // Given
+        AthleteProfile profile = AthleteProfile.builder()
+                .userId("test-runner")
+                .name("Runner")
+                .age(30)
+                .weight(70.0)
+                .maxHeartRate(190)
+                .build();
+
+        repository.save(profile);
+
+        // When
+        boolean existsTestRunnerUser = repository.existsByUserId("not-existing-user");
+
+        // Then
+        assertFalse(existsTestRunnerUser);
+    }
+
 }

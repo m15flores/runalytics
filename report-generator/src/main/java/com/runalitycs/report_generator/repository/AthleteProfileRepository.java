@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface AthleteProfileRepository extends JpaRepository<AthleteProfile, UUID> {
     Optional<AthleteProfile> findByUserId(String userId);
+    boolean existsByUserId(String userId);
 }

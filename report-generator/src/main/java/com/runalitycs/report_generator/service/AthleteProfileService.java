@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -77,5 +79,11 @@ public class AthleteProfileService {
     @Transactional(readOnly = true)
     public boolean profileExists(String userId) {
         return athleteProfileRepository.existsByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<AthleteProfile> getAllProfiles() {
+        log.debug("Fetching all profiles");
+        return athleteProfileRepository.findAll();
     }
 }
