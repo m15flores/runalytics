@@ -55,6 +55,8 @@ public class WeeklyAggregationService {
             weeklyStatsList.add(stats);
         }
 
+        calculateTrends(weeklyStatsList);
+
         return weeklyStatsList;
     }
 
@@ -98,6 +100,12 @@ public class WeeklyAggregationService {
                 .mapToInt(Integer::intValue)
                 .sum();
 
+        Integer averagePace = calculateWeightedAveragePace(activities);
+        Integer averageHeartRate = calculateWeightedAverageHeartRate(activities);
+        Integer averageCadence = calculateWeightedAverageCadence(activities);
+        Map<String, Integer> hrZonesDistribution = aggregateHrZones(activities);
+
+
         return WeeklyStats.builder()
                 .weekNumber(weekNumber)
                 .year(year)
@@ -105,6 +113,10 @@ public class WeeklyAggregationService {
                 .totalDistance(totalDistance)
                 .totalDuration(totalDuration)
                 .totalCalories(totalCalories)
+                .averagePace(averagePace)
+                .averageHeartRate(averageHeartRate)
+                .averageCadence(averageCadence)
+                .hrZonesDistribution(hrZonesDistribution)
                 .build();
     }
 
@@ -114,5 +126,112 @@ public class WeeklyAggregationService {
         int weekNumber = date.get(weekFields.weekOfWeekBasedYear());
         int year = date.get(weekFields.weekBasedYear());
         return year + "-W" + String.format("%02d", weekNumber);
+    }
+
+    private Integer calculateWeightedAveragePace(List<ActivityMetrics> activities) {
+        double totalWeightedPace = 0.0;
+        double totalDistance = 0.0;
+
+        for (ActivityMetrics activity : activities) {
+            if (activity.getAveragePace() != null &&
+                    activity.getTotalDistance() != null &&
+                    activity.getTotalDistance().compareTo(BigDecimal.ZERO) > 0) {
+
+                double distance = activity.getTotalDistance().doubleValue();
+                totalWeightedPace += activity.getAveragePace() * distance;
+                totalDistance += distance;
+            }
+        }
+
+        if (totalDistance == 0) {
+            return null;
+        }
+
+        return (int) Math.round(totalWeightedPace / totalDistance);
+    }
+
+    private Integer calculateWeightedAverageHeartRate(List<ActivityMetrics> activities) {
+        double totalWeightedHR = 0.0;
+        int totalDuration = 0;
+
+        for (ActivityMetrics activity : activities) {
+            if (activity.getAverageHeartRate() != null &&
+                    activity.getTotalDuration() != null &&
+                    activity.getTotalDuration() > 0) {
+
+                totalWeightedHR += activity.getAverageHeartRate() * activity.getTotalDuration();
+                totalDuration += activity.getTotalDuration();
+            }
+        }
+
+        if (totalDuration == 0) {
+            return null;
+        }
+
+        return (int) Math.round(totalWeightedHR / totalDuration);
+    }
+
+    private Integer calculateWeightedAverageCadence(List<ActivityMetrics> activities) {
+        double totalWeightedCadence = 0.0;
+        int totalDuration = 0;
+
+        for (ActivityMetrics activity : activities) {
+            if (activity.getAverageCadence() != null &&
+                    activity.getTotalDuration() != null &&
+                    activity.getTotalDuration() > 0) {
+
+                totalWeightedCadence += activity.getAverageCadence() * activity.getTotalDuration();
+                totalDuration += activity.getTotalDuration();
+            }
+        }
+
+        if (totalDuration == 0) {
+            return null;
+        }
+
+        return (int) Math.round(totalWeightedCadence / totalDuration);
+    }
+
+    private Map<String, Integer> aggregateHrZones(List<ActivityMetrics> activities) {
+        Map<String, Integer> aggregated = new HashMap<>();
+
+        for (ActivityMetrics activity : activities) {
+            if (activity.getHrZones() != null) {
+                activity.getHrZones().forEach((zone, seconds) ->
+                        aggregated.merge(zone, seconds, Integer::sum)
+                );
+            }
+        }
+
+        return aggregated.isEmpty() ? null : aggregated;
+    }
+
+    private void calculateTrends(List<WeeklyStats> weeklyStatsList) {
+        for (int i = 0; i < weeklyStatsList.size() - 1; i++) {
+            WeeklyStats currentWeek = weeklyStatsList.get(i);
+            WeeklyStats previousWeek = weeklyStatsList.get(i + 1);
+
+            BigDecimal currentDistance = currentWeek.getTotalDistance();
+            BigDecimal previousDistance = previousWeek.getTotalDistance();
+
+            if (previousDistance != null && previousDistance.compareTo(BigDecimal.ZERO) > 0) {
+                // Calculate % change
+                BigDecimal change = currentDistance.subtract(previousDistance);
+                double changePercent = change.divide(previousDistance, 4, BigDecimal.ROUND_HALF_UP)
+                        .multiply(new BigDecimal("100"))
+                        .doubleValue();
+
+                currentWeek.setDistanceChangePercent(changePercent);
+
+                // Determine trend
+                if (changePercent > 2.0) {
+                    currentWeek.setTrend("improving");
+                } else if (changePercent < -2.0) {
+                    currentWeek.setTrend("declining");
+                } else {
+                    currentWeek.setTrend("stable");
+                }
+            }
+        }
     }
 }
