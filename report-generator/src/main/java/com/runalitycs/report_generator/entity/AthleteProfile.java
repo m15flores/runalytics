@@ -34,6 +34,9 @@ public class AthleteProfile {
     @Column(name = "max_heart_rate")
     private Integer maxHeartRate;
 
+    @Column(name = "current_goal")
+    private String currentGoal;
+
     // Metadata
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
