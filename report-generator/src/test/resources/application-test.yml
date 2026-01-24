@@ -1,42 +1,31 @@
 spring:
-  application:
-    name: report-generator
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/report_generator
-    username: postgres
-    password: postgres
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-
   kafka:
     bootstrap-servers: localhost:9092
+
     consumer:
-      group-id: report-generator-group
+      group-id: report-generator-test-group
       auto-offset-reset: earliest
-      enable-auto-commit: false
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: metricsCalculated:com.runalitycs.report_generator.dto.ActivityMetricsDto
+
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: reportGenerated:com.runalitycs.report_generator.dto.ReportGeneratedEventDto,metricsCalculated:com.runalitycs.report_generator.dto.ActivityMetricsDto
 
-server:
-  port: 8083
+  datasource:
+    url: jdbc:tc:postgresql:15-alpine:///testdb
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
 
 app:
-  timezone: Europe/Paris
-
   kafka:
     topics:
       metrics-calculated: metrics.calculated

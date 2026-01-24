@@ -95,18 +95,27 @@ public class ReportGeneratorService {
         // 6. Create summary JSON
         String summaryJson = createSummaryJson(currentWeek);
 
-        // 7. Save report
-        TrainingReport report = TrainingReport.builder()
-                .userId(activityMetrics.userId())
-                .weekNumber(weekNumber)
-                .year(year)
-                .markdownContent(markdownContent)
-                .summaryJson(summaryJson)
-                .triggerActivityId(activityMetrics.activityId())
-                .build();
+        // 7. Find existing report or create new one
+        TrainingReport report = trainingReportRepository
+                .findByUserIdAndWeekNumberAndYear(activityMetrics.userId(), weekNumber, year)
+                .orElse(TrainingReport.builder()
+                        .userId(activityMetrics.userId())
+                        .weekNumber(weekNumber)
+                        .year(year)
+                        .build());
+
+        // 8. Update report fields
+        report.setMarkdownContent(markdownContent);
+        report.setSummaryJson(summaryJson);
+        report.setTriggerActivityId(activityMetrics.activityId());
 
         TrainingReport saved = trainingReportRepository.save(report);
-        log.info("Generated report with id: {} for week {}/{}", saved.getId(), weekNumber, year);
+
+        if (report.getId() == null) {
+            log.info("Generated new report with id: {} for week {}/{}", saved.getId(), weekNumber, year);
+        } else {
+            log.info("Updated existing report with id: {} for week {}/{}", saved.getId(), weekNumber, year);
+        }
 
         return trainingReportMapper.toDto(saved);
     }
