@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: ai-coach
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai_coach_db
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    consumer:
+      group-id: ai-coach-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: reportGenerated:com.runalitycs.ai_coach.dto.TrainingReportEventDto
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: recommendationGenerated:com.runalitycs.ai_coach.dto.RecommendationGeneratedEventDto
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY:sk-test-key}
+    model: gpt-4o
+    max-tokens: 2000
+    temperature: 0.7
+
+app:
+  kafka:
+    topics:
+      reports-generated: reports.generated
+      recommendations-generated: recommendations.generated
+      dlq: ai-coach.dlq
+
+  recommendations:
+    max-per-report: 5
+    expiration-days: 7
+
+logging:
+  level:
+    com.runalitycs.ai_coach: DEBUG
+    org.springframework.kafka: INFO
