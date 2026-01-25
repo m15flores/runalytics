@@ -1,5 +1,6 @@
 package com.runalytics.ai_coach.entity;
 
+import com.runalytics.ai_coach.dto.TrainingCycleContext;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -50,6 +51,14 @@ public class Recommendation {
 
     @Builder.Default
     private Boolean applied = false;
+
+    @Enumerated(EnumType.STRING)
+    private TrainingVerdict verdict;
+
+    private Integer weekInCycle;
+
+    @Enumerated(EnumType.STRING)
+    private TrainingCycleContext.TrainingPhase trainingPhase;
 
     @PrePersist
     protected void onCreate() {
