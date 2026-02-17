@@ -27,13 +27,13 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: reportGenerated:com.runalitycs.ai_coach.dto.TrainingReportEventDto
+        spring.json.type.mapping: reportGenerated:com.runalytics.ai_coach.dto.TrainingReportEventDto
 
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: recommendationGenerated:com.runalitycs.ai_coach.dto.RecommendationGeneratedEventDto
+        spring.json.type.mapping: recommendationGenerated:com.runalytics.ai_coach.dto.RecommendationGeneratedEventDto
 
 openai:
   api:
@@ -55,5 +55,5 @@ app:
 
 logging:
   level:
-    com.runalitycs.ai_coach: DEBUG
+    com.runalytics.ai_coach: DEBUG
     org.springframework.kafka: INFO

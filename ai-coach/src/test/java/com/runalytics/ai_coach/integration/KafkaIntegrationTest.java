@@ -3,6 +3,7 @@ package com.runalytics.ai_coach.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.runalytics.ai_coach.dto.TrainingCycleContext;
 import com.runalytics.ai_coach.entity.Priority;
 import com.runalytics.ai_coach.entity.Recommendation;
@@ -68,9 +69,10 @@ import static org.awaitility.Awaitility.await;
         "spring.kafka.bootstrap-servers=localhost:19092",
         "app.kafka.topics.reports-generated=reports.generated",
         "app.kafka.topics.recommendations-generated=recommendations.generated",
-        "openai.api.key=test-key"
+        "openai.api.key=test-key",
+        "spring.main.allow-bean-definition-overriding=true"
 })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class KafkaIntegrationTest {
 
     @Container
@@ -78,6 +80,13 @@ class KafkaIntegrationTest {
             .withDatabaseName("testdb")
             .withUsername("test")
             .withPassword("test");
+
+    private static WireMockServer wireMockServer;
+
+    static {
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
+        wireMockServer.start();
+    }
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -98,7 +107,6 @@ class KafkaIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private WireMockServer wireMockServer;
     private KafkaMessageListenerContainer<String, RecommendationGeneratedEventDto> container;
     private BlockingQueue<ConsumerRecord<String, RecommendationGeneratedEventDto>> records;
 
@@ -112,9 +120,9 @@ class KafkaIntegrationTest {
         @Bean
         @Primary
         public WebClient openAiWebClient() {
-            // Point to WireMock server
+            // Point to WireMock server with dynamic port
             return WebClient.builder()
-                    .baseUrl("http://localhost:8089")
+                    .baseUrl("http://localhost:" + wireMockServer.port())
                     .defaultHeader("Authorization", "Bearer test-key")
                     .defaultHeader("Content-Type", "application/json")
                     .build();
@@ -131,6 +139,19 @@ class KafkaIntegrationTest {
             ProducerFactory<String, TrainingReportEventDto> pf = new DefaultKafkaProducerFactory<>(producerProps);
             return new KafkaTemplate<>(pf);
         }
+
+        @Bean
+        @Primary
+        public KafkaTemplate<String, RecommendationGeneratedEventDto> recommendationKafkaTemplate(
+                EmbeddedKafkaBroker embeddedKafka) {
+
+            Map<String, Object> producerProps = KafkaTestUtils.producerProps(embeddedKafka);
+            producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+            producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+            ProducerFactory<String, RecommendationGeneratedEventDto> pf = new DefaultKafkaProducerFactory<>(producerProps);
+            return new KafkaTemplate<>(pf);
+        }
     }
 
     @BeforeEach
@@ -138,19 +159,19 @@ class KafkaIntegrationTest {
         // Clear database
         recommendationRepository.deleteAll();
 
-        // Start WireMock server for OpenAI API
-        wireMockServer = new WireMockServer(8089);
-        wireMockServer.start();
-        WireMock.configureFor("localhost", 8089);
+        // Reset WireMock stubs for each test
+        wireMockServer.resetAll();
+        WireMock.configureFor("localhost", wireMockServer.port());
 
-        // Setup consumer for recommendations.generated topic
+        // Setup consumer for recommendations.generated topic with unique group ID
         Map<String, Object> consumerProps = KafkaTestUtils.consumerProps(
-                "test-consumer-group",
+                "test-group-" + UUID.randomUUID(),
                 "true",
                 embeddedKafka
         );
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         consumerProps.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         consumerProps.put(JsonDeserializer.VALUE_DEFAULT_TYPE, RecommendationGeneratedEventDto.class.getName());
 
@@ -171,9 +192,6 @@ class KafkaIntegrationTest {
     void tearDown() {
         if (container != null) {
             container.stop();
-        }
-        if (wireMockServer != null) {
-            wireMockServer.stop();
         }
     }
 
