@@ -27,21 +27,6 @@ spring:
       uri: ${MONGODB_URI:mongodb://runalytics:runalytics@mongodb:27017/runalytics_raw?authSource=admin}
       auto-index-creation: true
 
-  # PostgreSQL Configuration
-  datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://postgres:5432/runalytics}
-    username: ${POSTGRES_USER:runalytics}
-    password: ${POSTGRES_PASSWORD:runalytics}
-    driver-class-name: org.postgresql.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # Management/Actuator endpoints
 management:
@@ -75,8 +60,6 @@ logging:
     com.runalitycs.activity: DEBUG
     org.springframework.kafka: INFO
     org.springframework.web: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
