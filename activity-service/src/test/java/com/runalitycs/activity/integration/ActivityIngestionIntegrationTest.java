@@ -17,9 +17,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.kafka.ConfluentKafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
@@ -34,12 +35,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class ActivityIngestionIntegrationTest {
 
     @Container
-    static KafkaContainer kafka = new KafkaContainer(
+    static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:7.0"));
+
+    @Container
+    static ConfluentKafkaContainer kafka = new ConfluentKafkaContainer(
             DockerImageName.parse("confluentinc/cp-kafka:7.5.0")
     );
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", () -> mongo.getConnectionString() + "/runalytics_test");
         registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
