@@ -2,27 +2,19 @@ package com.runalytics.activity.service;
 
 import com.runalytics.activity.dto.ActivityDto;
 import com.runalytics.activity.kafka.ActivityProducer;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ActivityService {
-
-    private static final Logger log = LoggerFactory.getLogger(ActivityService.class);
 
     private final ActivityProducer activityProducer;
 
-    public ActivityService(ActivityProducer activityProducer) {
-        this.activityProducer = activityProducer;
-    }
-
     public String ingestActivity(ActivityDto dto) {
-        if (dto == null) {
-            throw new IllegalArgumentException("ActivityDto cannot be null");
-        }
-
-        log.info("Ingesting activity for user: {}", dto.userId());
+        log.info("action=ingest userId={}", dto.userId());
 
         activityProducer.publishActivity(dto);
 

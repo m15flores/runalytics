@@ -3,31 +3,28 @@ package com.runalytics.activity.controller;
 import com.runalytics.activity.dto.ActivityDto;
 import com.runalytics.activity.service.ActivityService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/activities")
+@RequiredArgsConstructor
 public class ActivityController {
 
-    private static final Logger log = LoggerFactory.getLogger(ActivityController.class);
     private final ActivityService activityService;
 
-    public ActivityController(ActivityService activityService) {
-        this.activityService = activityService;
-    }
-
     @PostMapping
-    public ResponseEntity<?> ingest(@Valid @RequestBody ActivityDto activityDto) {
-        log.info("Received activity ingestion request for user: {}", activityDto.userId());
+    public ResponseEntity<Map<String, String>> ingest(@Valid @RequestBody ActivityDto activityDto) {
+        log.info("action=ingest userId={}", activityDto.userId());
 
         String userId = activityService.ingestActivity(activityDto);
-        log.info("Activity ingested successfully for user: {}", userId);
+        log.info("action=ingest status=success userId={}", userId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
