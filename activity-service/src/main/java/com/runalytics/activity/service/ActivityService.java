@@ -1,7 +1,7 @@
-package com.runalitycs.activity.service;
+package com.runalytics.activity.service;
 
-import com.runalitycs.activity.dto.ActivityDto;
-import com.runalitycs.activity.kafka.ActivityProducer;
+import com.runalytics.activity.dto.ActivityDto;
+import com.runalytics.activity.kafka.ActivityProducer;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

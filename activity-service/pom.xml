@@ -10,7 +10,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
-	<groupId>com.runalitycs</groupId>
+	<groupId>com.runalytics</groupId>
 	<artifactId>activity-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>activity-service</name>

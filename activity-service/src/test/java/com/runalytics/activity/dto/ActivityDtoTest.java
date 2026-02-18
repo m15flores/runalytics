@@ -1,4 +1,4 @@
-package com.runalitycs.activity.dto;
+package com.runalytics.activity.dto;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

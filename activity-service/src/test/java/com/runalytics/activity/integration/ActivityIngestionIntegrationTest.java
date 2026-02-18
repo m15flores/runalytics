@@ -1,4 +1,4 @@
-package com.runalitycs.activity.integration;
+package com.runalytics.activity.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

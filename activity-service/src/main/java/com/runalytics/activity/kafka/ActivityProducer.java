@@ -1,6 +1,6 @@
-package com.runalitycs.activity.kafka;
+package com.runalytics.activity.kafka;
 
-import com.runalitycs.activity.dto.ActivityDto;
+import com.runalytics.activity.dto.ActivityDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,4 +1,4 @@
-package com.runalitycs.activity;
+package com.runalytics.activity;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

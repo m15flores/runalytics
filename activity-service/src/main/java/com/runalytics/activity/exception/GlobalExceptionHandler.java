@@ -1,4 +1,4 @@
-package com.runalitycs.activity.exception;
+package com.runalytics.activity.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

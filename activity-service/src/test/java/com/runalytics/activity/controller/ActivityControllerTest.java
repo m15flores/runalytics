@@ -1,7 +1,7 @@
-package com.runalitycs.activity.controller;
+package com.runalytics.activity.controller;
 
-import com.runalitycs.activity.dto.ActivityDto;
-import com.runalitycs.activity.service.ActivityService;
+import com.runalytics.activity.dto.ActivityDto;
+import com.runalytics.activity.service.ActivityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

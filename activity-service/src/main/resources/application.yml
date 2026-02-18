@@ -56,8 +56,8 @@ runalytics:
 logging:
   level:
     root: INFO
-    com.runalitycs: DEBUG
-    com.runalitycs.activity: DEBUG
+    com.runalytics: DEBUG
+    com.runalytics.activity: DEBUG
     org.springframework.kafka: INFO
     org.springframework.web: INFO
   pattern:

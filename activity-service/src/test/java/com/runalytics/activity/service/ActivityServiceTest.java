@@ -1,7 +1,7 @@
-package com.runalitycs.activity.service;
+package com.runalytics.activity.service;
 
-import com.runalitycs.activity.dto.ActivityDto;
-import com.runalitycs.activity.kafka.ActivityProducer;
+import com.runalytics.activity.dto.ActivityDto;
+import com.runalytics.activity.kafka.ActivityProducer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

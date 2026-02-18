@@ -1,7 +1,7 @@
-package com.runalitycs.activity.controller;
+package com.runalytics.activity.controller;
 
-import com.runalitycs.activity.dto.ActivityDto;
-import com.runalitycs.activity.service.ActivityService;
+import com.runalytics.activity.dto.ActivityDto;
+import com.runalytics.activity.service.ActivityService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

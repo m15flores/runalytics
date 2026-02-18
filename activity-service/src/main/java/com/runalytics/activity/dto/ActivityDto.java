@@ -1,4 +1,4 @@
-package com.runalitycs.activity.dto;
+package com.runalytics.activity.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
