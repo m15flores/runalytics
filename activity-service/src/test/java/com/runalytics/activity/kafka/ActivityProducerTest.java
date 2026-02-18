@@ -47,8 +47,9 @@ class ActivityProducerTest {
 
     @Test
     void shouldPublishToCorrectTopic() {
+        SendResult<String, ActivityDto> sendResult = mockSendResult();
         when(kafkaTemplate.send(anyString(), anyString(), any(ActivityDto.class)))
-                .thenReturn(CompletableFuture.completedFuture(mockSendResult()));
+                .thenReturn(CompletableFuture.completedFuture(sendResult));
 
         activityProducer.publishActivity(DTO);
 
@@ -57,8 +58,9 @@ class ActivityProducerTest {
 
     @Test
     void shouldUseUserIdAsPartitionKey() {
+        SendResult<String, ActivityDto> sendResult = mockSendResult();
         when(kafkaTemplate.send(anyString(), anyString(), any(ActivityDto.class)))
-                .thenReturn(CompletableFuture.completedFuture(mockSendResult()));
+                .thenReturn(CompletableFuture.completedFuture(sendResult));
 
         activityProducer.publishActivity(DTO);
 
