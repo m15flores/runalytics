@@ -4,7 +4,8 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -15,17 +16,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ActivityDtoTest {
 
-    private Validator validator;
+    private static ValidatorFactory factory;
+    private static Validator validator;
 
-    @BeforeEach
-    void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+    @BeforeAll
+    static void setUp() {
+        factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
+    }
+
+    @AfterAll
+    static void tearDown() {
+        factory.close();
     }
 
     @Test
     void shouldCreateValidActivityDto() {
-        // Given
         String userId = "user-12345";
         String device = "Garmin-Fenix-7-Pro";
         Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
@@ -37,11 +43,9 @@ class ActivityDtoTest {
                 "hr_samples", new int[]{145, 148, 150}
         );
 
-        // When
         ActivityDto dto = new ActivityDto(userId, device, timestamp, source, raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertTrue(violations.isEmpty(), "DTO should be valid");
         assertEquals(userId, dto.userId());
         assertEquals(device, dto.device());
@@ -52,15 +56,12 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenUserIdIsNull() {
-        // Given
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto(null, "device", timestamp, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -71,15 +72,12 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenUserIdIsBlank() {
-        // Given
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto("", "device", timestamp, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -90,15 +88,12 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenUserIdIsWhitespace() {
-        // Given
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto("   ", "device", timestamp, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -109,14 +104,11 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenTimestampIsNull() {
-        // Given
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto("userId", "device", null, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -127,14 +119,11 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenRawIsNull() {
-        // Given
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
 
-        // When
         ActivityDto dto = new ActivityDto("userId", "device", timestamp, "source", null);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -145,15 +134,12 @@ class ActivityDtoTest {
 
     @Test
     void shouldFailValidationWhenRawIsEmpty() {
-        // Given
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of();
 
-        // When
         ActivityDto dto = new ActivityDto("userId", "device", timestamp, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertFalse(violations.isEmpty(), "Should have validation errors");
         assertEquals(1, violations.size());
 
@@ -164,43 +150,35 @@ class ActivityDtoTest {
 
     @Test
     void shouldAllowNullDevice() {
-        // Given
         String userId = "user-12345";
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto(userId, null, timestamp, "source", raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertTrue(violations.isEmpty(), "Device can be null");
         assertNull(dto.device());
     }
 
     @Test
     void shouldAllowNullSource() {
-        // Given
         String userId = "user-12345";
-        Instant timestamp = Instant.now();
+        Instant timestamp = Instant.parse("2025-01-01T10:30:00Z");
         Map<String, Object> raw = Map.of("test", "data");
 
-        // When
         ActivityDto dto = new ActivityDto(userId, "device", timestamp, null, raw);
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertTrue(violations.isEmpty(), "Source can be null");
         assertNull(dto.source());
     }
 
     @Test
     void shouldFailValidationWithMultipleErrors() {
-        // Given / When
         ActivityDto dto = new ActivityDto(null, "device", null, "source", Map.of());
         Set<ConstraintViolation<ActivityDto>> violations = validator.validate(dto);
 
-        // Then
         assertEquals(3, violations.size(), "Should have 3 validation errors (userId, timestamp, raw)");
     }
 }
