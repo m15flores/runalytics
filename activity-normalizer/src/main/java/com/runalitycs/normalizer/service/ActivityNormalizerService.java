@@ -37,7 +37,8 @@ public class ActivityNormalizerService {
 
         log.info("Normalizing activity for user: {}", userId);
 
-        // Crear entidad Activity
+        Instant now = Instant.now(clock);
+
         Activity activity = new Activity();
         activity.setUserId(userId);
         activity.setDevice(device);
@@ -45,8 +46,9 @@ public class ActivityNormalizerService {
         activity.setDurationSeconds(parsedData.durationSeconds());
         activity.setDistanceMeters(parsedData.distanceMeters());
         activity.setSamples(parsedData.samples());
+        activity.setCreatedAt(now);
+        activity.setUpdatedAt(now);
 
-        // Persistir en PostgreSQL
         Activity savedActivity = activityRepository.save(activity);
 
         log.info("Activity saved with ID: {} for user: {}", savedActivity.getId(), userId);

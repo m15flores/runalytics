@@ -51,38 +51,19 @@ class ActivityTest {
     }
 
     @Test
-    void shouldInitializeTimestampsOnPrePersist() {
+    void shouldAcceptCreatedAtAndUpdatedAt() {
         // Given
+        Instant now = Instant.parse("2025-01-01T10:00:00Z");
         Activity activity = new Activity();
         activity.setUserId("user-12345");
-        activity.setStartedAt(Instant.now());
+        activity.setStartedAt(Instant.parse("2025-01-01T10:30:00Z"));
 
         // When
-        activity.onCreate(); // Simular @PrePersist
+        activity.setCreatedAt(now);
+        activity.setUpdatedAt(now);
 
         // Then
-        assertNotNull(activity.getCreatedAt());
-        assertNotNull(activity.getUpdatedAt());
-    }
-
-    @Test
-    void shouldUpdateTimestampOnPreUpdate() throws InterruptedException {
-        // Given
-        Activity activity = new Activity();
-        activity.setUserId("user-12345");
-        activity.setStartedAt(Instant.now());
-        activity.onCreate();
-
-        Instant originalUpdatedAt = activity.getUpdatedAt();
-
-        // Wait para asegurar diferencia en timestamp
-        Thread.sleep(10);
-
-        // When
-        activity.onUpdate(); // Simular @PreUpdate
-
-        // Then
-        assertNotEquals(originalUpdatedAt, activity.getUpdatedAt());
-        assertTrue(activity.getUpdatedAt().isAfter(originalUpdatedAt));
+        assertEquals(now, activity.getCreatedAt());
+        assertEquals(now, activity.getUpdatedAt());
     }
 }

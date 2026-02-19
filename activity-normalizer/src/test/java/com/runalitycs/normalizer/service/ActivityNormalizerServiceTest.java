@@ -85,11 +85,11 @@ class ActivityNormalizerServiceTest {
     }
 
     @Test
-    void shouldSetCreatedAtAndUpdatedAtOnSave() {
+    void shouldSetCreatedAtAndUpdatedAtFromClock() {
         // Given
         String userId = "user-12345";
         ParsedFitData parsedData = new ParsedFitData(
-                Instant.now(),
+                Instant.parse("2025-01-01T10:30:00Z"),
                 1000,
                 new BigDecimal("5000"),
                 List.of()
@@ -110,9 +110,8 @@ class ActivityNormalizerServiceTest {
         verify(activityRepository).save(activityCaptor.capture());
 
         Activity capturedActivity = activityCaptor.getValue();
-        assertEquals(userId, capturedActivity.getUserId());
-        assertEquals(parsedData.startedAt(), capturedActivity.getStartedAt());
-        assertEquals(parsedData.durationSeconds(), capturedActivity.getDurationSeconds());
+        assertEquals(FIXED_NOW, capturedActivity.getCreatedAt());
+        assertEquals(FIXED_NOW, capturedActivity.getUpdatedAt());
     }
 
     @Test
