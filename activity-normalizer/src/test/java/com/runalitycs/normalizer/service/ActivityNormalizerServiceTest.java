@@ -5,17 +5,18 @@ import com.runalitycs.normalizer.dto.ActivitySample;
 import com.runalitycs.normalizer.dto.ParsedFitData;
 import com.runalitycs.normalizer.entity.Activity;
 import com.runalitycs.normalizer.repository.ActivityRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,8 +27,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ActivityNormalizerServiceTest {
 
-    @Mock
-    private FitParserService fitParserService;
+    private static final Instant FIXED_NOW = Instant.parse("2025-01-01T12:00:00Z");
+
+    @Spy
+    Clock clock = Clock.fixed(FIXED_NOW, ZoneOffset.UTC);
 
     @Mock
     private ActivityRepository activityRepository;
@@ -76,9 +79,8 @@ class ActivityNormalizerServiceTest {
         assertEquals(device, result.device());
         assertEquals(parsedData.startedAt(), result.startedAt());
         assertEquals(1, result.samples().size());
-        assertNotNull(result.normalizedAt());
+        assertEquals(FIXED_NOW, result.normalizedAt());
 
-        // Verificar que se guardó en DB
         verify(activityRepository, times(1)).save(any(Activity.class));
     }
 

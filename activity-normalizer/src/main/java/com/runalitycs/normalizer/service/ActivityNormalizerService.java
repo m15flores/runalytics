@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 
 @Service
@@ -17,9 +18,11 @@ public class ActivityNormalizerService {
     private static final Logger log = LoggerFactory.getLogger(ActivityNormalizerService.class);
 
     private final ActivityRepository activityRepository;
+    private final Clock clock;
 
-    public ActivityNormalizerService(ActivityRepository activityRepository) {
+    public ActivityNormalizerService(ActivityRepository activityRepository, Clock clock) {
         this.activityRepository = activityRepository;
+        this.clock = clock;
     }
 
     @Transactional
@@ -57,7 +60,7 @@ public class ActivityNormalizerService {
                 savedActivity.getDurationSeconds(),
                 savedActivity.getDistanceMeters(),
                 savedActivity.getSamples(),
-                Instant.now() // normalizedAt
+                Instant.now(clock)
         );
 
         return dto;
