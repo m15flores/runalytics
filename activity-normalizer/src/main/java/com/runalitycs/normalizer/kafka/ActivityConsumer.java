@@ -6,6 +6,7 @@ import com.runalitycs.normalizer.dto.ActivityNormalizedDto;
 import com.runalitycs.normalizer.dto.ActivitySample;
 import com.runalitycs.normalizer.dto.ParsedFitData;
 import com.runalitycs.normalizer.service.ActivityNormalizerService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -17,21 +18,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ActivityConsumer {
 
     private final ActivityNormalizerService normalizerService;
     private final NormalizerProducer normalizerProducer;
     private final ObjectMapper objectMapper;
-
-    public ActivityConsumer(
-            ActivityNormalizerService normalizerService,
-            NormalizerProducer normalizerProducer
-    ) {
-        this.normalizerService = normalizerService;
-        this.normalizerProducer = normalizerProducer;
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.findAndRegisterModules();
-    }
 
     @KafkaListener(
             topics = "${runalytics.kafka.topics.raw-ingested}",
@@ -47,32 +39,12 @@ public class ActivityConsumer {
             String device = json.has("device") && !json.get("device").isNull()
                     ? json.get("device").asText()
                     : null;
-            Instant timestamp = parseTimestamp(json.get("timestamp"));
 
-            // Extract raw fields from the message payload
-            JsonNode raw = json.get("raw");
-            Integer durationSeconds = raw.has("duration_s")
-                    ? raw.get("duration_s").asInt()
-                    : 0;
-            BigDecimal distanceMeters = raw.has("distance_m")
-                    ? new BigDecimal(raw.get("distance_m").asText())
-                    : BigDecimal.ZERO;
-
-            List<ActivitySample> samples = extractSamples(raw);
-
-            ParsedFitData parsedData = new ParsedFitData(
-                    timestamp,
-                    durationSeconds,
-                    distanceMeters,
-                    samples
-            );
+            ParsedFitData parsedData = buildParsedFitData(json);
 
             log.info("Normalizing activity for user: {}", userId);
 
-            ActivityNormalizedDto normalizedDto = normalizerService.normalize(
-                    userId, device, parsedData
-            );
-
+            ActivityNormalizedDto normalizedDto = normalizerService.normalize(userId, device, parsedData);
             normalizerProducer.publish(normalizedDto);
 
             log.info("Activity normalized and published for user: {}", userId);
@@ -80,6 +52,21 @@ public class ActivityConsumer {
         } catch (Exception e) {
             log.error("Error processing message from activities.raw.ingested", e);
         }
+    }
+
+    private ParsedFitData buildParsedFitData(JsonNode json) {
+        Instant timestamp = parseTimestamp(json.get("timestamp"));
+
+        // Extract raw fields from the message payload
+        JsonNode raw = json.get("raw");
+        Integer durationSeconds = raw.has("duration_s")
+                ? raw.get("duration_s").asInt()
+                : 0;
+        BigDecimal distanceMeters = raw.has("distance_m")
+                ? new BigDecimal(raw.get("distance_m").asText())
+                : BigDecimal.ZERO;
+
+        return new ParsedFitData(timestamp, durationSeconds, distanceMeters, extractSamples(raw));
     }
 
     private List<ActivitySample> extractSamples(JsonNode raw) {
@@ -90,24 +77,12 @@ public class ActivityConsumer {
                 Instant ts = sampleNode.has("ts")
                         ? Instant.parse(sampleNode.get("ts").asText())
                         : null;
-                Double lat = sampleNode.has("lat")
-                        ? sampleNode.get("lat").asDouble()
-                        : null;
-                Double lon = sampleNode.has("lon")
-                        ? sampleNode.get("lon").asDouble()
-                        : null;
-                Integer hr = sampleNode.has("hr")
-                        ? sampleNode.get("hr").asInt()
-                        : null;
-                Integer pace = sampleNode.has("pace")
-                        ? sampleNode.get("pace").asInt()
-                        : null;
-                Double altitude = sampleNode.has("altitude")
-                        ? sampleNode.get("altitude").asDouble()
-                        : null;
-                Integer cadence = sampleNode.has("cadence")
-                        ? sampleNode.get("cadence").asInt()
-                        : null;
+                Double lat = sampleNode.has("lat") ? sampleNode.get("lat").asDouble() : null;
+                Double lon = sampleNode.has("lon") ? sampleNode.get("lon").asDouble() : null;
+                Integer hr = sampleNode.has("hr") ? sampleNode.get("hr").asInt() : null;
+                Integer pace = sampleNode.has("pace") ? sampleNode.get("pace").asInt() : null;
+                Double altitude = sampleNode.has("altitude") ? sampleNode.get("altitude").asDouble() : null;
+                Integer cadence = sampleNode.has("cadence") ? sampleNode.get("cadence").asInt() : null;
 
                 if (ts != null) {
                     samples.add(new ActivitySample(ts, lat, lon, hr, pace, altitude, cadence));

@@ -1,5 +1,7 @@
 package com.runalitycs.normalizer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +20,11 @@ public class ActivityNormalizerApplication {
 	@Bean
 	public Clock clock() {
 		return Clock.systemUTC();
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return new ObjectMapper().registerModule(new JavaTimeModule());
 	}
 
 }
