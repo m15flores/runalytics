@@ -22,7 +22,6 @@ public class ActivityNormalizerService {
 
     @Transactional
     public ActivityNormalizedDto normalize(String userId, String device, ParsedFitData parsedData) {
-        // Validaciones
         if (userId == null || userId.isBlank()) {
             throw new IllegalArgumentException("userId cannot be null or blank");
         }
@@ -48,7 +47,6 @@ public class ActivityNormalizerService {
 
         log.info("Activity saved with ID: {} for user: {}", savedActivity.getId(), userId);
 
-        // Generar DTO normalizado para Kafka
         ActivityNormalizedDto dto = new ActivityNormalizedDto(
                 savedActivity.getId(),
                 savedActivity.getUserId(),

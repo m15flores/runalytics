@@ -24,10 +24,8 @@ public class FitParserService {
         Decode decode = new Decode();
         MesgBroadcaster mesgBroadcaster = new MesgBroadcaster(decode);
 
-        // Variables para capturar datos
         FitDataCollector collector = new FitDataCollector();
 
-        // Listeners para diferentes tipos de mensajes
         mesgBroadcaster.addListener(new SessionMesgListener() {
             @Override
             public void onMesg(SessionMesg mesg) {
@@ -42,7 +40,6 @@ public class FitParserService {
             }
         });
 
-        // Parsear el archivo FIT
         try {
             if (!decode.read(fitFileStream, mesgBroadcaster)) {
                 throw new IllegalArgumentException("Failed to decode FIT file");
@@ -55,7 +52,7 @@ public class FitParserService {
     }
 
     /**
-     * Clase interna para recolectar datos durante el parsing.
+     * Collects data from FIT messages during parsing.
      */
     private static class FitDataCollector {
         private Instant startedAt;
@@ -64,7 +61,6 @@ public class FitParserService {
         private final List<ActivitySample> samples = new ArrayList<>();
 
         public void onSession(SessionMesg mesg) {
-            // Extraer metadata de la sesión
             if (mesg.getStartTime() != null) {
                 startedAt = convertFitTimestamp(mesg.getStartTime());
             }
@@ -77,13 +73,12 @@ public class FitParserService {
         }
 
         public void onRecord(RecordMesg mesg) {
-            // Extraer cada sample (punto de datos)
             Instant timestamp = mesg.getTimestamp() != null
                     ? convertFitTimestamp(mesg.getTimestamp())
                     : null;
 
             if (timestamp == null) {
-                return; // Skip records sin timestamp
+                return; // skip records without timestamp
             }
 
             Double latitude = mesg.getPositionLat() != null
@@ -132,21 +127,18 @@ public class FitParserService {
         }
 
         private Instant convertFitTimestamp(DateTime fitDateTime) {
-            // FIT timestamps son segundos desde 1989-12-31 00:00:00 UTC
-            long fitEpoch = 631065600L; // Seconds between 1970-01-01 and 1989-12-31
+            // FIT timestamps are seconds since 1989-12-31 00:00:00 UTC
+            long fitEpoch = 631065600L; // seconds between Unix epoch (1970) and FIT epoch (1989-12-31)
             long epochSeconds = fitDateTime.getTimestamp() + fitEpoch;
             return Instant.ofEpochSecond(epochSeconds);
         }
 
         private Double convertSemicirclesToDegrees(Integer semicircles) {
-            // FIT usa semicircles (2^31 semicircles = 180 degrees)
+            // FIT uses semicircles (2^31 semicircles = 180 degrees)
             return semicircles * (180.0 / Math.pow(2, 31));
         }
 
         private Integer calculatePaceFromSpeed(Float speedMetersPerSecond) {
-            // Pace = segundos por km
-            // Speed = metros por segundo
-            // Pace (s/km) = 1000 / speed
             if (speedMetersPerSecond <= 0) {
                 return null;
             }

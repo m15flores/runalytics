@@ -9,8 +9,8 @@ import java.time.Instant;
 import java.util.Map;
 
 /**
- * Representa un punto de datos en el tiempo durante una actividad.
- * Todos los campos excepto timestamp son opcionales.
+ * Represents a single time-series data point within an activity.
+ * All fields except timestamp are optional.
  */
 public record ActivitySample (
 

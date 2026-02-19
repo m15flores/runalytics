@@ -30,7 +30,7 @@ public class ActivityConsumer {
         this.normalizerService = normalizerService;
         this.normalizerProducer = normalizerProducer;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.findAndRegisterModules(); // Para manejar Instant
+        this.objectMapper.findAndRegisterModules();
     }
 
     @KafkaListener(
@@ -41,7 +41,6 @@ public class ActivityConsumer {
         log.info("Received message from activities.raw.ingested");
 
         try {
-            // Parsear JSON del mensaje
             JsonNode json = objectMapper.readTree(message);
 
             String userId = json.get("userId").asText();
@@ -50,7 +49,7 @@ public class ActivityConsumer {
                     : null;
             Instant timestamp = parseTimestamp(json.get("timestamp"));
 
-            // Extraer datos raw (mock de EP1)
+            // Extract raw fields from the message payload
             JsonNode raw = json.get("raw");
             Integer durationSeconds = raw.has("duration_s")
                     ? raw.get("duration_s").asInt()
@@ -59,10 +58,8 @@ public class ActivityConsumer {
                     ? new BigDecimal(raw.get("distance_m").asText())
                     : BigDecimal.ZERO;
 
-            // Por ahora, crear samples vacíos (en el futuro parsearemos FIT real)
             List<ActivitySample> samples = extractSamples(raw);
 
-            // Crear ParsedFitData desde el mock
             ParsedFitData parsedData = new ParsedFitData(
                     timestamp,
                     durationSeconds,
@@ -72,12 +69,10 @@ public class ActivityConsumer {
 
             log.info("Normalizing activity for user: {}", userId);
 
-            // Normalizar y persistir
             ActivityNormalizedDto normalizedDto = normalizerService.normalize(
                     userId, device, parsedData
             );
 
-            // Publicar a activities.normalized
             normalizerProducer.publish(normalizedDto);
 
             log.info("Activity normalized and published for user: {}", userId);
@@ -90,7 +85,6 @@ public class ActivityConsumer {
     private List<ActivitySample> extractSamples(JsonNode raw) {
         List<ActivitySample> samples = new ArrayList<>();
 
-        // Si el raw tiene samples (mock mejorado de EP1)
         if (raw.has("samples") && raw.get("samples").isArray()) {
             for (JsonNode sampleNode : raw.get("samples")) {
                 Instant ts = sampleNode.has("ts")
@@ -126,17 +120,15 @@ public class ActivityConsumer {
 
     private Instant parseTimestamp(JsonNode timestampNode) {
         if (timestampNode.isNumber()) {
-            // Timestamp como epoch en milisegundos o segundos
+            // Numeric timestamp: detect milliseconds vs seconds by magnitude
             long value = timestampNode.asLong();
-
-            // Si es mayor que 1e12, son milisegundos; si no, segundos
             if (value > 1_000_000_000_000L) {
                 return Instant.ofEpochMilli(value);
             } else {
                 return Instant.ofEpochSecond(value);
             }
         } else if (timestampNode.isTextual()) {
-            // Timestamp como String ISO 8601
+            // String timestamp: parse as ISO-8601
             return Instant.parse(timestampNode.asText());
         } else {
             throw new IllegalArgumentException("Invalid timestamp format: " + timestampNode);

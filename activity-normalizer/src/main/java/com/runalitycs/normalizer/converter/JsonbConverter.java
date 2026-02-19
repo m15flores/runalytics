@@ -14,13 +14,13 @@ import java.util.List;
 public class JsonbConverter implements AttributeConverter<List<ActivitySample>, String> {
 
     private final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule()); // Para manejar Instant
+            .registerModule(new JavaTimeModule());
 
     @Override
     public String convertToDatabaseColumn(List<ActivitySample> attribute) {
         if(attribute == null || attribute.isEmpty()) return null;
         try {
-            return mapper.writeValueAsString(attribute);  // ← UNA SOLA LÍNEA
+            return mapper.writeValueAsString(attribute);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Error converting list to JSON", e);
         }

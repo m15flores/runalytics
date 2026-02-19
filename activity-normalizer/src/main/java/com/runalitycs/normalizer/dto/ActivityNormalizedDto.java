@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * DTO normalizado que se publica a Kafka topic activities.normalized.
+ * DTO published to Kafka topic activities.normalized.
  */
 public record ActivityNormalizedDto(
         @NotNull(message = "activityId cannot be null")
