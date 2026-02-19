@@ -8,10 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * DTO para recibir actividades desde fuentes externas (Garmin mock).
- * Usa Java Record para inmutabilidad y concisión.
- */
 public record ActivityDto(
         @NotBlank(message = "userId cannot be blank")
         @JsonProperty("userId")
