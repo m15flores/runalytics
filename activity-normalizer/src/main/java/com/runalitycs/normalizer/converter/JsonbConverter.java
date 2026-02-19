@@ -32,7 +32,7 @@ public class JsonbConverter implements AttributeConverter<List<ActivitySample>, 
         try {
             return mapper.readValue(dbData, new TypeReference<List<ActivitySample>>() {});
         } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("", e);
+            throw new IllegalArgumentException("Error converting JSON to list", e);
         }
     }
 }
