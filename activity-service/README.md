@@ -28,14 +28,6 @@ Ingests a raw activity and publishes it to Kafka.
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `userId` | `string` | Yes | Athlete identifier |
-| `device` | `string` | No | Device model |
-| `timestamp` | `string` (ISO-8601 UTC) | Yes | Activity start time |
-| `source` | `string` | No | Data source (e.g. `garmin`, `strava`) |
-| `raw` | `object` | Yes | Raw metrics from the device (must not be empty) |
-
 **Responses**
 
 | Status | Description |
@@ -49,6 +41,23 @@ Ingests a raw activity and publishes it to Kafka.
 | Direction | Topic | Partition key |
 |-----------|-------|---------------|
 | Produces | `activities.raw.ingested` | `userId` |
+
+### Published event — `activities.raw.ingested`
+
+The published message is the request body verbatim. Consumed by `activity-normalizer`.
+
+```json
+{
+  "userId": "user-12345",
+  "device": "Garmin-Fenix-7-Pro",
+  "timestamp": "2025-01-01T10:30:00Z",
+  "source": "garmin",
+  "raw": {
+    "distance_m": 10042,
+    "duration_s": 2780
+  }
+}
+```
 
 ## Quickstart
 
