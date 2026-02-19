@@ -3,8 +3,7 @@ package com.runalitycs.normalizer.service;
 import com.garmin.fit.*;
 import com.runalitycs.normalizer.dto.ActivitySample;
 import com.runalitycs.normalizer.dto.ParsedFitData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -13,10 +12,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FitParserService {
-
-    private static final Logger log = LoggerFactory.getLogger(FitParserService.class);
 
     public ParsedFitData parse(InputStream fitFileStream) {
         if (fitFileStream == null) {

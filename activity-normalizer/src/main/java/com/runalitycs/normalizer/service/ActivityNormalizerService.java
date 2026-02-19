@@ -4,26 +4,21 @@ import com.runalitycs.normalizer.dto.ActivityNormalizedDto;
 import com.runalitycs.normalizer.dto.ParsedFitData;
 import com.runalitycs.normalizer.entity.Activity;
 import com.runalitycs.normalizer.repository.ActivityRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Instant;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ActivityNormalizerService {
-
-    private static final Logger log = LoggerFactory.getLogger(ActivityNormalizerService.class);
 
     private final ActivityRepository activityRepository;
     private final Clock clock;
-
-    public ActivityNormalizerService(ActivityRepository activityRepository, Clock clock) {
-        this.activityRepository = activityRepository;
-        this.clock = clock;
-    }
 
     @Transactional
     public ActivityNormalizedDto normalize(String userId, String device, ParsedFitData parsedData) {

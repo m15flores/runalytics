@@ -6,8 +6,7 @@ import com.runalitycs.normalizer.dto.ActivityNormalizedDto;
 import com.runalitycs.normalizer.dto.ActivitySample;
 import com.runalitycs.normalizer.dto.ParsedFitData;
 import com.runalitycs.normalizer.service.ActivityNormalizerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +15,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ActivityConsumer {
-
-    private static final Logger log = LoggerFactory.getLogger(ActivityConsumer.class);
 
     private final ActivityNormalizerService normalizerService;
     private final NormalizerProducer normalizerProducer;
