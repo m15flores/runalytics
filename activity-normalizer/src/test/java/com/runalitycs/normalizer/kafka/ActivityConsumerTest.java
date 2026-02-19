@@ -4,7 +4,6 @@ import com.runalitycs.normalizer.dto.ActivityNormalizedDto;
 import com.runalitycs.normalizer.dto.ActivitySample;
 import com.runalitycs.normalizer.dto.ParsedFitData;
 import com.runalitycs.normalizer.service.ActivityNormalizerService;
-import com.runalitycs.normalizer.service.FitParserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -25,9 +24,6 @@ class ActivityConsumerTest {
 
     @Mock
     private ActivityNormalizerService normalizerService;
-
-    @Mock
-    private FitParserService fitParserService;
 
     @Mock
     private NormalizerProducer normalizerProducer;

@@ -50,7 +50,7 @@ class FitParserServiceTest {
         List<ActivitySample> samples = result.samples();
 
         // Then
-        assertTrue(samples.size() > 0);
+        assertFalse(samples.isEmpty());
 
         ActivitySample firstSample = samples.get(0);
         assertNotNull(firstSample.timestamp());
