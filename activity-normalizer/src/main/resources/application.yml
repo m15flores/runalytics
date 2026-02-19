@@ -43,6 +43,6 @@ runalytics:
 logging:
   level:
     root: INFO
-    com.runalitycs: DEBUG
+    com.runalytics: DEBUG
     org.springframework.kafka: INFO
     org.hibernate.SQL: DEBUG

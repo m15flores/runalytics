@@ -8,11 +8,11 @@
 		<version>3.5.8</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.runalitycs</groupId>
+	<groupId>com.runalytics</groupId>
 	<artifactId>activity-normalizer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>activity-normalizer</name>
-	<description>Activity normalization microservice for Runalitycs</description>
+	<description>Activity normalization microservice for Runalytics</description>
 	<url/>
 	<licenses>
 		<license/>
