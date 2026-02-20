@@ -27,7 +27,6 @@ public interface LapMetricsMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "activityId", ignore = true)  // Set separately in service
-    @Mapping(target = "pace", ignore = true)  // Entity has 'pace' field, DTO doesn't
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     LapMetrics toEntity(LapMetricsDto dto);

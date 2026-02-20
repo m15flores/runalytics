@@ -1,13 +1,20 @@
 package com.runalytics.metrics_engine.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
+// NOTE: This entity is reserved for temporal-aggregator service.
+// metrics-engine defines the schema but does not write to weekly_metrics.
 @Entity
 @Table(name = "weekly_metrics")
+@Getter
+@Setter
 public class WeeklyMetrics {
 
     @Id
@@ -29,7 +36,7 @@ public class WeeklyMetrics {
     @Column(name = "week_number", nullable = false)
     private Integer weekNumber;
 
-    // Agregados semanales
+    // Weekly aggregates
     @Column(name = "total_activities")
     private Integer totalActivities;
 
@@ -42,7 +49,7 @@ public class WeeklyMetrics {
     @Column(name = "total_calories")
     private Integer totalCalories;
 
-    // Promedios semanales
+    // Weekly averages
     @Column(name = "average_pace")
     private Integer averagePace;
 
@@ -81,151 +88,5 @@ public class WeeklyMetrics {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = Instant.now();
-    }
-
-    public WeeklyMetrics() {}
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public LocalDate getWeekStartDate() {
-        return weekStartDate;
-    }
-
-    public void setWeekStartDate(LocalDate weekStartDate) {
-        this.weekStartDate = weekStartDate;
-    }
-
-    public LocalDate getWeekEndDate() {
-        return weekEndDate;
-    }
-
-    public void setWeekEndDate(LocalDate weekEndDate) {
-        this.weekEndDate = weekEndDate;
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public void setYear(Integer year) {
-        this.year = year;
-    }
-
-    public Integer getWeekNumber() {
-        return weekNumber;
-    }
-
-    public void setWeekNumber(Integer weekNumber) {
-        this.weekNumber = weekNumber;
-    }
-
-    public Integer getTotalActivities() {
-        return totalActivities;
-    }
-
-    public void setTotalActivities(Integer totalActivities) {
-        this.totalActivities = totalActivities;
-    }
-
-    public BigDecimal getTotalDistance() {
-        return totalDistance;
-    }
-
-    public void setTotalDistance(BigDecimal totalDistance) {
-        this.totalDistance = totalDistance;
-    }
-
-    public Integer getTotalDuration() {
-        return totalDuration;
-    }
-
-    public void setTotalDuration(Integer totalDuration) {
-        this.totalDuration = totalDuration;
-    }
-
-    public Integer getTotalCalories() {
-        return totalCalories;
-    }
-
-    public void setTotalCalories(Integer totalCalories) {
-        this.totalCalories = totalCalories;
-    }
-
-    public Integer getAveragePace() {
-        return averagePace;
-    }
-
-    public void setAveragePace(Integer averagePace) {
-        this.averagePace = averagePace;
-    }
-
-    public Integer getAverageHeartRate() {
-        return averageHeartRate;
-    }
-
-    public void setAverageHeartRate(Integer averageHeartRate) {
-        this.averageHeartRate = averageHeartRate;
-    }
-
-    public Integer getAverageCadence() {
-        return averageCadence;
-    }
-
-    public void setAverageCadence(Integer averageCadence) {
-        this.averageCadence = averageCadence;
-    }
-
-    public Double getWeeklyTrainingLoad() {
-        return weeklyTrainingLoad;
-    }
-
-    public void setWeeklyTrainingLoad(Double weeklyTrainingLoad) {
-        this.weeklyTrainingLoad = weeklyTrainingLoad;
-    }
-
-    public BigDecimal getWeeklyVolume() {
-        return weeklyVolume;
-    }
-
-    public void setWeeklyVolume(BigDecimal weeklyVolume) {
-        this.weeklyVolume = weeklyVolume;
-    }
-
-    public Instant getCalculatedAt() {
-        return calculatedAt;
-    }
-
-    public void setCalculatedAt(Instant calculatedAt) {
-        this.calculatedAt = calculatedAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

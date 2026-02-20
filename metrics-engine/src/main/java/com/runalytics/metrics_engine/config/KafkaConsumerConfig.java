@@ -1,11 +1,9 @@
 package com.runalytics.metrics_engine.config;
 
 import com.runalytics.metrics_engine.dto.ActivityNormalizedDto;
-import com.runalytics.metrics_engine.kafka.MetricsConsumer;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,11 +17,10 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @EnableKafka
 @Configuration
 public class KafkaConsumerConfig {
-
-    private static final Logger log = LoggerFactory.getLogger(KafkaConsumerConfig.class);
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
@@ -33,9 +30,7 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, ActivityNormalizedDto> consumerFactory() {
-        log.info("🔧 Configurando ConsumerFactory");
-        log.info("Bootstrap servers: {}", bootstrapServers);
-        log.info("Group ID: {}", groupId);
+        log.info("Configuring ConsumerFactory — bootstrap-servers={}, group-id={}", bootstrapServers, groupId);
 
         Map<String, Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -57,14 +52,13 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, ActivityNormalizedDto> kafkaListenerContainerFactory() {
-        log.info("🔧 Configurando KafkaListenerContainerFactory");
+        log.info("Configuring KafkaListenerContainerFactory");
 
         ConcurrentKafkaListenerContainerFactory<String, ActivityNormalizedDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
-        log.info("✅ KafkaListenerContainerFactory configurado");
         return factory;
     }
 }

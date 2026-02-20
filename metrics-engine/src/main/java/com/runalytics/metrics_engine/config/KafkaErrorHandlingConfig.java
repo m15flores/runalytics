@@ -1,8 +1,7 @@
 package com.runalytics.metrics_engine.config;
 
 import com.runalytics.metrics_engine.dto.ActivityNormalizedDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,72 +15,56 @@ import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.function.BiFunction;
 
+@Slf4j
 @Configuration
 public class KafkaErrorHandlingConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(KafkaErrorHandlingConfig.class);
-
-    @Value("${runalytics.kafka.topics.normalized}.dlq")
+    @Value("${runalytics.kafka.topics.normalized-dlq}")
     private String dlqTopic;
 
     /**
-     * Configura el manejo de errores con Dead Letter Queue (DLQ)
-     *
-     * Estrategia:
-     * 1. Reintenta 3 veces con backoff de 2 segundos
-     * 2. Si sigue fallando, envía el mensaje a DLQ
-     * 3. Los errores no recuperables (validación) van directo a DLQ
+     * Error handler with Dead Letter Queue (DLQ).
+     * Strategy:
+     * 1. Retry 3 times with 2-second backoff
+     * 2. On continued failure, send to DLQ
+     * 3. Non-retryable exceptions (validation) go directly to DLQ
      */
     @Bean
     public CommonErrorHandler errorHandler(
             KafkaTemplate<String, ActivityNormalizedDto> kafkaTemplate
     ) {
-        log.info("🔧 Configurando error handler con DLQ: {}", dlqTopic);
+        log.info("Configuring error handler with DLQ: {}", dlqTopic);
 
-        // Recoverer: decide qué hacer con mensajes que fallan
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 kafkaTemplate,
                 destinationResolver()
         );
 
-        // DefaultErrorHandler con retry logic
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
                 recoverer,
-                new FixedBackOff(2000L, 3L) // 2s entre reintentos, max 3 reintentos
+                new FixedBackOff(2000L, 3L)
         );
 
-        // Excepciones que NO deben reintentar (van directo a DLQ)
+        // Exceptions that must NOT be retried (go directly to DLQ)
         errorHandler.addNotRetryableExceptions(
                 IllegalArgumentException.class,
                 NullPointerException.class,
                 org.springframework.kafka.support.serializer.DeserializationException.class
         );
 
-        // Log de cada intento
-        errorHandler.setRetryListeners((record, ex, deliveryAttempt) -> {
-            log.warn("⚠️  Retry attempt {} for record: {} - Error: {}",
-                    deliveryAttempt,
-                    record.key(),
-                    ex.getMessage()
-            );
-        });
+        errorHandler.setRetryListeners((record, ex, deliveryAttempt) ->
+                log.warn("Retry attempt {} for record key={} error={}",
+                        deliveryAttempt, record.key(), ex.getMessage())
+        );
 
-        log.info("✅ Error handler configurado correctamente");
         return errorHandler;
     }
 
-    /**
-     * Determina a qué tópico DLQ enviar el mensaje fallido
-     */
+    /** Resolves which DLQ topic partition to send a failed message to. */
     private BiFunction<ConsumerRecord<?, ?>, Exception, TopicPartition> destinationResolver() {
         return (record, ex) -> {
-            log.error("❌ Mensaje enviado a DLQ: topic={}, key={}, error={}",
-                    record.topic(),
-                    record.key(),
-                    ex.getMessage()
-            );
-
-            // Todos los mensajes fallidos van al mismo DLQ
+            log.error("Sending message to DLQ: topic={} key={} error={}",
+                    record.topic(), record.key(), ex.getMessage());
             return new TopicPartition(dlqTopic, 0);
         };
     }

@@ -2,8 +2,8 @@ package com.runalytics.metrics_engine.kafka;
 
 import com.runalytics.metrics_engine.dto.ActivityNormalizedDto;
 import com.runalytics.metrics_engine.service.MetricsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -11,16 +11,12 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class MetricsConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger(MetricsConsumer.class);
-
     private final MetricsService metricsService;
-
-    public MetricsConsumer(MetricsService metricsService) {
-        this.metricsService = metricsService;
-    }
 
     @KafkaListener(
             topics = "activities.normalized",
@@ -28,38 +24,35 @@ public class MetricsConsumer {
             containerFactory = "kafkaListenerContainerFactory"
     )
     public void consume(@Payload ActivityNormalizedDto message,
-                       @Header(KafkaHeaders.RECEIVED_KEY) String key,
-                       org.springframework.kafka.support.Acknowledgment acknowledgment) {
+                        @Header(KafkaHeaders.RECEIVED_KEY) String key,
+                        org.springframework.kafka.support.Acknowledgment acknowledgment) {
         log.info("Received activity from Kafka: {}", message.activityId());
 
         try {
             validateActivity(message);
             metricsService.processActivity(message);
-            log.info("Mensaje procesado exitosamente: {}", key);
+            log.info("Message processed successfully: {}", key);
             if (acknowledgment != null) {
                 acknowledgment.acknowledge();
             }
         } catch (IllegalArgumentException | NullPointerException e) {
-            // Errores de validación → NO reintentar
-            log.error("Error de validación (NO se reintentará): {}", key, e);
-            acknowledgment.acknowledge(); // Skip este mensaje
+            // Validation errors: do not retry
+            log.error("Validation error (will not retry): {}", key, e);
+            acknowledgment.acknowledge();
 
         } catch (DataAccessException e) {
-            // Error de BD → Reintentar (puede ser temporal)
-            log.error("Error de BD (se reintentará): {}", key, e);
-            throw e; // Spring Kafka reintentará automáticamente
+            // DB error: retry (may be transient)
+            log.error("DB error (will retry): {}", key, e);
+            throw e;
 
         } catch (Exception e) {
-            // Error desconocido → Log detallado y reintentar
-            log.error("Error inesperado procesando actividad: {}", key, e);
-            log.error("Stacktrace completo:", e);
-            throw e; // Reintentar
+            // Unknown error: log and retry
+            log.error("Unexpected error processing activity: {}", key, e);
+            throw e;
         }
     }
 
-    /**
-     * Validación básica del mensaje
-     */
+    /** Basic message validation */
     private void validateActivity(ActivityNormalizedDto activity) {
         if (activity == null) {
             throw new IllegalArgumentException("Activity cannot be null");
@@ -73,7 +66,6 @@ public class MetricsConsumer {
         if (activity.session() == null) {
             throw new IllegalArgumentException("SessionData cannot be null");
         }
-
-        log.debug("Validación básica OK para activity: {}", activity.activityId());
+        log.debug("Basic validation passed for activity: {}", activity.activityId());
     }
 }

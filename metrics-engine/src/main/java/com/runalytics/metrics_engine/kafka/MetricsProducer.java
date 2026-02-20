@@ -1,34 +1,28 @@
 package com.runalytics.metrics_engine.kafka;
 
 import com.runalytics.metrics_engine.dto.ActivityMetricsDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class MetricsProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(MetricsProducer.class);
-    private static final String TOPIC = "activities.metrics.calculated";
+    @Value("${runalytics.kafka.topics.metrics-calculated}")
+    private String topic;
 
     private final KafkaTemplate<String, ActivityMetricsDto> kafkaTemplate;
 
-    public MetricsProducer(KafkaTemplate<String, ActivityMetricsDto> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-    }
-
-    /**
-     * Publica métricas calculadas a Kafka.
-     *
-     * @param metrics métricas de la actividad
-     */
     public void publishMetrics(ActivityMetricsDto metrics) {
         String key = metrics.activityId().toString();
 
         log.info("Publishing metrics for activity: {}", key);
 
-        kafkaTemplate.send(TOPIC, key, metrics)
+        kafkaTemplate.send(topic, key, metrics)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("Failed to publish metrics for activity: {}", key, ex);
