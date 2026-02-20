@@ -17,7 +17,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: ActivityNormalizedDto:com.runalitycs.metrics_engine.dto.ActivityNormalizedDto
+        spring.json.type.mapping: ActivityNormalizedDto:com.runalytics.metrics_engine.dto.ActivityNormalizedDto
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -33,6 +33,6 @@ runalytics:
 
 logging:
   level:
-    com.runalitycs.metrics: DEBUG
+    com.runalytics.metrics: DEBUG
     org.springframework.kafka: INFO
     org.hibernate.SQL: DEBUG
