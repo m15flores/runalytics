@@ -20,7 +20,6 @@ import java.time.temporal.WeekFields;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -64,16 +63,7 @@ public class ReportGeneratorService {
 
         log.debug("Activity belongs to week {}/{}", weekNumber, year);
 
-        // 3. Check if report already exists for this week
-        Optional<TrainingReport> existingReport = trainingReportRepository
-                .findByUserIdAndWeekNumberAndYear(activityMetrics.userId(), weekNumber, year);
-
-        if (existingReport.isPresent()) {
-            log.info("Report already exists for week {}/{}. Regenerating.", weekNumber, year);
-            trainingReportRepository.delete(existingReport.get());
-        }
-
-        // 4. Get weekly stats (last 4 weeks)
+        // 3. Get weekly stats (last 4 weeks)
         List<WeeklyStats> weeklyStats = weeklyAggregationService.getWeeklyStats(
                 activityMetrics.userId(),
                 WEEKS_TO_AGGREGATE

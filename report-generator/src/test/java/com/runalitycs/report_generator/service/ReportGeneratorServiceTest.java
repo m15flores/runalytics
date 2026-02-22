@@ -174,10 +174,11 @@ public class ReportGeneratorServiceTest {
     }
 
     @Test
-    void shouldRegenerateReportForExistingWeek() throws JsonProcessingException {
-        // Given - Report already exists
+    void shouldUpdateExistingReportForSameWeek() throws JsonProcessingException {
+        // Given - Report already exists for this week
+        UUID existingId = UUID.randomUUID();
         TrainingReport existingReport = TrainingReport.builder()
-                .id(UUID.randomUUID())
+                .id(existingId)
                 .userId("test-user")
                 .weekNumber(49)
                 .year(2024)
@@ -197,8 +198,8 @@ public class ReportGeneratorServiceTest {
         when(markdownTemplateService.generateWeeklyReport(any(), any(), any()))
                 .thenReturn(generatedMarkdown);
 
-        TrainingReport newReport = TrainingReport.builder()
-                .id(UUID.randomUUID())
+        TrainingReport updatedReport = TrainingReport.builder()
+                .id(existingId) // same id — it's an UPDATE, not INSERT
                 .userId("test-user")
                 .weekNumber(49)
                 .year(2024)
@@ -207,17 +208,17 @@ public class ReportGeneratorServiceTest {
                 .build();
 
         when(trainingReportRepository.save(any(TrainingReport.class)))
-                .thenReturn(newReport);
+                .thenReturn(updatedReport);
 
         TrainingReportDto expectedDto = new TrainingReportDto(
-                newReport.getId(),
-                newReport.getUserId(),
-                newReport.getWeekNumber(),
-                newReport.getYear(),
-                newReport.getMarkdownContent(),
-                newReport.getSummaryJson(),
-                newReport.getCreatedAt(),
-                newReport.getTriggerActivityId()
+                updatedReport.getId(),
+                updatedReport.getUserId(),
+                updatedReport.getWeekNumber(),
+                updatedReport.getYear(),
+                updatedReport.getMarkdownContent(),
+                updatedReport.getSummaryJson(),
+                updatedReport.getCreatedAt(),
+                updatedReport.getTriggerActivityId()
         );
 
         when(trainingReportMapper.toDto(any(TrainingReport.class)))
@@ -233,8 +234,8 @@ public class ReportGeneratorServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.markdownContent()).isEqualTo(generatedMarkdown);
 
-        verify(trainingReportRepository).delete(existingReport); // Old report deleted
-        verify(trainingReportRepository).save(any(TrainingReport.class)); // New report saved
+        verify(trainingReportRepository, never()).delete(any()); // no delete — UPDATE only
+        verify(trainingReportRepository).save(any(TrainingReport.class));
     }
 
     @Test
