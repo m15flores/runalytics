@@ -2,13 +2,13 @@ package com.runalytics.metrics_engine.integration;
 
 import com.runalytics.metrics_engine.dto.ActivityNormalizedDto;
 import com.runalytics.metrics_engine.repository.ActivityMetricsRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -26,15 +26,15 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+@Slf4j
 @SpringBootTest
 @Testcontainers
 @EmbeddedKafka(
         topics = {"activities.normalized", "activities.metrics.calculated", "activities.normalized.dlq"},
         partitions = 1
 )
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class MetricsEngineErrorHandlingTest {
-
-    private static final Logger log = LoggerFactory.getLogger(MetricsEngineErrorHandlingTest.class);
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
@@ -49,7 +49,7 @@ class MetricsEngineErrorHandlingTest {
         registry.add("spring.datasource.password", postgres::getPassword);
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
         registry.add("spring.kafka.bootstrap-servers",
-                () -> "${spring.embedded.kafka.brokers}");
+                () -> System.getProperty("spring.embedded.kafka.brokers"));
     }
 
     @Autowired
@@ -59,17 +59,17 @@ class MetricsEngineErrorHandlingTest {
     private ActivityMetricsRepository activityRepository;
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 1: Activity con datos inválidos (null userId)
+    // TEST 1: Invalid activity — null userId
     // ─────────────────────────────────────────────────────────────
     @Test
     void shouldHandleInvalidActivity_NullUserId() throws Exception {
-        // Given: Activity con userId = null
+        // Given: activity with null userId
         UUID activityId = UUID.randomUUID();
         var sessionData = createValidSessionData();
 
         var invalidActivity = new ActivityNormalizedDto(
                 activityId,
-                null, // ← userId inválido
+                null, // userId = null (invalid)
                 "Garmin",
                 Instant.now(),
                 sessionData,
@@ -78,28 +78,26 @@ class MetricsEngineErrorHandlingTest {
                 Instant.now()
         );
 
-        // When: Enviar mensaje inválido
+        // When
         kafkaTemplate.send("activities.normalized", activityId.toString(), invalidActivity)
                 .get(10, TimeUnit.SECONDS);
 
-        // Then: NO debe guardarse en BD (validación falla)
+        // Then: must not be saved (validation fails, message is acknowledged without retry)
         await()
-                .pollDelay(2, TimeUnit.SECONDS) // Esperar un poco
+                .pollDelay(2, TimeUnit.SECONDS)
                 .atMost(5, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    boolean exists = activityRepository.existsByActivityId(activityId);
-                    assertFalse(exists, "Invalid activity should NOT be saved");
-                });
+                .untilAsserted(() -> assertFalse(activityRepository.existsByActivityId(activityId),
+                        "Invalid activity should NOT be saved"));
 
-        log.info("TEST PASSED: Invalid activity correctly rejected");
+        log.info("Invalid activity correctly rejected");
     }
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 2: Activity con sessionData = null
+    // TEST 2: Invalid activity — null sessionData
     // ─────────────────────────────────────────────────────────────
     @Test
     void shouldHandleInvalidActivity_NullSessionData() throws Exception {
-        // Given: Activity con sessionData = null
+        // Given: activity with null sessionData
         UUID activityId = UUID.randomUUID();
 
         var invalidActivity = new ActivityNormalizedDto(
@@ -107,34 +105,32 @@ class MetricsEngineErrorHandlingTest {
                 "test-user",
                 "Garmin",
                 Instant.now(),
-                null, // ← sessionData inválido
+                null, // sessionData = null (invalid)
                 List.of(),
                 List.of(),
                 Instant.now()
         );
 
-        // When: Enviar mensaje inválido
+        // When
         kafkaTemplate.send("activities.normalized", activityId.toString(), invalidActivity)
                 .get(10, TimeUnit.SECONDS);
 
-        // Then: NO debe guardarse en BD
+        // Then
         await()
                 .pollDelay(2, TimeUnit.SECONDS)
                 .atMost(5, TimeUnit.SECONDS)
-                .untilAsserted(() -> {
-                    boolean exists = activityRepository.existsByActivityId(activityId);
-                    assertFalse(exists, "Activity without sessionData should NOT be saved");
-                });
+                .untilAsserted(() -> assertFalse(activityRepository.existsByActivityId(activityId),
+                        "Activity without sessionData should NOT be saved"));
 
-        log.info("TEST PASSED: Activity without sessionData correctly rejected");
+        log.info("Activity without sessionData correctly rejected");
     }
 
     // ─────────────────────────────────────────────────────────────
-    // TEST 3: Activity válida después de mensaje inválido (recovery)
+    // TEST 3: Valid activity processed after invalid message (recovery)
     // ─────────────────────────────────────────────────────────────
     @Test
     void shouldRecoverAfterInvalidMessage() throws Exception {
-        // Given: 1 mensaje inválido + 1 mensaje válido
+        // Given: 1 invalid message followed by 1 valid message
         UUID invalidId = UUID.randomUUID();
         UUID validId = UUID.randomUUID();
 
@@ -148,31 +144,33 @@ class MetricsEngineErrorHandlingTest {
                 createValidSessionData(), List.of(), List.of(), Instant.now()
         );
 
-        // When: Enviar primero el inválido, luego el válido
+        // When: send invalid first, then valid — let invalid be rejected before the valid arrives
         kafkaTemplate.send("activities.normalized", invalidId.toString(), invalidActivity)
                 .get(10, TimeUnit.SECONDS);
 
-        Thread.sleep(1000); // Dar tiempo a que falle
+        await()
+                .pollDelay(1, TimeUnit.SECONDS)
+                .atMost(5, TimeUnit.SECONDS)
+                .untilAsserted(() -> assertFalse(activityRepository.existsByActivityId(invalidId)));
 
         kafkaTemplate.send("activities.normalized", validId.toString(), validActivity)
                 .get(10, TimeUnit.SECONDS);
 
-        // Then: El válido SÍ debe guardarse
+        // Then: valid activity must be saved; invalid must not
         await()
                 .atMost(10, TimeUnit.SECONDS)
                 .untilAsserted(() -> {
-                    boolean invalidExists = activityRepository.existsByActivityId(invalidId);
-                    boolean validExists = activityRepository.existsByActivityId(validId);
-
-                    assertFalse(invalidExists, "Invalid activity should NOT be saved");
-                    assertTrue(validExists, "Valid activity SHOULD be saved");
+                    assertFalse(activityRepository.existsByActivityId(invalidId),
+                            "Invalid activity should NOT be saved");
+                    assertTrue(activityRepository.existsByActivityId(validId),
+                            "Valid activity SHOULD be saved");
                 });
 
-        log.info("TEST PASSED: Consumer recovered after invalid message");
+        log.info("Consumer recovered after invalid message");
     }
 
     // ─────────────────────────────────────────────────────────────
-    // HELPER: Crear sessionData válida
+    // HELPER
     // ─────────────────────────────────────────────────────────────
     private ActivityNormalizedDto.SessionData createValidSessionData() {
         return new ActivityNormalizedDto.SessionData(
