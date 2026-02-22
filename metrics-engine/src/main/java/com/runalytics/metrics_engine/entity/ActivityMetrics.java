@@ -12,7 +12,8 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "activity_metrics")
+@Table(name = "activity_metrics",
+        uniqueConstraints = @UniqueConstraint(columnNames = "activity_id"))
 @Getter
 @Setter
 public class ActivityMetrics {

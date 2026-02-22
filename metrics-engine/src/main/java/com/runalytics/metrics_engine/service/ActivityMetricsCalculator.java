@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
@@ -22,12 +21,7 @@ public class ActivityMetricsCalculator {
     private final Clock clock;
 
     public Integer calculatePace(Integer durationSeconds, BigDecimal distanceMeters) {
-        if (distanceMeters == null || distanceMeters.compareTo(BigDecimal.ZERO) == 0) return null;
-
-        return BigDecimal.valueOf(durationSeconds)
-                .multiply(BigDecimal.valueOf(1000))
-                .divide(distanceMeters, 0, RoundingMode.HALF_UP)
-                .intValue();
+        return lapMetricsCalculator.calculateLapPace(durationSeconds, distanceMeters);
     }
 
     public Map<String, Integer> calculateHrZonesPercentage(
@@ -59,17 +53,7 @@ public class ActivityMetricsCalculator {
      * Factor = 10.0: each 100m of positive gradient equals ~10% more effort.
      */
     public Integer calculateGAP(Integer pace, Integer totalAscent, BigDecimal totalDistance) {
-        if (pace == null) return null;
-
-        if (totalAscent == null || totalAscent == 0
-                || totalDistance == null || totalDistance.compareTo(BigDecimal.ZERO) == 0) {
-            return pace;
-        }
-
-        double elevationFactor = 10.0;
-        double elevationRatio = totalAscent / totalDistance.doubleValue();
-        double adjustment = 1.0 + (elevationRatio * elevationFactor);
-        return (int) Math.round(pace / adjustment);
+        return lapMetricsCalculator.calculateLapGAP(pace, totalAscent, totalDistance);
     }
 
     /**
