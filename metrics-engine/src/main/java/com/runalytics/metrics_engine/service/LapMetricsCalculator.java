@@ -11,11 +11,11 @@ import java.math.RoundingMode;
 public class LapMetricsCalculator {
 
     /**
-     * Calcula el pace de un lap en segundos por kilómetro.
+     * Calculates lap pace in seconds per kilometre.
      *
-     * @param durationSeconds duración del lap en segundos
-     * @param distanceMeters distancia del lap en metros
-     * @return pace en segundos/km
+     * @param durationSeconds lap duration in seconds
+     * @param distanceMeters  lap distance in metres
+     * @return pace in seconds/km
      */
     public Integer calculateLapPace(Integer durationSeconds, BigDecimal distanceMeters) {
         if (distanceMeters == null || distanceMeters.compareTo(BigDecimal.ZERO) == 0) {
@@ -29,12 +29,12 @@ public class LapMetricsCalculator {
     }
 
     /**
-     * Calcula el Grade Adjusted Pace para un lap.
+     * Calculates Grade Adjusted Pace (GAP) for a lap.
      *
-     * @param pace pace del lap en segundos/km
-     * @param totalAscent elevación ganada en el lap (metros)
-     * @param distance distancia del lap en metros
-     * @return GAP en segundos/km
+     * @param pace        lap pace in seconds/km
+     * @param totalAscent elevation gain in the lap (metres)
+     * @param distance    lap distance in metres
+     * @return GAP in seconds/km
      */
     public Integer calculateLapGAP(Integer pace, Integer totalAscent, BigDecimal distance) {
         if (pace == null) {
@@ -54,11 +54,11 @@ public class LapMetricsCalculator {
     }
 
     /**
-     * Genera un nombre descriptivo para el lap basándose en su intensidad.
+     * Generates a descriptive name for the lap based on its intensity.
      *
-     * @param lapNumber número del lap
-     * @param intensity intensidad ("warmup", "active", "cooldown", "rest")
-     * @return nombre descriptivo
+     * @param lapNumber lap number
+     * @param intensity intensity label ("warmup", "active", "cooldown", "rest")
+     * @return descriptive name
      */
     public String generateLapName(Integer lapNumber, String intensity) {
         if (intensity == null) {
@@ -75,20 +75,17 @@ public class LapMetricsCalculator {
     }
 
     /**
-     * Calcula todas las métricas de un lap.
+     * Calculates all metrics for a lap.
      *
-     * @param lapData datos del lap del FIT
-     * @return métricas calculadas del lap
+     * @param lapData lap data from the FIT file
+     * @return calculated lap metrics
      */
     public LapMetricsDto calculate(ActivityNormalizedDto.LapData lapData) {
-        // Calcular pace y GAP
         Integer pace = calculateLapPace(lapData.totalTimerTime(), lapData.totalDistance());
         Integer gap = calculateLapGAP(pace, lapData.totalAscent(), lapData.totalDistance());
 
-        // Generar nombre descriptivo
         String lapName = generateLapName(lapData.lapNumber(), lapData.intensity());
 
-        // Construir DTO
         return new LapMetricsDto(
                 lapData.lapNumber(),
                 lapName,
@@ -101,7 +98,7 @@ public class LapMetricsCalculator {
 
                 // Pace & Speed
                 pace,
-                null,  // maxPace (no disponible en lap level)
+                null,  // maxPace (not available at lap level)
                 lapData.enhancedAvgSpeed(),
                 lapData.enhancedMaxSpeed(),
                 gap,
@@ -109,7 +106,7 @@ public class LapMetricsCalculator {
                 // Heart Rate
                 lapData.avgHeartRate(),
                 lapData.maxHeartRate(),
-                null,  // minHeartRate (no disponible en lap level)
+                null,  // minHeartRate (not available at lap level)
 
                 // Cadence
                 lapData.avgCadence(),

@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * DTO que se publica en activities.metrics.calculated
- * Contiene métricas CALCULADAS + extraídas del FIT
+ * DTO published to metrics.calculated.
+ * Contains CALCULATED metrics plus values extracted from the FIT file.
  */
 public record ActivityMetricsDto(
         @JsonProperty("activityId") UUID activityId,
