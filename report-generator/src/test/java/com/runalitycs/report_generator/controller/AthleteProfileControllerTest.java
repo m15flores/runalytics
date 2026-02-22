@@ -3,10 +3,12 @@ package com.runalitycs.report_generator.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runalitycs.report_generator.dto.AthleteProfileDto;
 import com.runalitycs.report_generator.entity.AthleteProfile;
+import com.runalitycs.report_generator.mapper.AthleteProfileMapperImpl;
 import com.runalitycs.report_generator.service.AthleteProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AthleteProfileController.class)
+@Import(AthleteProfileMapperImpl.class)
 public class AthleteProfileControllerTest {
 
     @Autowired
