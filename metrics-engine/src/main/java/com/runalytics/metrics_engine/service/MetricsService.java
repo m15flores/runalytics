@@ -32,6 +32,11 @@ public class MetricsService {
     public void processActivity(ActivityNormalizedDto input) {
         log.info("Processing activity: {} for user: {}", input.activityId(), input.userId());
 
+        if (activityRepository.existsByActivityId(input.activityId())) {
+            log.warn("activity=already-processed activityId={}", input.activityId());
+            return;
+        }
+
         try {
             ActivityMetricsDto activityMetricsDto = activityCalculator.calculate(input);
             log.info("Metrics calculated successfully");
