@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class ActivityMetricsCalculator {
 
     private final LapMetricsCalculator lapMetricsCalculator;
+    private final Clock clock;
 
     public Integer calculatePace(Integer durationSeconds, BigDecimal distanceMeters) {
         if (distanceMeters == null || distanceMeters.compareTo(BigDecimal.ZERO) == 0) return null;
@@ -137,7 +139,7 @@ public class ActivityMetricsCalculator {
                 session.workoutFeel(),
                 session.workoutRpe(),
                 lapMetrics,
-                Instant.now()
+                Instant.now(clock)
         );
     }
 }

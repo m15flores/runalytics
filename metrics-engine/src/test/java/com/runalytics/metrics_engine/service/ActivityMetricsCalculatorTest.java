@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ class ActivityMetricsCalculatorTest {
     @BeforeEach
     void setUp() {
         LapMetricsCalculator lapMetricsCalculator = new LapMetricsCalculator();
-        calculator = new ActivityMetricsCalculator(lapMetricsCalculator);
+        calculator = new ActivityMetricsCalculator(lapMetricsCalculator, Clock.systemDefaultZone());
     }
 
     @Test
@@ -170,12 +171,10 @@ class ActivityMetricsCalculatorTest {
         Integer gap = calculator.calculateGAP(pace, totalAscent, totalDistance);
 
         // Then
-        // Fórmula: GAP = pace / (1 + (ascent/distance * factor))
-        // Factor típico: 10 (cada 100m de desnivel = 10% más esfuerzo)
-        // GAP = 364 / (1 + (120/10000 * 10)) = 364 / 1.12 = 325 seg/km
+        // GAP = 364 / (1 + (120/10000 * 10)) = 364 / 1.12 = 325 sec/km
         assertNotNull(gap);
         assertTrue(gap < pace, "GAP should be faster (lower) than regular pace when climbing");
-        assertEquals(325, gap, 5);  // Tolerancia de ±5 segundos
+        assertEquals(325, gap, 5);
     }
 
     @Test
@@ -221,7 +220,7 @@ class ActivityMetricsCalculatorTest {
                 new LapMetricsDto(
                         2, "Interval 2", "active", Instant.now(),
                         new BigDecimal("1000"), 300, 85,
-                        300, null, null, null, null,  // pace = 300 seg/km (5:00 /km) ← MÁS RÁPIDO
+                        300, null, null, null, null,  // pace = 300 sec/km (5:00/km) — fastest lap
                         145, 150, null, 82, 85,
                         null, null, null, null,
                         null, null, null, 2, 1
@@ -327,40 +326,33 @@ class ActivityMetricsCalculatorTest {
         // When
         ActivityMetricsDto metrics = calculator.calculate(dto);
 
-        // Then - Verificar que se calcularon todas las métricas
+        // Then
         assertNotNull(metrics);
         assertEquals(dto.activityId(), metrics.activityId());
         assertEquals(dto.userId(), metrics.userId());
 
-        // Básicas (extraídas directamente)
         assertEquals(new BigDecimal("13138.37"), metrics.totalDistance());
         assertEquals(4777, metrics.totalDuration());
         assertEquals(1048, metrics.totalCalories());
 
-        // Calculadas
-        assertEquals(364, metrics.averagePace());  // calculatePace()
-        assertNotNull(metrics.averageGAP());       // calculateGAP()
-        assertEquals(118, metrics.minHeartRate()); // calculateMinHeartRate()
+        assertEquals(364, metrics.averagePace());
+        assertNotNull(metrics.averageGAP());
+        assertEquals(118, metrics.minHeartRate());
 
-        // HR zones
         assertNotNull(metrics.hrZones());
         assertEquals(5, metrics.hrZones().size());
         assertNotNull(metrics.hrZonesPercentage());
-        assertEquals(54, metrics.hrZonesPercentage().get("Z2"));  // calculateHrZonesPercentage()
+        assertEquals(54, metrics.hrZonesPercentage().get("Z2"));
 
-        // Running dynamics (extraídas)
         assertEquals(92.7, metrics.averageVerticalOscillation());
         assertEquals(291.8, metrics.averageStanceTime());
 
-        // Training load (extraídas)
         assertEquals(3.5, metrics.trainingEffect());
         assertEquals(112.56, metrics.trainingLoadPeak());
 
-        // Metadata
         assertNotNull(metrics.calculatedAt());
         assertTrue(metrics.calculatedAt().isAfter(now.minusSeconds(5)));
 
-        // Laps
         assertEquals(2, metrics.laps().size());
         assertEquals("Warmup", metrics.laps().get(0).lapName());
         assertEquals("Interval 2", metrics.laps().get(1).lapName());
