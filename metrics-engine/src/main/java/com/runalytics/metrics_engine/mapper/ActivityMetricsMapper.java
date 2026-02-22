@@ -19,8 +19,7 @@ public interface ActivityMetricsMapper {
     /**
      * Converts ActivityMetricsDto to ActivityMetrics entity.
      *
-     * Note: Entity fields (id, createdAt, updatedAt) are auto-generated via @PrePersist
-     * and don't need to be mapped from the DTO.
+     * Note: id, createdAt and updatedAt are set by the service layer via injected Clock.
      *
      * @param dto the DTO from Kafka or service layer
      * @return the entity ready to be persisted

@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +29,7 @@ public class MetricsService {
     private final MetricsProducer producer;
     private final ActivityMetricsMapper activityMapper;
     private final LapMetricsMapper lapMapper;
+    private final Clock clock;
 
     @Transactional
     public void processActivity(ActivityNormalizedDto input) {
@@ -41,13 +44,21 @@ public class MetricsService {
             ActivityMetricsDto activityMetricsDto = activityCalculator.calculate(input);
             log.info("Metrics calculated successfully");
 
+            Instant now = Instant.now(clock);
+
             ActivityMetrics activityMetrics = activityMapper.toEntity(activityMetricsDto);
+            activityMetrics.setCreatedAt(now);
+            activityMetrics.setUpdatedAt(now);
             activityRepository.save(activityMetrics);
             log.info("Activity metrics saved to database");
 
             if (activityMetricsDto.laps() != null && !activityMetricsDto.laps().isEmpty()) {
                 List<LapMetrics> lapEntities = lapMapper.toEntityList(activityMetricsDto.laps());
-                lapEntities.forEach(lap -> lap.setActivityId(input.activityId()));
+                lapEntities.forEach(lap -> {
+                    lap.setActivityId(input.activityId());
+                    lap.setCreatedAt(now);
+                    lap.setUpdatedAt(now);
+                });
                 lapRepository.saveAll(lapEntities);
                 log.info("Saved {} lap metrics to database", lapEntities.size());
             }

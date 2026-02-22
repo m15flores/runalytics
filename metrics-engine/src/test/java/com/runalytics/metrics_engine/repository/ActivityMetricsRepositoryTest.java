@@ -11,6 +11,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,12 +39,16 @@ class ActivityMetricsRepositoryTest {
     void shouldSaveAndFindByActivityId() {
         // Given
         UUID activityId = UUID.randomUUID();
+        Instant now = Instant.parse("2025-01-01T10:00:00Z");
 
         ActivityMetrics metrics = new ActivityMetrics();
         metrics.setActivityId(activityId);
         metrics.setUserId("test-user");
         metrics.setTotalDistance(new BigDecimal("10000"));
         metrics.setTotalDuration(3600);
+        metrics.setCalculatedAt(now);
+        metrics.setCreatedAt(now);
+        metrics.setUpdatedAt(now);
 
         // When
         repository.save(metrics);
@@ -59,12 +64,16 @@ class ActivityMetricsRepositoryTest {
     void shouldCheckExistsByActivityId() {
         // Given
         UUID activityId = UUID.randomUUID();
+        Instant now = Instant.parse("2025-01-01T10:00:00Z");
 
         ActivityMetrics metrics = new ActivityMetrics();
         metrics.setActivityId(activityId);
         metrics.setUserId("test-user");
         metrics.setTotalDistance(new BigDecimal("10000"));
         metrics.setTotalDuration(3600);
+        metrics.setCalculatedAt(now);
+        metrics.setCreatedAt(now);
+        metrics.setUpdatedAt(now);
 
         repository.save(metrics);
 

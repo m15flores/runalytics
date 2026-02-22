@@ -12,6 +12,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -41,14 +42,19 @@ class ActivityMetricsTest {
     @Test
     void shouldPersistActivityMetricsWithJsonbFields() {
         // Given
+        Instant now = Instant.parse("2025-01-01T10:00:00Z");
+
         ActivityMetrics metrics = new ActivityMetrics();
         metrics.setActivityId(UUID.randomUUID());
         metrics.setUserId("test-user");
         metrics.setTotalDistance(new BigDecimal("13138.37"));
         metrics.setTotalDuration(4777);
         metrics.setTotalCalories(1048);
+        metrics.setCalculatedAt(now);
+        metrics.setCreatedAt(now);
+        metrics.setUpdatedAt(now);
 
-        // HR Zones como JSONB
+        // HR Zones (JSONB)
         Map<String, Integer> hrZones = Map.of(
                 "Z1", 0,
                 "Z2", 2580,
@@ -69,7 +75,7 @@ class ActivityMetricsTest {
 
         // When
         ActivityMetrics saved = entityManager.persistAndFlush(metrics);
-        entityManager.clear();  // Limpiar cache para forzar lectura de BD
+        entityManager.clear();  // Clear cache to force DB read
 
         ActivityMetrics loaded = entityManager.find(ActivityMetrics.class, saved.getId());
 
@@ -79,12 +85,10 @@ class ActivityMetricsTest {
         assertEquals("test-user", loaded.getUserId());
         assertEquals(new BigDecimal("13138.37"), loaded.getTotalDistance());
 
-        // Verificar timestamps
         assertNotNull(loaded.getCreatedAt());
         assertNotNull(loaded.getUpdatedAt());
         assertNotNull(loaded.getCalculatedAt());
 
-        // Verificar JSONB
         assertNotNull(loaded.getHrZones());
         assertEquals(5, loaded.getHrZones().size());
         assertEquals(2580, loaded.getHrZones().get("Z2"));

@@ -19,8 +19,7 @@ public interface LapMetricsMapper {
     /**
      * Converts LapMetricsDto to LapMetrics entity.
      *
-     * Note: activityId must be set separately when saving laps.
-     * Entity fields (id, createdAt, updatedAt) are auto-generated via @PrePersist.
+     * Note: activityId, createdAt and updatedAt are set by the service layer via injected Clock.
      *
      * @param dto the DTO from service layer
      * @return the entity ready to be persisted

@@ -143,17 +143,4 @@ public class ActivityMetrics {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-        if (calculatedAt == null) {
-            calculatedAt = Instant.now();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }
