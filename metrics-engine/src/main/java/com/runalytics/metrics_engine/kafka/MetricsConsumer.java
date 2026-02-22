@@ -19,7 +19,7 @@ public class MetricsConsumer {
     private final MetricsService metricsService;
 
     @KafkaListener(
-            topics = "activities.normalized",
+            topics = "${runalytics.kafka.topics.normalized}",
             groupId = "metrics-engine-group",
             containerFactory = "kafkaListenerContainerFactory"
     )
