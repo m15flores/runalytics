@@ -24,6 +24,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
@@ -43,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @Import(KafkaIntegrationTest.TestClockConfig.class)
 class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
 
-    // Fixed clock at December 10, 2024 (within week 49)
+    // Fixed clock at December 10, 2024 (within week 50)
     private static final Instant FIXED_INSTANT = Instant.parse("2024-12-10T12:00:00Z");
 
     @TestConfiguration
@@ -102,7 +103,7 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         Map<String, Object> consumerProps = new HashMap<>();
         consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consumer-group-" + UUID.randomUUID());
-        consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
         consumerProps.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
         consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 org.apache.kafka.common.serialization.StringDeserializer.class);
@@ -124,8 +125,8 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         container.setupMessageListener((MessageListener<String, ReportGeneratedEventDto>) records::add);
         container.start();
 
-        // Wait for container to start
-        await().atMost(Duration.ofSeconds(10)).until(() -> container.isRunning());
+        // Wait for partition assignment before publishing (ensures "latest" offset is committed)
+        ContainerTestUtils.waitForAssignment(container, 1);
     }
 
     @AfterEach
@@ -182,7 +183,7 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
     void shouldConsumeAndProduceEndToEnd() throws InterruptedException {
         // Given - Activity metrics event
         UUID activityId = UUID.randomUUID();
-        Instant activityTime = Instant.parse("2024-12-08T10:00:00Z"); // Week 50, 2024
+        Instant activityTime = Instant.parse("2024-12-08T10:00:00Z"); // Week 49, 2024
 
         // Insert activity metrics into database (required for weekly aggregation)
         createActivityMetrics(activityId, "test-user", activityTime,
@@ -230,8 +231,8 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         // Given - Multiple activity metrics
         UUID activityId1 = UUID.randomUUID();
         UUID activityId2 = UUID.randomUUID();
-        Instant time1 = Instant.parse("2024-12-12T10:00:00Z"); // Week 49 (Saturday)
-        Instant time2 = Instant.parse("2024-12-13T10:00:00Z"); // Week 49 (Sunday)
+        Instant time1 = Instant.parse("2024-12-14T10:00:00Z"); // Week 50 (Saturday)
+        Instant time2 = Instant.parse("2024-12-15T10:00:00Z"); // Week 50 (Sunday)
 
         // Insert activity metrics into database
         createActivityMetrics(activityId1, "test-user", time1, new BigDecimal("10.0"), 3600, 360);
@@ -269,12 +270,12 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         assertNotNull(record1);
         assertNotNull(record2);
 
-        // Both should be for week 49
+        // Both should be for week 50
         assertThat(record1.value().weekNumber()).isEqualTo(50);
         assertThat(record2.value().weekNumber()).isEqualTo(50);
 
         // Second report should have aggregated both activities
-        var finalReport = trainingReportRepository.findByUserIdAndWeekNumberAndYear("test-user", 49, 2024);
+        var finalReport = trainingReportRepository.findByUserIdAndWeekNumberAndYear("test-user", 50, 2024);
         assertThat(finalReport).isPresent();
     }
 
