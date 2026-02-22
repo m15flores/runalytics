@@ -9,6 +9,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,13 +26,21 @@ class AthleteProfileServiceTest {
     @Mock
     private AthleteProfileRepository repository;
 
+    @Mock
+    private Clock clock;
+
     @InjectMocks
     private AthleteProfileService service;
+
+    private static final Instant FIXED_NOW = Instant.parse("2024-12-10T12:00:00Z");
 
     private AthleteProfile testProfile;
 
     @BeforeEach
     void setUp() {
+        when(clock.instant()).thenReturn(FIXED_NOW);
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+
         testProfile = AthleteProfile.builder()
                 .userId("test-user")
                 .name("Test Runner")

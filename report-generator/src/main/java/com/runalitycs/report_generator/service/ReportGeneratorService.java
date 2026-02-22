@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.WeekFields;
 import java.util.HashMap;
@@ -32,6 +34,7 @@ public class ReportGeneratorService {
     private final TrainingReportRepository trainingReportRepository;
     private final ObjectMapper objectMapper;
     private final TrainingReportMapper trainingReportMapper;
+    private final Clock clock;
 
     private static final int WEEKS_TO_AGGREGATE = 4;
     private static final String DEFAULT_TIMEZONE = "Europe/Paris";
@@ -88,10 +91,11 @@ public class ReportGeneratorService {
         // 7. Find existing report or create new one
         TrainingReport report = trainingReportRepository
                 .findByUserIdAndWeekNumberAndYear(activityMetrics.userId(), weekNumber, year)
-                .orElse(TrainingReport.builder()
+                .orElseGet(() -> TrainingReport.builder()
                         .userId(activityMetrics.userId())
                         .weekNumber(weekNumber)
                         .year(year)
+                        .createdAt(Instant.now(clock))
                         .build());
 
         // 8. Update report fields

@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
+
 @Entity
 @Table(
         name = "training_reports",
@@ -45,9 +46,4 @@ public class TrainingReport {
     // Metadata
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-    }
 }

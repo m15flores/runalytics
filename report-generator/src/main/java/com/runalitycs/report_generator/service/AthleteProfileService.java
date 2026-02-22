@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -15,6 +17,7 @@ import java.util.List;
 public class AthleteProfileService {
 
     private final AthleteProfileRepository athleteProfileRepository;
+    private final Clock clock;
 
     @Transactional
     public AthleteProfile createProfile(AthleteProfile profile) {
@@ -25,6 +28,10 @@ public class AthleteProfileService {
                     "Profile already exists for userId: " + profile.getUserId()
             );
         }
+
+        Instant now = Instant.now(clock);
+        profile.setCreatedAt(now);
+        profile.setUpdatedAt(now);
 
         AthleteProfile saved = athleteProfileRepository.save(profile);
         log.info("Created athlete profile with id: {}", saved.getId());
@@ -56,6 +63,7 @@ public class AthleteProfileService {
         existing.setAge(updatedProfile.getAge());
         existing.setWeight(updatedProfile.getWeight());
         existing.setMaxHeartRate(updatedProfile.getMaxHeartRate());
+        existing.setUpdatedAt(Instant.now(clock));
 
         AthleteProfile saved = athleteProfileRepository.save(existing);
         log.info("Updated profile for userId: {}", userId);
