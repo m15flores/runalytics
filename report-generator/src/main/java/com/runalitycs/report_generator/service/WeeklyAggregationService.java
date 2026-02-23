@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.WeekFields;
 import java.util.*;
@@ -217,7 +218,7 @@ public class WeeklyAggregationService {
             if (previousDistance != null && previousDistance.compareTo(BigDecimal.ZERO) > 0) {
                 // Calculate % change
                 BigDecimal change = currentDistance.subtract(previousDistance);
-                double changePercent = change.divide(previousDistance, 4, BigDecimal.ROUND_HALF_UP)
+                double changePercent = change.divide(previousDistance, 4, RoundingMode.HALF_UP)
                         .multiply(new BigDecimal("100"))
                         .doubleValue();
 
