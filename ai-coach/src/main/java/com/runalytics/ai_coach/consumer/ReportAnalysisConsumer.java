@@ -9,7 +9,9 @@ import com.runalytics.ai_coach.service.RecommendationGeneratorService;
 import com.runalytics.ai_coach.service.TrainingCycleContextService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,6 +27,10 @@ public class ReportAnalysisConsumer {
     private final RecommendationGeneratorService recommendationGeneratorService;
     private final TrainingCycleContextService trainingCycleContextService;
     private final RecommendationGeneratedProducer recommendationProducer;
+    private final KafkaTemplate<String, TrainingReportEventDto> dlqTemplate;
+
+    @Value("${app.kafka.topics.dlq}")
+    private String dlqTopic;
 
     /**
      * Consume training report events and generate AI recommendations
@@ -73,6 +79,16 @@ public class ReportAnalysisConsumer {
         } catch (Exception e) {
             log.error("Error processing training report event: reportId={}, error={}",
                     event.getReportId(), e.getMessage(), e);
+            dlqTemplate.send(dlqTopic, event.getUserId(), event)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send event to DLQ: reportId={}, error={}",
+                                    event.getReportId(), ex.getMessage());
+                        } else {
+                            log.warn("Sent failed event to DLQ: reportId={}, topic={}",
+                                    event.getReportId(), dlqTopic);
+                        }
+                    });
         }
     }
 }
