@@ -89,13 +89,13 @@
 			<scope>test</scope>
 		</dependency>
 
-        <!-- Jackson para manejo de JSON -->
+        <!-- Jackson for JSON serialization/deserialization -->
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
 
-        <!-- Awaitility para tests asíncronos -->
+        <!-- Awaitility for async test assertions -->
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>

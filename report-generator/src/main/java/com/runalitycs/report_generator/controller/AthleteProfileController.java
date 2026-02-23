@@ -84,13 +84,15 @@ public class AthleteProfileController {
 
         log.error("Validation error: {}", ex.getMessage());
 
-        ErrorResponse error = new ErrorResponse(
-                "NOT_FOUND",
-                ex.getMessage(),
-                System.currentTimeMillis()
-        );
+        HttpStatus status = ex.getMessage().contains("already exists")
+                ? HttpStatus.CONFLICT
+                : HttpStatus.NOT_FOUND;
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        String code = status == HttpStatus.CONFLICT ? "CONFLICT" : "NOT_FOUND";
+
+        ErrorResponse error = new ErrorResponse(code, ex.getMessage(), System.currentTimeMillis());
+
+        return ResponseEntity.status(status).body(error);
     }
 
     // Inner record for error responses

@@ -21,6 +21,12 @@ public class ReportGeneratedProducer {
         log.info("Publishing report generated event: reportId={}, userId={}",
                 event.reportId(), event.userId());
 
-        kafkaTemplate.send(topic, event.userId(), event);
+        kafkaTemplate.send(topic, event.userId(), event)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Failed to publish report generated event: reportId={}, userId={}",
+                                event.reportId(), event.userId(), ex);
+                    }
+                });
     }
 }

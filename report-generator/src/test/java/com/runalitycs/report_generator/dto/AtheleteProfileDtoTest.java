@@ -38,6 +38,7 @@ class AthleteProfileDtoTest {
                 30,
                 70.0,
                 190,
+                null,
                 Instant.now(),
                 Instant.now()
         );
@@ -58,6 +59,7 @@ class AthleteProfileDtoTest {
                 null,
                 "minimal-user",
                 "Minimal Profile",
+                null,
                 null,
                 null,
                 null,
@@ -85,6 +87,7 @@ class AthleteProfileDtoTest {
                 70.0,
                 190,
                 null,
+                null,
                 null
         );
 
@@ -109,6 +112,7 @@ class AthleteProfileDtoTest {
                 30,
                 70.0,
                 190,
+                null,
                 null,
                 null
         );
@@ -135,6 +139,7 @@ class AthleteProfileDtoTest {
                 70.0,
                 190,
                 null,
+                null,
                 null
         );
 
@@ -159,6 +164,7 @@ class AthleteProfileDtoTest {
                 150, // Age too high
                 70.0,
                 190,
+                null,
                 null,
                 null
         );
@@ -185,6 +191,7 @@ class AthleteProfileDtoTest {
                 -10.0, // Negative weight
                 190,
                 null,
+                null,
                 null
         );
 
@@ -210,6 +217,7 @@ class AthleteProfileDtoTest {
                 70.0,
                 50, // Heart rate too low
                 null,
+                null,
                 null
         );
 
@@ -234,6 +242,7 @@ class AthleteProfileDtoTest {
                 30,
                 70.0,
                 300, // Heart rate too high
+                null,
                 null,
                 null
         );
@@ -262,6 +271,7 @@ class AthleteProfileDtoTest {
                 30,
                 70.0,
                 190,
+                null,
                 now,
                 now
         );

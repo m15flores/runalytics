@@ -8,13 +8,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ReportGeneratedProducerTest {
@@ -31,6 +36,11 @@ public class ReportGeneratedProducerTest {
     void setUp() {
         // Set the topic value using reflection
         ReflectionTestUtils.setField(producer, "topic", "reports.generated");
+
+        // KafkaTemplate.send() returns a CompletableFuture; without a stub it returns null,
+        // which causes a NullPointerException when the producer chains .whenComplete() on it.
+        when(kafkaTemplate.send(anyString(), anyString(), any()))
+                .thenReturn(CompletableFuture.completedFuture(new SendResult<>(null, null)));
 
         event = ReportGeneratedEventDto.builder()
                 .reportId(UUID.randomUUID())
