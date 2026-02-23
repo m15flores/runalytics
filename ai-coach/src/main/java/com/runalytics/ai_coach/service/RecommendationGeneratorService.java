@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -31,6 +32,7 @@ public class RecommendationGeneratorService {
     private final PromptTemplateService promptTemplateService;
     private final RecommendationRepository recommendationRepository;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     @Value("${app.recommendations.expiration-days:7}")
     private int expirationDays;
@@ -107,8 +109,8 @@ public class RecommendationGeneratorService {
                 .verdict(aiResponse.getVerdict())
                 .weekInCycle(cycleContext.getWeekInCycle())
                 .trainingPhase(cycleContext.getPhase())
-                .createdAt(Instant.now())
-                .expiresAt(Instant.now().plus(expirationDays, ChronoUnit.DAYS))
+                .createdAt(Instant.now(clock))
+                .expiresAt(Instant.now(clock).plus(expirationDays, ChronoUnit.DAYS))
                 .applied(false)
                 .metadata(String.format("{\"category\": \"%s\", \"verdict_rationale\": \"%s\"}",
                         aiRec.getCategory(),

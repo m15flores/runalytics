@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,13 +27,17 @@ public class RecommendationGeneratedProducer {
     private final KafkaTemplate<String, RecommendationGeneratedEventDto> kafkaTemplate;
     private final String topic;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     public RecommendationGeneratedProducer(
             KafkaTemplate<String, RecommendationGeneratedEventDto> kafkaTemplate,
-            @Value("${app.kafka.topics.recommendations-generated}") String topic) {
+            @Value("${app.kafka.topics.recommendations-generated}") String topic,
+            ObjectMapper objectMapper,
+            Clock clock) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = objectMapper;
+        this.clock = clock;
     }
 
     /**
@@ -66,7 +71,7 @@ public class RecommendationGeneratedProducer {
                 .recommendations(recommendations.stream()
                         .map(this::toRecommendationSummary)
                         .collect(Collectors.toList()))
-                .generatedAt(Instant.now())
+                .generatedAt(Instant.now(clock))
                 .build();
 
         // Publish with userId as key (for partitioning)

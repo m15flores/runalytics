@@ -3,7 +3,6 @@ package com.runalytics.ai_coach.entity;
 import com.runalytics.ai_coach.dto.TrainingCycleContext;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -60,10 +59,4 @@ public class Recommendation {
     @Enumerated(EnumType.STRING)
     private TrainingCycleContext.TrainingPhase trainingPhase;
 
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = Instant.now();
-        }
-    }
 }
