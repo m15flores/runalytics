@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.runalitycs</groupId>
+    <groupId>com.runalytics</groupId>
     <artifactId>ai-coach</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ai-coach</name>
@@ -51,7 +51,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Spring WebFlux para llamadas HTTP -->
+        <!-- Spring WebFlux for HTTP client calls -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
@@ -110,7 +110,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- WireMock para mockear OpenAI en tests -->
+        <!-- WireMock to mock OpenAI in tests -->
         <dependency>
             <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>

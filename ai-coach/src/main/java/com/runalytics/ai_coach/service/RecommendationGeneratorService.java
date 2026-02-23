@@ -10,6 +10,7 @@ import com.runalytics.ai_coach.dto.openai.AiRecommendationResponse;
 import com.runalytics.ai_coach.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,8 @@ public class RecommendationGeneratorService {
     private final RecommendationRepository recommendationRepository;
     private final ObjectMapper objectMapper;
 
-    private static final int DEFAULT_EXPIRATION_DAYS = 7;
+    @Value("${app.recommendations.expiration-days:7}")
+    private int expirationDays;
 
     /**
      * Generate recommendations for a training report using AI
@@ -106,7 +108,7 @@ public class RecommendationGeneratorService {
                 .weekInCycle(cycleContext.getWeekInCycle())
                 .trainingPhase(cycleContext.getPhase())
                 .createdAt(Instant.now())
-                .expiresAt(Instant.now().plus(DEFAULT_EXPIRATION_DAYS, ChronoUnit.DAYS))
+                .expiresAt(Instant.now().plus(expirationDays, ChronoUnit.DAYS))
                 .applied(false)
                 .metadata(String.format("{\"category\": \"%s\", \"verdict_rationale\": \"%s\"}",
                         aiRec.getCategory(),
