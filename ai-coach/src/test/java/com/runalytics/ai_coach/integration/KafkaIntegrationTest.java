@@ -236,23 +236,14 @@ class KafkaIntegrationTest {
                 .generatedAt(Instant.now())
                 .build();
 
-        System.out.println("=== INITIAL STATE ===");
-        System.out.println("Recommendations in DB: " + recommendationRepository.count());
-
         // When - Publish event to reports.generated
         reportProducerTemplate.send("reports.generated", "test-user", event);
-
-        System.out.println("=== EVENT PUBLISHED ===");
 
         // Then - Wait for recommendations to be saved to DB
         await()
                 .atMost(15, TimeUnit.SECONDS)
                 .pollInterval(500, TimeUnit.MILLISECONDS)
-                .untilAsserted(() -> {
-                    long count = recommendationRepository.count();
-                    System.out.println("Recommendations in DB: " + count);
-                    assertThat(count).isGreaterThan(0);
-                });
+                .untilAsserted(() -> assertThat(recommendationRepository.count()).isGreaterThan(0));
 
         // Verify recommendations in database
         List<Recommendation> recommendations = recommendationRepository.findAll();
@@ -266,12 +257,6 @@ class KafkaIntegrationTest {
         assertThat(rec.getVerdict()).isEqualTo(TrainingVerdict.PARTIALLY_VALID);
         assertThat(rec.getWeekInCycle()).isNotNull();
 
-        System.out.println("=== RECOMMENDATION DETAILS ===");
-        System.out.println("Type: " + rec.getType());
-        System.out.println("Priority: " + rec.getPriority());
-        System.out.println("Content: " + rec.getContent());
-        System.out.println("Verdict: " + rec.getVerdict());
-
         // Wait for Kafka event on recommendations.generated
         ConsumerRecord<String, RecommendationGeneratedEventDto> record = records.poll(10, TimeUnit.SECONDS);
         assertThat(record).isNotNull();
@@ -281,11 +266,6 @@ class KafkaIntegrationTest {
         assertThat(publishedEvent.getUserId()).isEqualTo("test-user");
         assertThat(publishedEvent.getVerdict()).isEqualTo(TrainingVerdict.PARTIALLY_VALID);
         assertThat(publishedEvent.getRecommendations()).hasSize(1);
-
-        System.out.println("=== KAFKA EVENT PUBLISHED ===");
-        System.out.println("Event userId: " + publishedEvent.getUserId());
-        System.out.println("Event verdict: " + publishedEvent.getVerdict());
-        System.out.println("Recommendations count: " + publishedEvent.getRecommendations().size());
 
         // Verify OpenAI was called
         verify(postRequestedFor(urlEqualTo("/chat/completions")));
