@@ -39,7 +39,7 @@ public class AthleteProfileService {
         return saved;
     }
 
-    @Transactional()
+    @Transactional(readOnly = true)
     public AthleteProfile getProfileByUserId(String userId) {
         log.debug("Fetching profile for userId: {}", userId);
 
@@ -63,6 +63,7 @@ public class AthleteProfileService {
         existing.setAge(updatedProfile.getAge());
         existing.setWeight(updatedProfile.getWeight());
         existing.setMaxHeartRate(updatedProfile.getMaxHeartRate());
+        existing.setCurrentGoal(updatedProfile.getCurrentGoal());
         existing.setUpdatedAt(Instant.now(clock));
 
         AthleteProfile saved = athleteProfileRepository.save(existing);
