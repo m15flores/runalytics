@@ -94,6 +94,8 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
                 .weight(70.0)
                 .maxHeartRate(190)
                 .currentGoal("Marathon sub-3:30")
+                .createdAt(FIXED_INSTANT)
+                .updatedAt(FIXED_INSTANT)
                 .build();
         athleteProfileRepository.save(profile);
 

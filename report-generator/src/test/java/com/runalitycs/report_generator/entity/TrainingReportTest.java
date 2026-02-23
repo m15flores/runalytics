@@ -2,7 +2,6 @@ package com.runalitycs.report_generator.entity;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,22 +62,6 @@ class TrainingReportTest {
         // Then
         assertNotNull(report.getSummaryJson());
         assertNotNull(report.getTriggerActivityId());
-    }
-
-    @Test
-    void shouldInitializeCreatedAtOnPrePersist() {
-        // Given
-        TrainingReport report = new TrainingReport();
-        report.setUserId("user-12345");
-        report.setWeekNumber(49);
-        report.setYear(2024);
-        report.setMarkdownContent("# Report");
-
-        // When
-        report.onCreate(); // Simulate @PrePersist
-
-        // Then
-        assertNotNull(report.getCreatedAt());
     }
 
     @Test

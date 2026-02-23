@@ -10,6 +10,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 @Testcontainers
 public class TrainingReportRepositoryTest {
+
+    private static final Instant NOW = Instant.parse("2024-12-10T12:00:00Z");
 
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
@@ -46,6 +49,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Training Report Week 49")
                 .summaryJson("{\"totalKm\": 52.0}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         // When
@@ -72,6 +76,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Week 48 Report")
                 .summaryJson("{\"totalKm\": 45.0}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         repository.save(report);
@@ -98,6 +103,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# First Report")
                 .summaryJson("{\"totalKm\": 50.0}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         TrainingReport report2 = TrainingReport.builder()
@@ -107,6 +113,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Second Report")
                 .summaryJson("{\"totalKm\": 55.0}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         repository.save(report1);
@@ -128,6 +135,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Week 47")
                 .summaryJson("{}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         TrainingReport week49 = TrainingReport.builder()
@@ -137,6 +145,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Week 49")
                 .summaryJson("{}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         TrainingReport week48 = TrainingReport.builder()
@@ -146,6 +155,7 @@ public class TrainingReportRepositoryTest {
                 .markdownContent("# Week 48")
                 .summaryJson("{}")
                 .triggerActivityId(UUID.randomUUID())
+                .createdAt(NOW)
                 .build();
 
         // Save in random order

@@ -2,8 +2,6 @@ package com.runalitycs.report_generator.entity;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Instant;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class AthleteProfileTest {
@@ -55,44 +53,6 @@ class AthleteProfileTest {
         assertEquals(35, profile.getAge());
         assertEquals(75.5, profile.getWeight());
         assertEquals(185, profile.getMaxHeartRate());
-    }
-
-    @Test
-    void shouldInitializeTimestampsOnPrePersist() {
-        // Given
-        AthleteProfile profile = new AthleteProfile();
-        profile.setUserId("user-12345");
-        profile.setName("Test Runner");
-
-        // When
-        profile.onCreate(); // Simulate @PrePersist
-
-        // Then
-        assertNotNull(profile.getCreatedAt());
-        assertNotNull(profile.getUpdatedAt());
-    }
-
-    @Test
-    void shouldUpdateTimestampOnPreUpdate() throws InterruptedException {
-        // Given
-        AthleteProfile profile = new AthleteProfile();
-        profile.setUserId("user-12345");
-        profile.setName("Test Runner");
-        profile.onCreate();
-
-        Instant originalCreatedAt = profile.getCreatedAt();
-        Instant originalUpdatedAt = profile.getUpdatedAt();
-
-        // Wait to ensure timestamp difference
-        Thread.sleep(10);
-
-        // When
-        profile.onUpdate(); // Simulate @PreUpdate
-
-        // Then
-        assertEquals(originalCreatedAt, profile.getCreatedAt()); // Should not change
-        assertNotEquals(originalUpdatedAt, profile.getUpdatedAt());
-        assertTrue(profile.getUpdatedAt().isAfter(originalUpdatedAt));
     }
 
     @Test

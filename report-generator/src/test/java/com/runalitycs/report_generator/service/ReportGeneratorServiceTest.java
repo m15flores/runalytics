@@ -18,7 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +30,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 public class ReportGeneratorServiceTest {
+
+    @Mock
+    private Clock clock;
 
     @Mock
     private AthleteProfileService athleteProfileService;
@@ -55,8 +60,13 @@ public class ReportGeneratorServiceTest {
     private List<WeeklyStats> weeklyStats;
     private String generatedMarkdown;
 
+    private static final Instant FIXED_NOW = Instant.parse("2024-12-10T12:00:00Z");
+
     @BeforeEach
     void setUp() throws JsonProcessingException {
+        lenient().when(clock.instant()).thenReturn(FIXED_NOW);
+        lenient().when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+
         activityMetricsDto = ActivityMetricsDto.builder()
                 .activityId(UUID.randomUUID())
                 .userId("test-user")

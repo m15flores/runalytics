@@ -22,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 class AthleteProfileRepositoryTest {
 
+    private static final Instant NOW = Instant.parse("2024-12-10T12:00:00Z");
+
     @Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine");
 
@@ -45,6 +47,8 @@ class AthleteProfileRepositoryTest {
                 .age(30)
                 .weight(70.0)
                 .maxHeartRate(190)
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         // When
@@ -67,6 +71,8 @@ class AthleteProfileRepositoryTest {
                 .age(30)
                 .weight(70.0)
                 .maxHeartRate(190)
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         repository.save(profile);
@@ -86,11 +92,15 @@ class AthleteProfileRepositoryTest {
         AthleteProfile profile1 = AthleteProfile.builder()
                 .userId("duplicate-user")
                 .name("User One")
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         AthleteProfile profile2 = AthleteProfile.builder()
                 .userId("duplicate-user")
                 .name("User Two")
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         repository.save(profile1);
@@ -111,16 +121,19 @@ class AthleteProfileRepositoryTest {
                 .age(30)
                 .weight(70.0)
                 .maxHeartRate(190)
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         AthleteProfile saved = repository.save(profile);
         UUID profileId = saved.getId();
         Instant originalCreatedAt = saved.getCreatedAt();
 
-        // When
+        // When — simulate service setting updatedAt on update
         saved.setName("Updated Name");
         saved.setAge(31);
         saved.setWeight(72.0);
+        saved.setUpdatedAt(NOW.plusSeconds(60));
 
         AthleteProfile updated = repository.save(saved);
 
@@ -139,6 +152,8 @@ class AthleteProfileRepositoryTest {
         AthleteProfile profile = AthleteProfile.builder()
                 .userId("delete-user")
                 .name("To Be Deleted")
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         AthleteProfile saved = repository.save(profile);
@@ -161,6 +176,8 @@ class AthleteProfileRepositoryTest {
                 .age(30)
                 .weight(70.0)
                 .maxHeartRate(190)
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         repository.save(profile);
@@ -181,6 +198,8 @@ class AthleteProfileRepositoryTest {
                 .age(30)
                 .weight(70.0)
                 .maxHeartRate(190)
+                .createdAt(NOW)
+                .updatedAt(NOW)
                 .build();
 
         repository.save(profile);

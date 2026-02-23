@@ -38,8 +38,8 @@ class AthleteProfileServiceTest {
 
     @BeforeEach
     void setUp() {
-        when(clock.instant()).thenReturn(FIXED_NOW);
-        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+        lenient().when(clock.instant()).thenReturn(FIXED_NOW);
+        lenient().when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
 
         testProfile = AthleteProfile.builder()
                 .userId("test-user")
