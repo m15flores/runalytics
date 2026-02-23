@@ -42,6 +42,8 @@ public class MetricsCalculatedConsumer {
                     .summaryJson(report.summaryJson())
                     .generatedAt(report.createdAt())
                     .triggerActivityId(report.triggerActivityId())
+                    .athleteName(report.athleteName())
+                    .currentGoal(report.currentGoal())
                     .build();
 
             reportGeneratedProducer.publish(event);

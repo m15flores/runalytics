@@ -11,5 +11,7 @@ public interface TrainingReportMapper {
     @Mapping(target = "createdAt", ignore = true)
     TrainingReport toEntity(TrainingReportDto dto);
 
+    @Mapping(target = "athleteName", ignore = true)
+    @Mapping(target = "currentGoal", ignore = true)
     TrainingReportDto toDto(TrainingReport entity);
 }

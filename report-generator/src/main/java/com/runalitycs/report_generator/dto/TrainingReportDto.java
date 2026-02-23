@@ -1,10 +1,12 @@
 package com.runalitycs.report_generator.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.UUID;
 
+@Builder
 public record TrainingReportDto (
         @JsonProperty("id")
         UUID id,
@@ -28,5 +30,11 @@ public record TrainingReportDto (
         Instant createdAt,
 
         @JsonProperty("triggerActivityId")
-        UUID triggerActivityId
+        UUID triggerActivityId,
+
+        @JsonProperty("athleteName")
+        String athleteName,
+
+        @JsonProperty("currentGoal")
+        String currentGoal
 ){}

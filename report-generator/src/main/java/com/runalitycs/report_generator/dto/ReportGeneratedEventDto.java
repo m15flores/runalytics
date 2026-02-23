@@ -27,5 +27,11 @@ public record ReportGeneratedEventDto (
         Instant generatedAt,
 
         @JsonProperty("triggerActivityId")
-        UUID triggerActivityId
+        UUID triggerActivityId,
+
+        @JsonProperty("athleteName")
+        String athleteName,
+
+        @JsonProperty("currentGoal")
+        String currentGoal
 ) {}

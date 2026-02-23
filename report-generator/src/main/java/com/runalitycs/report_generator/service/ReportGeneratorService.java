@@ -7,7 +7,6 @@ import com.runalitycs.report_generator.dto.ActivityMetricsDto;
 import com.runalitycs.report_generator.dto.TrainingReportDto;
 import com.runalitycs.report_generator.entity.AthleteProfile;
 import com.runalitycs.report_generator.entity.TrainingReport;
-import com.runalitycs.report_generator.mapper.TrainingReportMapper;
 import com.runalitycs.report_generator.repository.TrainingReportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ public class ReportGeneratorService {
     private final MarkdownTemplateService markdownTemplateService;
     private final TrainingReportRepository trainingReportRepository;
     private final ObjectMapper objectMapper;
-    private final TrainingReportMapper trainingReportMapper;
     private final Clock clock;
 
     private static final int WEEKS_TO_AGGREGATE = 4;
@@ -111,7 +109,18 @@ public class ReportGeneratorService {
             log.info("Updated existing report with id: {} for week {}/{}", saved.getId(), weekNumber, year);
         }
 
-        return trainingReportMapper.toDto(saved);
+        return TrainingReportDto.builder()
+                .id(saved.getId())
+                .userId(saved.getUserId())
+                .weekNumber(saved.getWeekNumber())
+                .year(saved.getYear())
+                .markdownContent(saved.getMarkdownContent())
+                .summaryJson(saved.getSummaryJson())
+                .createdAt(saved.getCreatedAt())
+                .triggerActivityId(saved.getTriggerActivityId())
+                .athleteName(profile.getName())
+                .currentGoal(profile.getCurrentGoal())
+                .build();
     }
 
     private String createSummaryJson(WeeklyStats weekStats) {
