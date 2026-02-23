@@ -174,7 +174,7 @@ public class MarkdownTemplateService {
         double z2Percentage = (z2Seconds * 100.0) / totalSeconds;
 
         if (z2Percentage > 70) {
-            markdown.append("Excellent Z2 focus (%.1f%%). Perfect for aerobic base building.\n");
+            markdown.append(String.format(Locale.US, "Excellent Z2 focus (%.1f%%). Perfect for aerobic base building.\n", z2Percentage));
         } else if (z2Percentage > 50) {
             markdown.append(String.format(Locale.US, "Good Z2 focus (%.1f%%). Solid aerobic training.\n", z2Percentage));
         } else {

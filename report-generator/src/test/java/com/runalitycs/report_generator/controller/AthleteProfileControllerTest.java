@@ -46,6 +46,7 @@ public class AthleteProfileControllerTest {
                 70.0,
                 190,
                 null,
+                null,
                 null
         );
 
@@ -75,6 +76,23 @@ public class AthleteProfileControllerTest {
     }
 
     @Test
+    void shouldReturn409WhenProfileAlreadyExists() throws Exception {
+        // Given
+        AthleteProfileDto requestDto = new AthleteProfileDto(
+                null, "existing-user", "Test Runner", 30, 70.0, 190, null, null, null
+        );
+
+        when(athleteProfileService.createProfile(any(AthleteProfile.class)))
+                .thenThrow(new IllegalArgumentException("Profile already exists for userId: existing-user"));
+
+        // When & Then
+        mockMvc.perform(post("/api/profiles")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void shouldReturn400WhenInvalidData() throws Exception {
         // Given
         AthleteProfileDto invalidDto = new AthleteProfileDto(
@@ -84,6 +102,7 @@ public class AthleteProfileControllerTest {
                 5,  // Age too low (invalid)
                 -10.0, // Negative weight (invalid)
                 50, // Heart rate too low (invalid)
+                null,
                 null,
                 null
         );
@@ -139,6 +158,7 @@ public class AthleteProfileControllerTest {
                 31,
                 72.0,
                 185,
+                null,
                 null,
                 null
         );
