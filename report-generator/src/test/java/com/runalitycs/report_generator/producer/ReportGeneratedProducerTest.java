@@ -50,6 +50,8 @@ public class ReportGeneratedProducerTest {
                 .summaryJson("{\"totalKm\": 52.0}")
                 .generatedAt(Instant.now())
                 .triggerActivityId(UUID.randomUUID())
+                .athleteName("Test Runner")
+                .currentGoal("Marathon sub-3:30")
                 .build();
     }
 
@@ -74,6 +76,8 @@ public class ReportGeneratedProducerTest {
                 .summaryJson("{}")
                 .generatedAt(Instant.now())
                 .triggerActivityId(UUID.randomUUID())
+                .athleteName("Test Runner")
+                .currentGoal("Sub-3h marathon")
                 .build();
 
         // When
@@ -98,6 +102,8 @@ public class ReportGeneratedProducerTest {
                 .summaryJson("{\"totalKm\": 52.0, \"trend\": \"improving\"}")
                 .generatedAt(generatedAt)
                 .triggerActivityId(activityId)
+                .athleteName("Complete Runner")
+                .currentGoal("Sub-3h marathon")
                 .build();
 
         // When
@@ -121,6 +127,8 @@ public class ReportGeneratedProducerTest {
                 .year(2024)
                 .summaryJson("{}")
                 .generatedAt(Instant.now())
+                .athleteName("Runner One")
+                .currentGoal("5k PR")
                 .build();
 
         ReportGeneratedEventDto event2 = ReportGeneratedEventDto.builder()
@@ -130,6 +138,8 @@ public class ReportGeneratedProducerTest {
                 .year(2024)
                 .summaryJson("{}")
                 .generatedAt(Instant.now())
+                .athleteName("Runner Two")
+                .currentGoal("10k PR")
                 .build();
 
         // When

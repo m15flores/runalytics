@@ -51,16 +51,18 @@ public class MetricsCalculatedConsumerTest {
     @Test
     void shouldConsumeMetricsCalculatedEvent() {
         // Given
-        TrainingReportDto report = new TrainingReportDto(
-                UUID.randomUUID(),
-                "test-user",
-                49,
-                2024,
-                "# Report",
-                "{\"totalKm\": 52.0}",
-                Instant.now(),
-                activityMetrics.activityId()
-        );
+        TrainingReportDto report = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Report")
+                .summaryJson("{\"totalKm\": 52.0}")
+                .createdAt(Instant.now())
+                .triggerActivityId(activityMetrics.activityId())
+                .athleteName("Test Runner")
+                .currentGoal("Marathon sub-3:30")
+                .build();
 
         when(reportGeneratorService.generateReport(activityMetrics))
                 .thenReturn(report);
@@ -76,16 +78,18 @@ public class MetricsCalculatedConsumerTest {
     @Test
     void shouldGenerateReportOnValidMessage() {
         // Given
-        TrainingReportDto expectedReport = new TrainingReportDto(
-                UUID.randomUUID(),
-                "test-user",
-                49,
-                2024,
-                "# Training Report - Week 49/2024",
-                "{\"totalKm\": 52.0, \"trend\": \"improving\"}",
-                Instant.now(),
-                activityMetrics.activityId()
-        );
+        TrainingReportDto expectedReport = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Training Report - Week 49/2024")
+                .summaryJson("{\"totalKm\": 52.0, \"trend\": \"improving\"}")
+                .createdAt(Instant.now())
+                .triggerActivityId(activityMetrics.activityId())
+                .athleteName("Test Runner")
+                .currentGoal("Marathon sub-3:30")
+                .build();
 
         when(reportGeneratorService.generateReport(activityMetrics))
                 .thenReturn(expectedReport);
@@ -149,16 +153,18 @@ public class MetricsCalculatedConsumerTest {
         UUID activityId = activityMetrics.activityId();
         Instant createdAt = Instant.parse("2024-12-08T12:00:00Z");
 
-        TrainingReportDto report = new TrainingReportDto(
-                reportId,
-                "test-user",
-                49,
-                2024,
-                "# Report",
-                "{\"totalKm\": 52.0}",
-                createdAt,
-                activityId
-        );
+        TrainingReportDto report = TrainingReportDto.builder()
+                .id(reportId)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Report")
+                .summaryJson("{\"totalKm\": 52.0}")
+                .createdAt(createdAt)
+                .triggerActivityId(activityId)
+                .athleteName("Test Runner")
+                .currentGoal("Marathon sub-3:30")
+                .build();
 
         when(reportGeneratorService.generateReport(activityMetrics))
                 .thenReturn(report);

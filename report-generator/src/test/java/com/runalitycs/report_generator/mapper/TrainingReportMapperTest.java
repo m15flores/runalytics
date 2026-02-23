@@ -62,16 +62,16 @@ class TrainingReportMapperTest {
         UUID activityId = UUID.randomUUID();
         Instant now = Instant.now();
 
-        TrainingReportDto dto = new TrainingReportDto(
-                id,
-                "test-user",
-                49,
-                2024,
-                "# Report",
-                "{\"totalKm\": 52.0}",
-                now,
-                activityId
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(id)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Report")
+                .summaryJson("{\"totalKm\": 52.0}")
+                .createdAt(now)
+                .triggerActivityId(activityId)
+                .build();
 
         // When
         TrainingReport entity = mapper.toEntity(dto);
@@ -110,21 +110,20 @@ class TrainingReportMapperTest {
         assertEquals("# Minimal", dto.markdownContent());
         assertNull(dto.summaryJson());
         assertNull(dto.triggerActivityId());
+        assertNull(dto.athleteName());
+        assertNull(dto.currentGoal());
     }
 
     @Test
     void shouldMapDtoToEntityWithNullOptionalFields() {
         // Given
-        TrainingReportDto dto = new TrainingReportDto(
-                UUID.randomUUID(),
-                "minimal-user",
-                1,
-                2024,
-                "# Minimal",
-                null,
-                null,
-                null
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("minimal-user")
+                .weekNumber(1)
+                .year(2024)
+                .markdownContent("# Minimal")
+                .build();
 
         // When
         TrainingReport entity = mapper.toEntity(dto);
@@ -197,16 +196,15 @@ class TrainingReportMapperTest {
         UUID id = UUID.randomUUID();
         UUID activityId = UUID.randomUUID();
 
-        TrainingReportDto originalDto = new TrainingReportDto(
-                id,
-                "bidirectional-user",
-                50,
-                2024,
-                "# Bidirectional Test",
-                "{\"test\": true}",
-                null,
-                activityId
-        );
+        TrainingReportDto originalDto = TrainingReportDto.builder()
+                .id(id)
+                .userId("bidirectional-user")
+                .weekNumber(50)
+                .year(2024)
+                .markdownContent("# Bidirectional Test")
+                .summaryJson("{\"test\": true}")
+                .triggerActivityId(activityId)
+                .build();
 
         // When - Map DTO → Entity → DTO
         TrainingReport entity = mapper.toEntity(originalDto);
@@ -226,16 +224,16 @@ class TrainingReportMapperTest {
     void shouldIgnoreTimestampWhenMappingDtoToEntity() {
         // Given - DTO with timestamp (should be ignored when creating entity)
         Instant now = Instant.now();
-        TrainingReportDto dto = new TrainingReportDto(
-                UUID.randomUUID(),
-                "timestamp-user",
-                1,
-                2024,
-                "# Timestamp Test",
-                "{}",
-                now,
-                UUID.randomUUID()
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("timestamp-user")
+                .weekNumber(1)
+                .year(2024)
+                .markdownContent("# Timestamp Test")
+                .summaryJson("{}")
+                .createdAt(now)
+                .triggerActivityId(UUID.randomUUID())
+                .build();
 
         // When
         TrainingReport entity = mapper.toEntity(dto);
@@ -249,16 +247,15 @@ class TrainingReportMapperTest {
         // Given
         UUID specificId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
 
-        TrainingReportDto dto = new TrainingReportDto(
-                specificId,
-                "preserve-id-user",
-                25,
-                2024,
-                "# Preserve ID Test",
-                "{}",
-                null,
-                UUID.randomUUID()
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(specificId)
+                .userId("preserve-id-user")
+                .weekNumber(25)
+                .year(2024)
+                .markdownContent("# Preserve ID Test")
+                .summaryJson("{}")
+                .triggerActivityId(UUID.randomUUID())
+                .build();
 
         // When
         TrainingReport entity = mapper.toEntity(dto);

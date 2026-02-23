@@ -27,16 +27,16 @@ public class TrainingReportDtoTest {
         UUID activityId = UUID.randomUUID();
         Instant now = Instant.now();
 
-        TrainingReportDto dto = new TrainingReportDto(
-                id,
-                "test-user",
-                49,
-                2024,
-                "# Training Report",
-                "{\"totalKm\": 52.0}",
-                now,
-                activityId
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(id)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Training Report")
+                .summaryJson("{\"totalKm\": 52.0}")
+                .createdAt(now)
+                .triggerActivityId(activityId)
+                .build();
 
         // Then
         assertNotNull(dto);
@@ -53,16 +53,13 @@ public class TrainingReportDtoTest {
     @Test
     void shouldCreateDtoWithMinimalFields() {
         // Given & When
-        TrainingReportDto dto = new TrainingReportDto(
-                UUID.randomUUID(),
-                "minimal-user",
-                1,
-                2024,
-                "# Minimal Report",
-                null,
-                null,
-                null
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("minimal-user")
+                .weekNumber(1)
+                .year(2024)
+                .markdownContent("# Minimal Report")
+                .build();
 
         // Then
         assertNotNull(dto);
@@ -77,16 +74,16 @@ public class TrainingReportDtoTest {
         UUID id = UUID.randomUUID();
         Instant now = Instant.parse("2024-12-08T10:00:00Z");
 
-        TrainingReportDto dto = new TrainingReportDto(
-                id,
-                "test-user",
-                49,
-                2024,
-                "# Report",
-                "{\"totalKm\": 52.0}",
-                now,
-                UUID.randomUUID()
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(id)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("# Report")
+                .summaryJson("{\"totalKm\": 52.0}")
+                .createdAt(now)
+                .triggerActivityId(UUID.randomUUID())
+                .build();
 
         // When
         String json = objectMapper.writeValueAsString(dto);
@@ -155,16 +152,16 @@ public class TrainingReportDtoTest {
         String longMarkdown = "# Report\n\n".repeat(100); // Long content
 
         // When
-        TrainingReportDto dto = new TrainingReportDto(
-                UUID.randomUUID(),
-                "test-user",
-                49,
-                2024,
-                longMarkdown,
-                "{}",
-                Instant.now(),
-                UUID.randomUUID()
-        );
+        TrainingReportDto dto = TrainingReportDto.builder()
+                .id(UUID.randomUUID())
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent(longMarkdown)
+                .summaryJson("{}")
+                .createdAt(Instant.now())
+                .triggerActivityId(UUID.randomUUID())
+                .build();
 
         // Then
         assertThat(dto.markdownContent().length()).isGreaterThanOrEqualTo(1000);

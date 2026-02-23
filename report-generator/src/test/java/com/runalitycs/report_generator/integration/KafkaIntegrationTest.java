@@ -221,6 +221,8 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         assertThat(event.summaryJson()).isNotNull();
         assertThat(event.reportId()).isNotNull();
         assertThat(event.generatedAt()).isNotNull();
+        assertThat(event.athleteName()).isEqualTo("Test Runner");
+        assertThat(event.currentGoal()).isEqualTo("Marathon sub-3:30");
 
         // Verify report was saved to database
         var reports = trainingReportRepository.findByUserIdAndWeekNumberAndYear("test-user", 49, 2024);

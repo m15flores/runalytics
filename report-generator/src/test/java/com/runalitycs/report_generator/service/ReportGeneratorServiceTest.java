@@ -7,12 +7,10 @@ import com.runalitycs.report_generator.dto.ActivityMetricsDto;
 import com.runalitycs.report_generator.dto.TrainingReportDto;
 import com.runalitycs.report_generator.entity.AthleteProfile;
 import com.runalitycs.report_generator.entity.TrainingReport;
-import com.runalitycs.report_generator.mapper.TrainingReportMapper;
 import com.runalitycs.report_generator.repository.TrainingReportRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,9 +43,6 @@ public class ReportGeneratorServiceTest {
 
     @Mock
     private TrainingReportRepository trainingReportRepository;
-
-    @Mock
-    private TrainingReportMapper trainingReportMapper;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -133,20 +128,6 @@ public class ReportGeneratorServiceTest {
         when(trainingReportRepository.save(any(TrainingReport.class)))
                 .thenReturn(savedReport);
 
-        TrainingReportDto expectedDto = new TrainingReportDto(
-                savedReport.getId(),
-                savedReport.getUserId(),
-                savedReport.getWeekNumber(),
-                savedReport.getYear(),
-                savedReport.getMarkdownContent(),
-                savedReport.getSummaryJson(),
-                savedReport.getCreatedAt(),
-                savedReport.getTriggerActivityId()
-        );
-
-        when(trainingReportMapper.toDto(any(TrainingReport.class)))
-                .thenReturn(expectedDto);
-
         when(objectMapper.writeValueAsString(any()))
                 .thenReturn("{\"totalKm\":52.0}");
 
@@ -160,6 +141,8 @@ public class ReportGeneratorServiceTest {
         assertThat(result.year()).isEqualTo(2024);
         assertThat(result.markdownContent()).isEqualTo(generatedMarkdown);
         assertThat(result.triggerActivityId()).isEqualTo(activityMetricsDto.activityId());
+        assertThat(result.athleteName()).isEqualTo("Test Runner");
+        assertThat(result.currentGoal()).isEqualTo("Marathon sub-3:30");
 
         verify(athleteProfileService).getProfileByUserId("test-user");
         verify(weeklyAggregationService).getWeeklyStats("test-user", 4);
@@ -220,20 +203,6 @@ public class ReportGeneratorServiceTest {
         when(trainingReportRepository.save(any(TrainingReport.class)))
                 .thenReturn(updatedReport);
 
-        TrainingReportDto expectedDto = new TrainingReportDto(
-                updatedReport.getId(),
-                updatedReport.getUserId(),
-                updatedReport.getWeekNumber(),
-                updatedReport.getYear(),
-                updatedReport.getMarkdownContent(),
-                updatedReport.getSummaryJson(),
-                updatedReport.getCreatedAt(),
-                updatedReport.getTriggerActivityId()
-        );
-
-        when(trainingReportMapper.toDto(any(TrainingReport.class)))
-                .thenReturn(expectedDto);
-
         when(objectMapper.writeValueAsString(any()))
                 .thenReturn("{\"totalKm\":52.0}");
 
@@ -281,20 +250,6 @@ public class ReportGeneratorServiceTest {
 
         when(trainingReportRepository.save(any(TrainingReport.class)))
                 .thenReturn(savedReport);
-
-        TrainingReportDto expectedDto = new TrainingReportDto(
-                savedReport.getId(),
-                savedReport.getUserId(),
-                savedReport.getWeekNumber(),
-                savedReport.getYear(),
-                savedReport.getMarkdownContent(),
-                savedReport.getSummaryJson(),
-                savedReport.getCreatedAt(),
-                savedReport.getTriggerActivityId()
-        );
-
-        when(trainingReportMapper.toDto(any(TrainingReport.class)))
-                .thenReturn(expectedDto);
 
         when(objectMapper.writeValueAsString(any()))
                 .thenReturn("{\"weekNumber\":49,\"year\":2024,\"totalActivities\":4,\"totalKm\":52.0,\"totalDuration\":15600,\"averagePace\":300,\"trend\":\"improving\"}");
