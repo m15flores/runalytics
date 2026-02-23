@@ -67,6 +67,7 @@ class AthleteProfileMapperTest {
                 30,
                 70.0,
                 190,
+                null,
                 now,
                 now
         );
@@ -113,6 +114,7 @@ class AthleteProfileMapperTest {
                 UUID.randomUUID(),
                 "minimal-user",
                 "Minimal Profile",
+                null,
                 null,
                 null,
                 null,
@@ -196,6 +198,7 @@ class AthleteProfileMapperTest {
                 75.0,
                 185,
                 null,
+                null,
                 null
         );
 
@@ -223,6 +226,7 @@ class AthleteProfileMapperTest {
                 30,
                 70.0,
                 190,
+                null,
                 now,
                 now
         );
@@ -230,7 +234,7 @@ class AthleteProfileMapperTest {
         // When
         AthleteProfile entity = mapper.toEntity(dto);
 
-        // Then - Timestamps should NOT be set (they're managed by @PrePersist/@PreUpdate)
+        // Then - Timestamps should NOT be set (managed by service layer)
         assertNull(entity.getCreatedAt());
         assertNull(entity.getUpdatedAt());
     }
@@ -247,6 +251,7 @@ class AthleteProfileMapperTest {
                 25,
                 65.0,
                 195,
+                null,
                 null,
                 null
         );

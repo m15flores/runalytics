@@ -32,6 +32,9 @@ public record AthleteProfileDto(
         @JsonProperty("maxHeartRate")
         Integer maxHeartRate,
 
+        @JsonProperty("currentGoal")
+        String currentGoal,
+
         @JsonProperty("createdAt")
         Instant createdAt,
 
