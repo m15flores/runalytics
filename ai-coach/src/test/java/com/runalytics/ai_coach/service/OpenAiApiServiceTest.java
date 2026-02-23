@@ -3,6 +3,7 @@ package com.runalytics.ai_coach.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.runalytics.ai_coach.config.OpenAiConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,16 +23,16 @@ public class OpenAiApiServiceTest {
     @BeforeEach
     void setUp() {
         // Start WireMock server
-        wireMockServer = new WireMockServer(8089);
+        wireMockServer = new WireMockServer(WireMockConfiguration.options().dynamicPort());
         wireMockServer.start();
-        WireMock.configureFor("localhost", 8089);
+        WireMock.configureFor("localhost", wireMockServer.port());
 
         // Create ObjectMapper
         objectMapper = new ObjectMapper();
 
         // Create WebClient pointing to WireMock
         WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8089")
+                .baseUrl("http://localhost:" + wireMockServer.port())
                 .defaultHeader("Authorization", "Bearer test-api-key")
                 .defaultHeader("Content-Type", "application/json")
                 .build();

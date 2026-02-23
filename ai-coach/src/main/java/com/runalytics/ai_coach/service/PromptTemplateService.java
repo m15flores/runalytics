@@ -15,7 +15,7 @@ import java.util.Locale;
 @Slf4j
 public class PromptTemplateService {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     /**
      * Build system prompt with coaching philosophy

@@ -72,7 +72,7 @@ import static org.awaitility.Awaitility.await;
         "openai.api.key=test-key",
         "spring.main.allow-bean-definition-overriding=true"
 })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class KafkaIntegrationTest {
 
     @Container
