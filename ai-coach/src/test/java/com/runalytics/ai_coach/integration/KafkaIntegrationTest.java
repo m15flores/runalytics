@@ -59,16 +59,13 @@ import static org.awaitility.Awaitility.await;
 @Testcontainers
 @EmbeddedKafka(
         partitions = 1,
-        topics = {"reports.generated", "recommendations.generated"},
-        brokerProperties = {
-                "listeners=PLAINTEXT://localhost:19092",
-                "port=19092"
-        }
+        topics = {"reports.generated", "recommendations.generated", "ai-coach.dlq"}
 )
 @TestPropertySource(properties = {
-        "spring.kafka.bootstrap-servers=localhost:19092",
+        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
         "app.kafka.topics.reports-generated=reports.generated",
         "app.kafka.topics.recommendations-generated=recommendations.generated",
+        "app.kafka.topics.dlq=ai-coach.dlq",
         "openai.api.key=test-key",
         "spring.main.allow-bean-definition-overriding=true"
 })
