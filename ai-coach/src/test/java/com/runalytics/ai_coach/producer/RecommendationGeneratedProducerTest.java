@@ -1,5 +1,6 @@
 package com.runalytics.ai_coach.producer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runalytics.ai_coach.entity.Priority;
 import com.runalytics.ai_coach.entity.Recommendation;
 import com.runalytics.ai_coach.entity.RecommendationType;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -39,7 +41,7 @@ class RecommendationGeneratedProducerTest {
 
     @BeforeEach
     void setUp() {
-        producer = new RecommendationGeneratedProducer(kafkaTemplate, TOPIC);
+        producer = new RecommendationGeneratedProducer(kafkaTemplate, TOPIC, new ObjectMapper(), Clock.systemUTC());
     }
 
     @Test
