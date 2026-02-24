@@ -22,6 +22,8 @@ public class TrainingReportEventDto {
     private Integer weekNumber;
     private Integer year;
     private String summaryJson;
+    private String athleteName;
+    private String currentGoal;
     private Instant generatedAt;
     private UUID triggerActivityId;
 }

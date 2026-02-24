@@ -1,5 +1,6 @@
 package com.runalytics.ai_coach.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runalytics.ai_coach.dto.TrainingCycleContext;
 import com.runalytics.ai_coach.dto.TrainingReportDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,7 @@ class PromptTemplateServiceTest {
 
     @BeforeEach
     void setUp() {
-        promptTemplateService = new PromptTemplateService();
+        promptTemplateService = new PromptTemplateService(new ObjectMapper());
 
         // Default context: Aerobic base, week 2 of cycle
         aerobicBaseContext = TrainingCycleContext.builder()
@@ -85,32 +86,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 49/2024
-                Athlete: John Doe
-                
-                ## Weekly Summary
-                - Total Distance: 52.5 km
-                
-                ## 4-Week Comparison
-                | Week | Distance | Pace |
-                |------|----------|------|
-                | 49   | 52.5 km  | 5:05 |
-                
-                ## Heart Rate Zones Distribution
-                | Zone | Time |
-                |------|------|
-                | Z2   | 2h   |
-                
-                ## Current Goal
-                Goal: Marathon sub-3:30
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(49)
                 .year(2024)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
+                .athleteName("John Doe")
+                .currentGoal("Marathon sub-3:30")
                 .build();
 
         // When
@@ -128,9 +109,6 @@ class PromptTemplateServiceTest {
         assertThat(userPrompt).contains("Cardiac Drift");
     }
 
-    // Keep remaining tests but update to pass TrainingCycleContext
-    // I'll show a few examples:
-
     @Test
     void shouldFormatDurationCorrectly() {
         // Given
@@ -144,17 +122,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 50/2024
-                Athlete: Test Runner
-                Goal: Improve endurance
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(50)
                 .year(2024)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
+                .athleteName("Test Runner")
+                .currentGoal("Improve endurance")
                 .build();
 
         // When
@@ -177,17 +150,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 50/2024
-                Athlete: Test Runner
-                Goal: Run faster
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(50)
                 .year(2024)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
+                .athleteName("Test Runner")
+                .currentGoal("Run faster")
                 .build();
 
         // When
@@ -208,17 +176,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 1/2025
-                Athlete: New Runner
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(1)
                 .year(2025)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
-                .build();
+                .athleteName("New Runner")
+                .build(); // currentGoal not set → null → "Not specified"
 
         // When
         String userPrompt = promptTemplateService.buildUserPrompt(report, aerobicBaseContext);
@@ -231,7 +194,7 @@ class PromptTemplateServiceTest {
     }
 
     @Test
-    void shouldExtractAthleteNameCorrectly() {
+    void shouldUseAthleteNameFromStructuredField() {
         // Given
         String summaryJson = """
                 {
@@ -242,19 +205,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 49/2024
-                Athlete: Jane Smith
-                
-                ## Weekly Summary
-                Great week!
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(49)
                 .year(2024)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
+                .athleteName("Jane Smith")
+                .currentGoal("Finish 10K")
                 .build();
 
         // When
@@ -265,7 +221,7 @@ class PromptTemplateServiceTest {
     }
 
     @Test
-    void shouldExtractGoalCorrectly() {
+    void shouldUseCurrentGoalFromStructuredField() {
         // Given
         String summaryJson = """
                 {
@@ -276,19 +232,12 @@ class PromptTemplateServiceTest {
                 }
                 """;
 
-        String markdownContent = """
-                # Training Report - Week 50/2024
-                Athlete: Bob Runner
-                
-                ## Goals
-                Current Goal: Ultra Marathon 100km in 10 hours
-                """;
-
         TrainingReportDto report = TrainingReportDto.builder()
                 .weekNumber(50)
                 .year(2024)
                 .summaryJson(summaryJson)
-                .markdownContent(markdownContent)
+                .athleteName("Bob Runner")
+                .currentGoal("Ultra Marathon 100km in 10 hours")
                 .build();
 
         // When

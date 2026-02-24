@@ -61,7 +61,8 @@ public class ReportAnalysisConsumer {
                     .weekNumber(event.getWeekNumber())
                     .year(event.getYear())
                     .summaryJson(event.getSummaryJson())
-                    .markdownContent("") // Not needed for AI analysis
+                    .athleteName(event.getAthleteName())
+                    .currentGoal(event.getCurrentGoal())
                     .createdAt(event.getGeneratedAt())
                     .triggerActivityId(event.getTriggerActivityId())
                     .build();

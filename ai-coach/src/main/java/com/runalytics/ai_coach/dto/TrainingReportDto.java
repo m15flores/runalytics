@@ -20,6 +20,8 @@ public class TrainingReportDto {
     private String userId;
     private Integer weekNumber;
     private Integer year;
+    private String athleteName;
+    private String currentGoal;
     private String markdownContent;
     private String summaryJson;
     private Instant createdAt;

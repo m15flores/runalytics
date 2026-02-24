@@ -147,8 +147,9 @@ public class PromptTemplateService {
         try {
             JsonNode summaryJson = objectMapper.readTree(report.getSummaryJson());
 
-            String athleteName = extractAthleteName(report.getMarkdownContent());
-            String currentGoal = extractGoal(report.getMarkdownContent());
+            String athleteName = report.getAthleteName() != null ? report.getAthleteName() : "Athlete";
+            String currentGoal = report.getCurrentGoal() != null ? report.getCurrentGoal() : "Not specified";
+            String markdown = report.getMarkdownContent() != null ? report.getMarkdownContent() : "";
 
             return String.format(Locale.US, """
                     Analyze this training report for %s:
@@ -201,8 +202,8 @@ public class PromptTemplateService {
                     formatPace(summaryJson.has("averagePace") ? summaryJson.get("averagePace").asInt() : 0),
                     summaryJson.has("averageHeartRate") ? summaryJson.get("averageHeartRate").asInt() : 0,
                     summaryJson.has("totalActivities") ? summaryJson.get("totalActivities").asInt() : 0,
-                    extractComparisonTable(report.getMarkdownContent()),
-                    extractHrZones(report.getMarkdownContent()),
+                    extractComparisonTable(markdown),
+                    extractHrZones(markdown),
                     currentGoal
             );
 
@@ -210,31 +211,6 @@ public class PromptTemplateService {
             log.error("Error building user prompt: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to build user prompt", e);
         }
-    }
-
-    // Keep existing helper methods: extractAthleteName, extractGoal, extractComparisonTable,
-    // extractHrZones, formatDuration, formatPace
-
-    private String extractAthleteName(String markdown) {
-        String[] lines = markdown.split("\n");
-        for (int i = 0; i < lines.length; i++) {
-            if (lines[i].contains("Training Report - Week")) {
-                if (i + 1 < lines.length && lines[i + 1].startsWith("Athlete:")) {
-                    return lines[i + 1].replace("Athlete:", "").trim();
-                }
-            }
-        }
-        return "Athlete";
-    }
-
-    private String extractGoal(String markdown) {
-        String[] lines = markdown.split("\n");
-        for (String line : lines) {
-            if (line.contains("Goal:") || line.contains("Current Goal:")) {
-                return line.replaceAll(".*Goal:", "").trim();
-            }
-        }
-        return "Not specified";
     }
 
     private String extractComparisonTable(String markdown) {

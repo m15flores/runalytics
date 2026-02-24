@@ -14,13 +14,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +39,9 @@ class ReportAnalysisConsumerTest {
     @Mock
     private RecommendationGeneratedProducer recommendationProducer;
 
+    @Mock
+    private KafkaTemplate<String, TrainingReportEventDto> dlqTemplate;
+
     @Captor
     private ArgumentCaptor<TrainingReportDto> reportCaptor;
 
@@ -48,7 +55,8 @@ class ReportAnalysisConsumerTest {
         reportAnalysisConsumer = new ReportAnalysisConsumer(
                 recommendationGeneratorService,
                 trainingCycleContextService,
-                recommendationProducer
+                recommendationProducer,
+                dlqTemplate
         );
     }
 
@@ -62,6 +70,8 @@ class ReportAnalysisConsumerTest {
                 .weekNumber(49)
                 .year(2024)
                 .summaryJson("{\"totalKm\": 50.0}")
+                .athleteName("John Doe")
+                .currentGoal("Marathon sub-3:30")
                 .generatedAt(Instant.now())
                 .build();
 
@@ -89,6 +99,8 @@ class ReportAnalysisConsumerTest {
         assertThat(capturedReport.getId()).isEqualTo(reportId);
         assertThat(capturedReport.getUserId()).isEqualTo("test-user");
         assertThat(capturedReport.getWeekNumber()).isEqualTo(49);
+        assertThat(capturedReport.getAthleteName()).isEqualTo("John Doe");
+        assertThat(capturedReport.getCurrentGoal()).isEqualTo("Marathon sub-3:30");
 
         TrainingCycleContext capturedContext = contextCaptor.getValue();
         assertThat(capturedContext.getWeekInCycle()).isEqualTo(1);
@@ -103,6 +115,8 @@ class ReportAnalysisConsumerTest {
                 .weekNumber(50)
                 .year(2024)
                 .summaryJson("{}")
+                .athleteName("Test Athlete")
+                .currentGoal("Run a 5K")
                 .build();
 
         TrainingCycleContext context = TrainingCycleContext.builder()
@@ -140,11 +154,17 @@ class ReportAnalysisConsumerTest {
         when(trainingCycleContextService.determineContext(any(), any()))
                 .thenThrow(new RuntimeException("Service error"));
 
+        CompletableFuture<SendResult<String, TrainingReportEventDto>> future =
+                CompletableFuture.completedFuture(null);
+        when(dlqTemplate.send(nullable(String.class), any(String.class), any(TrainingReportEventDto.class)))
+                .thenReturn(future);
+
         // When & Then - should not throw
         reportAnalysisConsumer.consume(event);
 
         // Should not have called generator
         verify(recommendationGeneratorService, never()).generateRecommendations(any(), any());
         verify(recommendationProducer, never()).publishRecommendations(any(), any());
+        verify(dlqTemplate).send(any(), eq("test-user"), eq(event));
     }
 }
