@@ -70,8 +70,11 @@ public class RecommendationTest {
     }
 
     @Test
-    void shouldAutomaticallySetCreatedAtOnPersist() {
+    void shouldSetCreatedAtViaBuilder() {
         // Given
+        Instant createdAt = Instant.now();
+
+        // When
         Recommendation recommendation = Recommendation.builder()
                 .userId("test-user")
                 .reportId(UUID.randomUUID())
@@ -79,13 +82,11 @@ public class RecommendationTest {
                 .priority(Priority.LOW)
                 .content("Try to maintain a more consistent pace")
                 .rationale("Your pace variance is high")
+                .createdAt(createdAt)
                 .build();
 
-        // When
-        recommendation.onCreate(); // Simula @PrePersist
-
         // Then
-        assertThat(recommendation.getCreatedAt()).isNotNull();
+        assertThat(recommendation.getCreatedAt()).isEqualTo(createdAt);
         assertThat(recommendation.getCreatedAt()).isBefore(Instant.now().plusSeconds(1));
     }
 
