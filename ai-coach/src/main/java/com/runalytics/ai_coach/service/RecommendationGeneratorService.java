@@ -8,7 +8,6 @@ import com.runalytics.ai_coach.dto.TrainingCycleContext;
 import com.runalytics.ai_coach.dto.TrainingReportDto;
 import com.runalytics.ai_coach.dto.openai.AiRecommendationResponse;
 import com.runalytics.ai_coach.repository.RecommendationRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import java.util.stream.Collectors;
  * Service to generate AI-powered recommendations from training reports
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class RecommendationGeneratorService {
 
@@ -33,9 +31,22 @@ public class RecommendationGeneratorService {
     private final RecommendationRepository recommendationRepository;
     private final ObjectMapper objectMapper;
     private final Clock clock;
+    private final int expirationDays;
 
-    @Value("${app.recommendations.expiration-days:7}")
-    private int expirationDays;
+    public RecommendationGeneratorService(
+            OpenAiApiService openAiApiService,
+            PromptTemplateService promptTemplateService,
+            RecommendationRepository recommendationRepository,
+            ObjectMapper objectMapper,
+            Clock clock,
+            @Value("${app.recommendations.expiration-days:7}") int expirationDays) {
+        this.openAiApiService = openAiApiService;
+        this.promptTemplateService = promptTemplateService;
+        this.recommendationRepository = recommendationRepository;
+        this.objectMapper = objectMapper;
+        this.clock = clock;
+        this.expirationDays = expirationDays;
+    }
 
     /**
      * Generate recommendations for a training report using AI

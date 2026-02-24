@@ -14,6 +14,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -49,7 +50,9 @@ public class RecommendationGeneratorServiceTest {
                 openAiApiService,
                 promptTemplateService,
                 recommendationRepository,
-                objectMapper
+                objectMapper,
+                Clock.systemUTC(),
+                7
         );
     }
 
