@@ -55,6 +55,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Reduce weekly mileage")
                 .rationale("Volume spike detected")
+                .createdAt(Instant.now())
                 .build();
 
         // When
@@ -81,6 +82,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Reduce volume")
                 .rationale("Volume spike")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation rec2 = Recommendation.builder()
@@ -90,6 +92,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.MEDIUM)
                 .content("Take rest day")
                 .rationale("Elevated heart rate")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation rec3 = Recommendation.builder()
@@ -99,6 +102,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.LOW)
                 .content("Maintain pace")
                 .rationale("Good consistency")
+                .createdAt(Instant.now())
                 .build();
 
         recommendationRepository.saveAll(List.of(rec1, rec2, rec3));
@@ -126,6 +130,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("First recommendation")
                 .rationale("First rationale")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation rec2 = Recommendation.builder()
@@ -135,6 +140,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.MEDIUM)
                 .content("Second recommendation")
                 .rationale("Second rationale")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation rec3 = Recommendation.builder()
@@ -144,6 +150,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.LOW)
                 .content("Third recommendation")
                 .rationale("Third rationale")
+                .createdAt(Instant.now())
                 .build();
 
         recommendationRepository.saveAll(List.of(rec1, rec2, rec3));
@@ -168,6 +175,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Critical recommendation")
                 .rationale("Injury risk detected")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation highPriority2 = Recommendation.builder()
@@ -177,6 +185,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Another critical recommendation")
                 .rationale("Overtraining detected")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation mediumPriority = Recommendation.builder()
@@ -186,6 +195,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.MEDIUM)
                 .content("Medium priority recommendation")
                 .rationale("Could improve")
+                .createdAt(Instant.now())
                 .build();
 
         Recommendation differentUser = Recommendation.builder()
@@ -195,6 +205,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Other user high priority")
                 .rationale("Different user")
+                .createdAt(Instant.now())
                 .build();
 
         recommendationRepository.saveAll(List.of(highPriority1, highPriority2, mediumPriority, differentUser));
@@ -227,6 +238,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.HIGH)
                 .content("Active recommendation 1")
                 .rationale("Still valid")
+                .createdAt(now)
                 .expiresAt(future)
                 .build();
 
@@ -237,6 +249,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.MEDIUM)
                 .content("Active recommendation 2")
                 .rationale("Still valid")
+                .createdAt(now)
                 .expiresAt(null) // No expiration
                 .build();
 
@@ -247,6 +260,7 @@ public class RecommendationRepositoryTest {
                 .priority(Priority.LOW)
                 .content("Expired recommendation")
                 .rationale("No longer valid")
+                .createdAt(now)
                 .expiresAt(past)
                 .build();
 
