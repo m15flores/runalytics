@@ -179,6 +179,7 @@ services:
       POSTGRES_URL: jdbc:postgresql://postgres:5432/runalytics
       POSTGRES_USER: runalytics
       POSTGRES_PASSWORD: runalytics
+      SPRING_JPA_HIBERNATE_DDL-AUTO: update
     depends_on:
       kafka:
         condition: service_healthy
