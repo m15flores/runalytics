@@ -3,9 +3,9 @@ spring:
     name: ai-coach
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ai_coach_db
-    username: postgres
-    password: postgres
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_coach_db}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,7 +18,7 @@ spring:
         format_sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
     consumer:
       group-id: ai-coach-group
@@ -34,6 +34,9 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: recommendationGenerated:com.runalytics.ai_coach.dto.RecommendationGeneratedEventDto
+
+server:
+  port: ${SERVER_PORT:8085}
 
 openai:
   api:
