@@ -3,9 +3,9 @@ spring:
     name: report-generator
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/report_generator
-    username: postgres
-    password: postgres
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/report_generator}
+    username: ${POSTGRES_USER:runalytics}
+    password: ${POSTGRES_PASSWORD:runalytics}
 
   jpa:
     hibernate:
@@ -15,7 +15,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: report-generator-group
       auto-offset-reset: earliest
