@@ -28,7 +28,7 @@ runalytics:
   kafka:
     topics:
       normalized: activities.normalized
-      metrics-calculated: activities.metrics.calculated
+      metrics-calculated: metrics.calculated
       normalized-dlq: activities.normalized.dlq
 
 logging:

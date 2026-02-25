@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @EmbeddedKafka(
         partitions = 1,
-        topics = {"activities.normalized", "activities.metrics.calculated"},
+        topics = {"activities.normalized", "metrics.calculated"},
         brokerProperties = {
                 "listeners=PLAINTEXT://localhost:9093",
                 "port=9093"

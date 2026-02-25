@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Testcontainers
 @EmbeddedKafka(
-        topics = {"activities.normalized", "activities.metrics.calculated"},
+        topics = {"activities.normalized", "metrics.calculated"},
         partitions = 1
 )
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
