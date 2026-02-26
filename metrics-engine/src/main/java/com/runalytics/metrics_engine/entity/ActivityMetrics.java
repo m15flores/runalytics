@@ -28,6 +28,9 @@ public class ActivityMetrics {
     @Column(name = "user_id", nullable = false, length = 50)
     private String userId;
 
+    @Column(name = "started_at")
+    private Instant startedAt;
+
     // Basic metrics
     @Column(name = "total_distance", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalDistance;

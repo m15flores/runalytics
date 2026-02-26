@@ -15,6 +15,7 @@ import java.util.UUID;
 public record ActivityMetricsDto(
         @JsonProperty("activityId") UUID activityId,
         @JsonProperty("userId") String userId,
+        @JsonProperty("startedAt") Instant startedAt,
 
         // Basic metrics
         @JsonProperty("totalDistance") BigDecimal totalDistance,        // meters

@@ -91,6 +91,7 @@ public class ActivityMetricsCalculator {
         return new ActivityMetricsDto(
                 input.activityId(),
                 input.userId(),
+                input.startedAt(),
                 session.totalDistance(),
                 session.totalTimerTime(),
                 session.totalElapsedTime(),
