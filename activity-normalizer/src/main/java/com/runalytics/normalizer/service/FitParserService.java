@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -30,6 +29,13 @@ public class FitParserService {
             @Override
             public void onMesg(SessionMesg mesg) {
                 collector.onSession(mesg);
+            }
+        });
+
+        mesgBroadcaster.addListener(new LapMesgListener() {
+            @Override
+            public void onMesg(LapMesg mesg) {
+                collector.onLap(mesg);
             }
         });
 
@@ -58,7 +64,10 @@ public class FitParserService {
         private Instant startedAt;
         private Integer durationSeconds;
         private BigDecimal distanceMeters;
+        private ParsedFitData.SessionInfo sessionInfo;
+        private final List<ParsedFitData.LapInfo> laps = new ArrayList<>();
         private final List<ActivitySample> samples = new ArrayList<>();
+        private int lapCounter = 0;
 
         public void onSession(SessionMesg mesg) {
             if (mesg.getStartTime() != null) {
@@ -70,6 +79,171 @@ public class FitParserService {
             if (mesg.getTotalDistance() != null) {
                 distanceMeters = BigDecimal.valueOf(mesg.getTotalDistance());
             }
+            sessionInfo = buildSessionInfo(mesg);
+        }
+
+        private ParsedFitData.SessionInfo buildSessionInfo(SessionMesg mesg) {
+            BigDecimal totalDistance = mesg.getTotalDistance() != null
+                    ? BigDecimal.valueOf(mesg.getTotalDistance()) : null;
+            Integer totalTimerTime = mesg.getTotalTimerTime() != null
+                    ? mesg.getTotalTimerTime().intValue() : null;
+            Integer totalElapsedTime = mesg.getTotalElapsedTime() != null
+                    ? mesg.getTotalElapsedTime().intValue() : null;
+            Integer totalCalories = mesg.getTotalCalories() != null
+                    ? mesg.getTotalCalories() : null;
+
+            Integer avgHR = mesg.getAvgHeartRate() != null
+                    ? mesg.getAvgHeartRate().intValue() : null;
+            Integer maxHR = mesg.getMaxHeartRate() != null
+                    ? mesg.getMaxHeartRate().intValue() : null;
+            Integer avgCadence = mesg.getAvgCadence() != null
+                    ? mesg.getAvgCadence().intValue() : null;
+            Integer maxCadence = mesg.getMaxCadence() != null
+                    ? mesg.getMaxCadence().intValue() : null;
+
+            BigDecimal enhancedAvgSpeed = mesg.getEnhancedAvgSpeed() != null
+                    ? BigDecimal.valueOf(mesg.getEnhancedAvgSpeed()) : null;
+            BigDecimal enhancedMaxSpeed = mesg.getEnhancedMaxSpeed() != null
+                    ? BigDecimal.valueOf(mesg.getEnhancedMaxSpeed()) : null;
+
+            Integer avgPower = mesg.getAvgPower() != null
+                    ? mesg.getAvgPower() : null;
+            Integer maxPower = mesg.getMaxPower() != null
+                    ? mesg.getMaxPower() : null;
+            Integer normalizedPower = mesg.getNormalizedPower() != null
+                    ? mesg.getNormalizedPower() : null;
+
+            Double avgVerticalOscillation = mesg.getAvgVerticalOscillation() != null
+                    ? mesg.getAvgVerticalOscillation().doubleValue() : null;
+            Double avgStanceTime = mesg.getAvgStanceTime() != null
+                    ? mesg.getAvgStanceTime().doubleValue() : null;
+            Double avgVerticalRatio = mesg.getAvgVerticalRatio() != null
+                    ? mesg.getAvgVerticalRatio().doubleValue() : null;
+            Integer avgStepLength = mesg.getAvgStepLength() != null
+                    ? mesg.getAvgStepLength().intValue() : null;
+
+            Integer totalAscent = mesg.getTotalAscent() != null
+                    ? mesg.getTotalAscent() : null;
+            Integer totalDescent = mesg.getTotalDescent() != null
+                    ? mesg.getTotalDescent() : null;
+
+            Double totalTrainingEffect = mesg.getTotalTrainingEffect() != null
+                    ? mesg.getTotalTrainingEffect().doubleValue() : null;
+            Double totalAnaerobicTrainingEffect = mesg.getTotalAnaerobicTrainingEffect() != null
+                    ? mesg.getTotalAnaerobicTrainingEffect().doubleValue() : null;
+            Double trainingLoadPeak = mesg.getTrainingLoadPeak() != null
+                    ? mesg.getTrainingLoadPeak().doubleValue() : null;
+
+            Integer workoutFeel = mesg.getWorkoutFeel() != null
+                    ? mesg.getWorkoutFeel().intValue() : null;
+            Integer workoutRpe = mesg.getWorkoutRpe() != null
+                    ? mesg.getWorkoutRpe().intValue() : null;
+
+            Map<String, Integer> timeInHrZones = extractHrZones(mesg);
+            Map<String, Integer> timeInPowerZones = extractPowerZones(mesg);
+
+            return new ParsedFitData.SessionInfo(
+                    totalDistance, totalTimerTime, totalElapsedTime, totalCalories,
+                    avgHR, maxHR, avgCadence, maxCadence,
+                    enhancedAvgSpeed, enhancedMaxSpeed,
+                    avgPower, maxPower, normalizedPower,
+                    avgVerticalOscillation, avgStanceTime, avgVerticalRatio, avgStepLength,
+                    totalAscent, totalDescent,
+                    totalTrainingEffect, totalAnaerobicTrainingEffect, trainingLoadPeak,
+                    workoutFeel, workoutRpe,
+                    timeInHrZones, timeInPowerZones,
+                    null, null, null, null // config fields come from UserProfile/ZonesTarget messages
+            );
+        }
+
+        private Map<String, Integer> extractHrZones(SessionMesg mesg) {
+            String[] zoneNames = {"Z1", "Z2", "Z3", "Z4", "Z5"};
+            Map<String, Integer> zones = new LinkedHashMap<>();
+            for (int i = 0; i < zoneNames.length; i++) {
+                Float zoneTime = mesg.getTimeInHrZone(i);
+                if (zoneTime != null) {
+                    zones.put(zoneNames[i], zoneTime.intValue());
+                }
+            }
+            return zones.isEmpty() ? null : zones;
+        }
+
+        private Map<String, Integer> extractPowerZones(SessionMesg mesg) {
+            String[] zoneNames = {"Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7"};
+            Map<String, Integer> zones = new LinkedHashMap<>();
+            for (int i = 0; i < zoneNames.length; i++) {
+                Float zoneTime = mesg.getTimeInPowerZone(i);
+                if (zoneTime != null) {
+                    zones.put(zoneNames[i], zoneTime.intValue());
+                }
+            }
+            return zones.isEmpty() ? null : zones;
+        }
+
+        public void onLap(LapMesg mesg) {
+            lapCounter++;
+
+            Instant startTime = mesg.getStartTime() != null
+                    ? convertFitTimestamp(mesg.getStartTime()) : null;
+            BigDecimal totalDistance = mesg.getTotalDistance() != null
+                    ? BigDecimal.valueOf(mesg.getTotalDistance()) : null;
+            Integer totalTimerTime = mesg.getTotalTimerTime() != null
+                    ? mesg.getTotalTimerTime().intValue() : null;
+            Integer totalElapsedTime = mesg.getTotalElapsedTime() != null
+                    ? mesg.getTotalElapsedTime().intValue() : null;
+            Integer totalCalories = mesg.getTotalCalories() != null
+                    ? mesg.getTotalCalories() : null;
+
+            Integer avgHR = mesg.getAvgHeartRate() != null
+                    ? mesg.getAvgHeartRate().intValue() : null;
+            Integer maxHR = mesg.getMaxHeartRate() != null
+                    ? mesg.getMaxHeartRate().intValue() : null;
+            Integer avgCadence = mesg.getAvgCadence() != null
+                    ? mesg.getAvgCadence().intValue() : null;
+            Integer maxCadence = mesg.getMaxCadence() != null
+                    ? mesg.getMaxCadence().intValue() : null;
+
+            BigDecimal enhancedAvgSpeed = mesg.getEnhancedAvgSpeed() != null
+                    ? BigDecimal.valueOf(mesg.getEnhancedAvgSpeed()) : null;
+            BigDecimal enhancedMaxSpeed = mesg.getEnhancedMaxSpeed() != null
+                    ? BigDecimal.valueOf(mesg.getEnhancedMaxSpeed()) : null;
+
+            Integer avgPower = mesg.getAvgPower() != null
+                    ? mesg.getAvgPower() : null;
+            Integer maxPower = mesg.getMaxPower() != null
+                    ? mesg.getMaxPower() : null;
+            Integer normalizedPower = mesg.getNormalizedPower() != null
+                    ? mesg.getNormalizedPower() : null;
+
+            Double avgVerticalOscillation = mesg.getAvgVerticalOscillation() != null
+                    ? mesg.getAvgVerticalOscillation().doubleValue() : null;
+            Double avgStanceTime = mesg.getAvgStanceTime() != null
+                    ? mesg.getAvgStanceTime().doubleValue() : null;
+            Double avgVerticalRatio = mesg.getAvgVerticalRatio() != null
+                    ? mesg.getAvgVerticalRatio().doubleValue() : null;
+            Integer avgStepLength = mesg.getAvgStepLength() != null
+                    ? mesg.getAvgStepLength().intValue() : null;
+
+            Integer totalAscent = mesg.getTotalAscent() != null
+                    ? mesg.getTotalAscent() : null;
+            Integer totalDescent = mesg.getTotalDescent() != null
+                    ? mesg.getTotalDescent() : null;
+
+            String intensity = mesg.getIntensity() != null
+                    ? mesg.getIntensity().name().toLowerCase() : null;
+            Integer wktStepIndex = mesg.getWktStepIndex() != null
+                    ? mesg.getWktStepIndex() : null;
+
+            laps.add(new ParsedFitData.LapInfo(
+                    lapCounter, startTime,
+                    totalDistance, totalTimerTime, totalElapsedTime, totalCalories,
+                    avgHR, maxHR, avgCadence, maxCadence,
+                    enhancedAvgSpeed, enhancedMaxSpeed,
+                    avgPower, maxPower, normalizedPower,
+                    avgVerticalOscillation, avgStanceTime, avgVerticalRatio, avgStepLength,
+                    totalAscent, totalDescent,
+                    intensity, wktStepIndex
+            ));
         }
 
         public void onRecord(RecordMesg mesg) {
@@ -93,8 +267,13 @@ public class FitParserService {
                     ? mesg.getHeartRate().intValue()
                     : null;
 
-            Integer paceSecondsPerKm = mesg.getSpeed() != null && mesg.getSpeed() > 0
-                    ? calculatePaceFromSpeed(mesg.getSpeed())
+            // Prefer enhanced speed (higher precision); fall back to standard speed
+            Double speedMs = mesg.getEnhancedSpeed() != null
+                    ? mesg.getEnhancedSpeed()
+                    : (mesg.getSpeed() != null ? mesg.getSpeed().doubleValue() : null);
+
+            Integer paceSecondsPerKm = speedMs != null && speedMs > 0
+                    ? (int) (1000.0 / speedMs)
                     : null;
 
             Double altitude = mesg.getAltitude() != null
@@ -105,9 +284,18 @@ public class FitParserService {
                     ? mesg.getCadence().intValue()
                     : null;
 
+            Integer power = mesg.getPower() != null
+                    ? mesg.getPower()
+                    : null;
+
+            Double distance = mesg.getDistance() != null
+                    ? mesg.getDistance().doubleValue()
+                    : null;
+
             samples.add(new ActivitySample(
                     timestamp, latitude, longitude, heartRate,
-                    paceSecondsPerKm, altitude, cadence
+                    paceSecondsPerKm, altitude, cadence,
+                    speedMs, power, distance
             ));
         }
 
@@ -122,6 +310,8 @@ public class FitParserService {
                     startedAt,
                     durationSeconds != null ? durationSeconds : 0,
                     distanceMeters != null ? distanceMeters : BigDecimal.ZERO,
+                    sessionInfo,
+                    laps,
                     samples
             );
         }
@@ -136,13 +326,6 @@ public class FitParserService {
         private Double convertSemicirclesToDegrees(Integer semicircles) {
             // FIT uses semicircles (2^31 semicircles = 180 degrees)
             return semicircles * (180.0 / Math.pow(2, 31));
-        }
-
-        private Integer calculatePaceFromSpeed(Float speedMetersPerSecond) {
-            if (speedMetersPerSecond <= 0) {
-                return null;
-            }
-            return (int) (1000.0 / speedMetersPerSecond);
         }
     }
 }
