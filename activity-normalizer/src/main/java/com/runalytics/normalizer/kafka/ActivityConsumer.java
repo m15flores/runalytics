@@ -6,14 +6,17 @@ import com.runalytics.normalizer.dto.ActivityNormalizedDto;
 import com.runalytics.normalizer.dto.ActivitySample;
 import com.runalytics.normalizer.dto.ParsedFitData;
 import com.runalytics.normalizer.service.ActivityNormalizerService;
+import com.runalytics.normalizer.service.FitParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +27,7 @@ public class ActivityConsumer {
     private final ActivityNormalizerService normalizerService;
     private final NormalizerProducer normalizerProducer;
     private final ObjectMapper objectMapper;
+    private final FitParserService fitParserService;
 
     @KafkaListener(
             topics = "${runalytics.kafka.topics.raw-ingested}",
@@ -40,7 +44,16 @@ public class ActivityConsumer {
                     ? json.get("device").asText()
                     : null;
 
-            ParsedFitData parsedData = buildParsedFitData(json);
+            JsonNode raw = json.get("raw");
+            ParsedFitData parsedData;
+            if (raw != null && raw.has("fitBase64")) {
+                log.info("action=consume type=fit userId={}", userId);
+                byte[] fitBytes = Base64.getDecoder().decode(raw.get("fitBase64").asText());
+                parsedData = fitParserService.parse(new ByteArrayInputStream(fitBytes));
+            } else {
+                log.info("action=consume type=json userId={}", userId);
+                parsedData = buildParsedFitData(json);
+            }
 
             log.info("Normalizing activity for user: {}", userId);
 

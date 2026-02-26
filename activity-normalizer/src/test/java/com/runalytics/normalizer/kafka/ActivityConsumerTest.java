@@ -6,6 +6,7 @@ import com.runalytics.normalizer.dto.ParsedFitData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.runalytics.normalizer.service.ActivityNormalizerService;
+import com.runalytics.normalizer.service.FitParserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,8 +14,10 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +36,9 @@ class ActivityConsumerTest {
 
     @Mock
     private NormalizerProducer normalizerProducer;
+
+    @Mock
+    private FitParserService fitParserService;
 
     @InjectMocks
     private ActivityConsumer consumer;
@@ -102,6 +108,46 @@ class ActivityConsumerTest {
         // Then
         verify(normalizerService, never()).normalize(any(), any(), any());
         verify(normalizerProducer, never()).publish(any());
+    }
+
+    @Test
+    void shouldUseFitParserServiceWhenFitBase64Present() throws Exception {
+        byte[] fakeFitBytes = "fakefitbytes".getBytes();
+        String base64 = Base64.getEncoder().encodeToString(fakeFitBytes);
+
+        String message = """
+            {
+                "userId": "mario-001",
+                "device": "Garmin Fenix",
+                "timestamp": "2026-02-24T07:30:00Z",
+                "source": "garmin",
+                "raw": {
+                    "fitBase64": "%s"
+                }
+            }
+            """.formatted(base64);
+
+        ParsedFitData parsedData = new ParsedFitData(
+                Instant.parse("2026-02-24T07:30:00Z"),
+                3600,
+                new BigDecimal("11000"),
+                List.of(new ActivitySample(Instant.parse("2026-02-24T07:30:05Z"), null, null, 145, null, null, null))
+        );
+        ActivityNormalizedDto normalizedDto = new ActivityNormalizedDto(
+                UUID.randomUUID(), "mario-001", "Garmin Fenix",
+                Instant.parse("2026-02-24T07:30:00Z"), 3600, new BigDecimal("11000"),
+                parsedData.samples(), Instant.now()
+        );
+
+        when(fitParserService.parse(any(InputStream.class))).thenReturn(parsedData);
+        when(normalizerService.normalize(eq("mario-001"), eq("Garmin Fenix"), eq(parsedData)))
+                .thenReturn(normalizedDto);
+
+        consumer.consume(message);
+
+        verify(fitParserService, times(1)).parse(any(InputStream.class));
+        verify(normalizerService, times(1)).normalize("mario-001", "Garmin Fenix", parsedData);
+        verify(normalizerProducer, times(1)).publish(normalizedDto);
     }
 
     @Test
