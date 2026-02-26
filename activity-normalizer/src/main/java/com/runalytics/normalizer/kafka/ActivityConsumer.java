@@ -79,7 +79,21 @@ public class ActivityConsumer {
                 ? new BigDecimal(raw.get("distance_m").asText())
                 : BigDecimal.ZERO;
 
-        return new ParsedFitData(timestamp, durationSeconds, distanceMeters, extractSamples(raw));
+        // Build a minimal SessionInfo from the available top-level fields
+        ParsedFitData.SessionInfo sessionInfo = new ParsedFitData.SessionInfo(
+                distanceMeters, durationSeconds, durationSeconds, null,
+                null, null, null, null,
+                null, null,
+                null, null, null,
+                null, null, null, null,
+                null, null,
+                null, null, null,
+                null, null,
+                null, null,
+                null, null, null, null
+        );
+
+        return new ParsedFitData(timestamp, durationSeconds, distanceMeters, sessionInfo, List.of(), extractSamples(raw));
     }
 
     private List<ActivitySample> extractSamples(JsonNode raw) {
@@ -98,7 +112,7 @@ public class ActivityConsumer {
                 Integer cadence = sampleNode.has("cadence") ? sampleNode.get("cadence").asInt() : null;
 
                 if (ts != null) {
-                    samples.add(new ActivitySample(ts, lat, lon, hr, pace, altitude, cadence));
+                    samples.add(new ActivitySample(ts, lat, lon, hr, pace, altitude, cadence, null, null, null));
                 }
             }
         }
