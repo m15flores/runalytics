@@ -23,4 +23,8 @@ WORKDIR /app
 # Copiar JAR desde el stage de build
 COPY --from=build /app/target/activity-normalizer-*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]
