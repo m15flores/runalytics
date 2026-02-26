@@ -9,8 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
+import org.springframework.mock.web.MockMultipartFile;
+
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -146,5 +149,66 @@ public class ActivityControllerTest {
                 .andExpect(jsonPath("$.message").value("Kafka unavailable"));
 
         verify(activityService, times(1)).ingestActivity(any(ActivityDto.class));
+    }
+
+    // --- POST /activities/fit ---
+
+    @Test
+    void shouldReturn201WhenValidFitFileUploaded() throws Exception {
+        byte[] fitBytes = new byte[]{1, 2, 3, 4, 5};
+        MockMultipartFile file = new MockMultipartFile("file", "activity.fit", "application/octet-stream", fitBytes);
+
+        when(activityService.ingestFitFile(eq("mario-001"), eq("Garmin Fenix"), isNull(), any(byte[].class)))
+                .thenReturn("mario-001");
+
+        mockMvc.perform(multipart("/activities/fit")
+                        .file(file)
+                        .param("userId", "mario-001")
+                        .param("device", "Garmin Fenix"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value("mario-001"));
+
+        verify(activityService, times(1)).ingestFitFile(eq("mario-001"), eq("Garmin Fenix"), isNull(), any(byte[].class));
+    }
+
+    @Test
+    void shouldReturn400WhenFitFileIsEmpty() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "activity.fit", "application/octet-stream", new byte[0]);
+
+        mockMvc.perform(multipart("/activities/fit")
+                        .file(file)
+                        .param("userId", "mario-001"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Bad Request"));
+
+        verify(activityService, never()).ingestFitFile(any(), any(), any(), any());
+    }
+
+    @Test
+    void shouldReturn400WhenFitUserIdIsBlank() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file", "activity.fit", "application/octet-stream", new byte[]{1, 2, 3});
+
+        mockMvc.perform(multipart("/activities/fit")
+                        .file(file)
+                        .param("userId", "  "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Bad Request"));
+
+        verify(activityService, never()).ingestFitFile(any(), any(), any(), any());
+    }
+
+    @Test
+    void shouldReturn500WhenFitServiceThrowsException() throws Exception {
+        byte[] fitBytes = new byte[]{1, 2, 3};
+        MockMultipartFile file = new MockMultipartFile("file", "activity.fit", "application/octet-stream", fitBytes);
+
+        when(activityService.ingestFitFile(any(), any(), any(), any()))
+                .thenThrow(new RuntimeException("Kafka unavailable"));
+
+        mockMvc.perform(multipart("/activities/fit")
+                        .file(file)
+                        .param("userId", "mario-001"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message").value("Kafka unavailable"));
     }
 }

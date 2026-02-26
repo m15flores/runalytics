@@ -9,6 +9,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -66,6 +67,19 @@ public class GlobalExceptionHandler {
         error.put("message", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException ex) {
+        log.warn("action=upload status=413 message=file too large");
+
+        Map<String, Object> error = new HashMap<>();
+        error.put("timestamp", Instant.now(clock));
+        error.put("status", HttpStatus.PAYLOAD_TOO_LARGE.value());
+        error.put("error", "File Too Large");
+        error.put("message", "FIT file exceeds the maximum allowed size of 1 MB");
+
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(error);
     }
 
     @ExceptionHandler(Exception.class)

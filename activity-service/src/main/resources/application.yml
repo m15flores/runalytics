@@ -5,6 +5,12 @@ spring:
   application:
     name: activity-service
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1MB
+      max-request-size: 2MB
+
   # Kafka Configuration
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:29092}
