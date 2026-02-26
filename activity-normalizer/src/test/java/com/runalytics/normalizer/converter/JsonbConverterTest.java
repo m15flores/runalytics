@@ -27,7 +27,7 @@ class JsonbConverterTest {
         // Given
         Instant timestamp = Instant.parse("2025-01-01T10:30:05Z");
         List<ActivitySample> samples = List.of(
-                new ActivitySample(timestamp, 40.416775, -3.703790, 145, 300, 650.5, 85)
+                new ActivitySample(timestamp, 40.416775, -3.703790, 145, 300, 650.5, 85, null, null, null)
         );
 
         // When
@@ -77,11 +77,11 @@ class JsonbConverterTest {
         List<ActivitySample> originalSamples = List.of(
                 new ActivitySample(
                         Instant.parse("2025-01-01T10:30:05Z"),
-                        40.416775, -3.703790, 145, 300, 650.5, 85
+                        40.416775, -3.703790, 145, 300, 650.5, 85, null, null, null
                 ),
                 new ActivitySample(
                         Instant.parse("2025-01-01T10:30:06Z"),
-                        40.416780, -3.703795, 147, 298, 651.0, 86
+                        40.416780, -3.703795, 147, 298, 651.0, 86, null, null, null
                 )
         );
 

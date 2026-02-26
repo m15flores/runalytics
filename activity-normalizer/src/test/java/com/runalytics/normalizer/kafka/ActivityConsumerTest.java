@@ -63,10 +63,12 @@ class ActivityConsumerTest {
                 Instant.parse("2025-01-01T10:30:00Z"),
                 2780,
                 new BigDecimal("10042"),
+                null, List.of(),
                 List.of(
                         new ActivitySample(
                                 Instant.parse("2025-01-01T10:30:05Z"),
-                                40.416775, -3.703790, 145, 300, 650.5, 85
+                                40.416775, -3.703790, 145, 300, 650.5, 85,
+                                null, null, null
                         )
                 )
         );
@@ -76,9 +78,7 @@ class ActivityConsumerTest {
                 "user-12345",
                 "Garmin-Fenix-7-Pro",
                 Instant.parse("2025-01-01T10:30:00Z"),
-                2780,
-                new BigDecimal("10042"),
-                parsedData.samples(),
+                null, List.of(), List.of(),
                 Instant.now()
         );
 
@@ -131,12 +131,12 @@ class ActivityConsumerTest {
                 Instant.parse("2026-02-24T07:30:00Z"),
                 3600,
                 new BigDecimal("11000"),
-                List.of(new ActivitySample(Instant.parse("2026-02-24T07:30:05Z"), null, null, 145, null, null, null))
+                null, List.of(),
+                List.of(new ActivitySample(Instant.parse("2026-02-24T07:30:05Z"), null, null, 145, null, null, null, null, null, null))
         );
         ActivityNormalizedDto normalizedDto = new ActivityNormalizedDto(
                 UUID.randomUUID(), "mario-001", "Garmin Fenix",
-                Instant.parse("2026-02-24T07:30:00Z"), 3600, new BigDecimal("11000"),
-                parsedData.samples(), Instant.now()
+                Instant.parse("2026-02-24T07:30:00Z"), null, List.of(), List.of(), Instant.now()
         );
 
         when(fitParserService.parse(any(InputStream.class))).thenReturn(parsedData);

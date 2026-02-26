@@ -9,7 +9,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -34,9 +33,7 @@ class NormalizerProducerTest {
                 "user-12345",
                 "Garmin-Fenix-7-Pro",
                 Instant.now(),
-                2780,
-                new BigDecimal("10042.50"),
-                List.of(),
+                null, List.of(), List.of(),
                 Instant.now()
         );
 

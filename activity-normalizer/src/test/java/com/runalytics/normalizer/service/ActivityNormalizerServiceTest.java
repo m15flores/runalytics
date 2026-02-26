@@ -48,10 +48,13 @@ class ActivityNormalizerServiceTest {
                 Instant.parse("2025-01-01T10:30:00Z"),
                 2780,
                 new BigDecimal("10042.50"),
+                null,
+                List.of(),
                 List.of(
                         new ActivitySample(
                                 Instant.parse("2025-01-01T10:30:05Z"),
-                                40.416775, -3.703790, 145, 300, 650.5, 85
+                                40.416775, -3.703790, 145, 300, 650.5, 85,
+                                null, null, null
                         )
                 )
         );
@@ -92,7 +95,7 @@ class ActivityNormalizerServiceTest {
                 Instant.parse("2025-01-01T10:30:00Z"),
                 1000,
                 new BigDecimal("5000"),
-                List.of()
+                null, List.of(), List.of()
         );
 
         Activity savedActivity = new Activity();
@@ -122,7 +125,7 @@ class ActivityNormalizerServiceTest {
                 Instant.now(),
                 1000,
                 new BigDecimal("5000"),
-                List.of()
+                null, List.of(), List.of()
         );
 
         Activity savedActivity = new Activity();
@@ -147,7 +150,7 @@ class ActivityNormalizerServiceTest {
                 Instant.now(),
                 1000,
                 new BigDecimal("5000"),
-                List.of()
+                null, List.of(), List.of()
         );
 
         // When & Then
