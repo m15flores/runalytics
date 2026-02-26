@@ -31,5 +31,14 @@ public record ActivitySample (
         Double altitude,
 
         @JsonProperty("cadence")
-        Integer cadence
+        Integer cadence,
+
+        @JsonProperty("speed")
+        Double speed,
+
+        @JsonProperty("power")
+        Integer power,
+
+        @JsonProperty("distance")
+        Double distance
 ){}
