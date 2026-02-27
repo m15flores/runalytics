@@ -2,6 +2,9 @@ spring:
   application:
     name: ai-coach
 
+  main:
+    web-application-type: none
+
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_coach_db}
     username: ${POSTGRES_USER:postgres}
@@ -34,9 +37,6 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.type.mapping: recommendationGenerated:com.runalytics.ai_coach.dto.RecommendationGeneratedEventDto
-
-server:
-  port: ${SERVER_PORT:8085}
 
 openai:
   api:
