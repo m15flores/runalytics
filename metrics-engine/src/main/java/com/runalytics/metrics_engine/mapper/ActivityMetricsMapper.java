@@ -1,6 +1,7 @@
 package com.runalytics.metrics_engine.mapper;
 
 import com.runalytics.metrics_engine.dto.ActivityMetricsDto;
+import com.runalytics.metrics_engine.dto.LapMetricsDto;
 import com.runalytics.metrics_engine.entity.ActivityMetrics;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -40,6 +41,17 @@ public interface ActivityMetricsMapper {
      */
     @Mapping(target = "laps", ignore = true)
     ActivityMetricsDto toDto(ActivityMetrics entity);
+
+    /**
+     * Converts ActivityMetrics entity to ActivityMetricsDto with laps populated.
+     * Used by the REST layer to return the full activity metrics including lap breakdown.
+     *
+     * @param entity the persisted entity
+     * @param laps   pre-mapped lap DTOs from LapMetricsMapper
+     * @return the complete DTO ready for the API response
+     */
+    @Mapping(target = "laps", source = "laps")
+    ActivityMetricsDto toFullDto(ActivityMetrics entity, List<LapMetricsDto> laps);
 
     /**
      * Converts list of entities to list of DTOs.
