@@ -196,12 +196,15 @@ services:
       context: ../metrics-engine
       dockerfile: Dockerfile
     container_name: metrics-engine-runalytics
+    ports:
+      - "8083:8083"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       POSTGRES_URL: jdbc:postgresql://postgres:5432/runalytics
       POSTGRES_USER: runalytics
       POSTGRES_PASSWORD: runalytics
       SPRING_JPA_HIBERNATE_DDL-AUTO: update
+      SERVER_PORT: 8083
     depends_on:
       kafka:
         condition: service_healthy
