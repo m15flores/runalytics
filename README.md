@@ -1,35 +1,39 @@
 # Runalytics
 
-Microservicio de ingestión y análisis de actividades deportivas.
+AI-powered running training analysis platform. Parses FIT files from Garmin devices, calculates training metrics, generates weekly reports, and produces coaching recommendations using GPT-4o.
+
+Fully event-driven — all communication between services happens through Apache Kafka.
 
 ---
 
-## Requisitos
+## Requirements
 
 - Docker >= 24
 - Docker Compose >= 2.0
-- Maven >= 3.9
 - Java 17
+- Maven >= 3.9
 
 ---
 
-## Estructura del proyecto
+## Project structure
 
 ```text
 runalytics/
-├── activity-service/    # Microservicio Spring Boot
-├── activity-normalizer/    # Microservicio Spring Boot
-├── infrastructure/     # Docker Compose y redes
-├── README.md
-└── .gitignore
+├── activity-service/       # Ingests raw FIT files via REST, publishes to Kafka
+├── activity-normalizer/    # Parses FIT files, extracts structured data
+├── metrics-engine/         # Calculates training metrics (pace, HR zones, cadence)
+├── report-generator/       # Generates weekly markdown training reports
+├── ai-coach/               # Generates AI coaching recommendations via GPT-4o
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## Levantar infraestructura y microservicio
-
-Desde la carpeta `infrastructure/`:
+## Run locally
 
 ```bash
-docker compose up -d
+docker compose up
 ```
+
+Requires an `.env` file at the root with `OPENAI_API_KEY`. See `.env.example`.
