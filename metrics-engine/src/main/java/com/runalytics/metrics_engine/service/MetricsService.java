@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -30,6 +32,14 @@ public class MetricsService {
     private final ActivityMetricsMapper activityMapper;
     private final LapMetricsMapper lapMapper;
     private final Clock clock;
+
+    public Optional<ActivityMetricsDto> getActivityMetrics(UUID activityId) {
+        return activityRepository.findByActivityId(activityId)
+                .map(entity -> {
+                    List<LapMetrics> laps = lapRepository.findByActivityIdOrderByLapNumberAsc(activityId);
+                    return activityMapper.toFullDto(entity, lapMapper.toDtoList(laps));
+                });
+    }
 
     @Transactional
     public void processActivity(ActivityNormalizedDto input) {
