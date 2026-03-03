@@ -1,5 +1,11 @@
 # Runalytics
 
+![CI - activity-service](https://github.com/m15flores/runalytics/actions/workflows/activity-service.yml/badge.svg)
+![CI - activity-normalizer](https://github.com/m15flores/runalytics/actions/workflows/activity-normalizer.yml/badge.svg)
+![CI - metrics-engine](https://github.com/m15flores/runalytics/actions/workflows/metrics-engine.yml/badge.svg)
+![CI - report-generator](https://github.com/m15flores/runalytics/actions/workflows/report-generator.yml/badge.svg)
+![CI - ai-coach](https://github.com/m15flores/runalytics/actions/workflows/ai-coach.yml/badge.svg)
+
 AI-powered running training analysis platform. Parses FIT files from Garmin devices, calculates training metrics, generates weekly reports, and produces coaching recommendations using GPT-4o.
 
 Fully event-driven — all communication between services happens through Apache Kafka.
