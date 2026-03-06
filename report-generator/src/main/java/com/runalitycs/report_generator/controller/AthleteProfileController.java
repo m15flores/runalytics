@@ -9,7 +9,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -78,23 +85,4 @@ public class AthleteProfileController {
         return ResponseEntity.ok(dtos);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
-            IllegalArgumentException ex) {
-
-        log.error("Validation error: {}", ex.getMessage());
-
-        HttpStatus status = ex.getMessage().contains("already exists")
-                ? HttpStatus.CONFLICT
-                : HttpStatus.NOT_FOUND;
-
-        String code = status == HttpStatus.CONFLICT ? "CONFLICT" : "NOT_FOUND";
-
-        ErrorResponse error = new ErrorResponse(code, ex.getMessage(), System.currentTimeMillis());
-
-        return ResponseEntity.status(status).body(error);
-    }
-
-    // Inner record for error responses
-    private record ErrorResponse(String code, String message, long timestamp) {}
 }

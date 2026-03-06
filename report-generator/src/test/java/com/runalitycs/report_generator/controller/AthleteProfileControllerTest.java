@@ -3,6 +3,7 @@ package com.runalitycs.report_generator.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runalitycs.report_generator.dto.AthleteProfileDto;
 import com.runalitycs.report_generator.entity.AthleteProfile;
+import com.runalitycs.report_generator.exception.GlobalExceptionHandler;
 import com.runalitycs.report_generator.mapper.AthleteProfileMapperImpl;
 import com.runalitycs.report_generator.service.AthleteProfileService;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AthleteProfileController.class)
-@Import(AthleteProfileMapperImpl.class)
+@Import({AthleteProfileMapperImpl.class, GlobalExceptionHandler.class})
 public class AthleteProfileControllerTest {
 
     @Autowired
@@ -34,6 +36,9 @@ public class AthleteProfileControllerTest {
 
     @MockitoBean
     private AthleteProfileService athleteProfileService;
+
+    @MockitoBean
+    private Clock clock;
 
     @Test
     void shouldCreateProfile() throws Exception {
