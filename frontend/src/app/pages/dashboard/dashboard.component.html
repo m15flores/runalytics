@@ -1,0 +1,39 @@
+<div class="dashboard">
+  <header class="dashboard-header">
+    <span class="app-title">Runalytics</span>
+    <div class="header-actions">
+      <p-tag severity="secondary" value="demo mode" />
+      <p-button label="Upload FIT" icon="pi pi-upload" (onClick)="onUploadClick()" />
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <p-tabs value="0">
+      <p-tablist>
+        <p-tab value="0">
+          <i class="pi pi-chart-bar"></i>
+          Metrics
+        </p-tab>
+        <p-tab value="1">
+          <i class="pi pi-file"></i>
+          Weekly Report
+        </p-tab>
+        <p-tab value="2">
+          <i class="pi pi-comments"></i>
+          AI Coach
+        </p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel value="0">
+          <app-metrics-tab />
+        </p-tabpanel>
+        <p-tabpanel value="1">
+          <app-report-tab />
+        </p-tabpanel>
+        <p-tabpanel value="2">
+          <app-coach-tab />
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+  </main>
+</div>
