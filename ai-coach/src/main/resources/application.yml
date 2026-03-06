@@ -1,9 +1,9 @@
+server:
+  port: ${SERVER_PORT:8085}
+
 spring:
   application:
     name: ai-coach
-
-  main:
-    web-application-type: none
 
   datasource:
     url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/ai_coach_db}

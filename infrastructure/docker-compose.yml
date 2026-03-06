@@ -259,6 +259,7 @@ services:
       POSTGRES_USER: runalytics
       POSTGRES_PASSWORD: runalytics
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SERVER_PORT: 8085
     depends_on:
       kafka:
         condition: service_healthy
