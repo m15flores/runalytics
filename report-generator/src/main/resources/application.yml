@@ -33,7 +33,7 @@ spring:
         spring.json.type.mapping: reportGenerated:com.runalitycs.report_generator.dto.ReportGeneratedEventDto,metricsCalculated:com.runalitycs.report_generator.dto.ActivityMetricsDto
 
 server:
-  port: 8083
+  port: ${SERVER_PORT:8084}
 
 app:
   timezone: Europe/Paris

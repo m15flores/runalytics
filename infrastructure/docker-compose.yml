@@ -222,12 +222,13 @@ services:
       dockerfile: Dockerfile
     container_name: report-generator-runalytics
     ports:
-      - "8083:8083"
+      - "8084:8084"
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       POSTGRES_URL: jdbc:postgresql://postgres:5432/runalytics
       POSTGRES_USER: runalytics
       POSTGRES_PASSWORD: runalytics
+      SERVER_PORT: 8084
     depends_on:
       kafka:
         condition: service_healthy
@@ -236,7 +237,7 @@ services:
     networks:
       - runalytics-net
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8083/actuator/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8084/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
