@@ -1,0 +1,47 @@
+[
+  {
+    "id": "51935aa3-046d-4b6b-9f46-71d173ea8beb",
+    "userId": "demo",
+    "reportId": "2ce6f27b-6eb5-41ac-80c2-6bf94a40ec98",
+    "type": "ZONE_COMPLIANCE",
+    "priority": "HIGH",
+    "content": "Commence immediate Zone 2 training sessions to align with the aerobic base phase goals. Aim for at least 3-4 sessions per week focused solely on maintaining Zone 2 heart rate.",
+    "rationale": "Zone 2 training is critical during the aerobic base phase to improve endurance and aerobic efficiency. Without it, the athlete will not progress in building the intended aerobic base.",
+    "verdict": "INVALID",
+    "weekInCycle": 1,
+    "trainingPhase": "AEROBIC_BASE",
+    "applied": false,
+    "createdAt": "2026-03-08T16:00:46.053683Z",
+    "expiresAt": "2026-03-15T16:00:46.053685Z"
+  },
+  {
+    "id": "f4b5f6d9-51bd-4f69-8927-1f744fff8fcc",
+    "userId": "demo",
+    "reportId": "2ce6f27b-6eb5-41ac-80c2-6bf94a40ec98",
+    "type": "TRAINING_VOLUME",
+    "priority": "HIGH",
+    "content": "Establish a training plan with gradual volume increases, ensuring a 10% weekly increase to prevent injury and promote sustainable progress.",
+    "rationale": "Gradual volume progression is necessary to build aerobic capacity while minimizing the risk of injury and overtraining.",
+    "verdict": "INVALID",
+    "weekInCycle": 1,
+    "trainingPhase": "AEROBIC_BASE",
+    "applied": false,
+    "createdAt": "2026-03-08T16:00:46.053764Z",
+    "expiresAt": "2026-03-15T16:00:46.053765Z"
+  },
+  {
+    "id": "a10ae94e-5f96-4ab1-bd8d-6308dd0c0baa",
+    "userId": "demo",
+    "reportId": "2ce6f27b-6eb5-41ac-80c2-6bf94a40ec98",
+    "type": "RECOVERY",
+    "priority": "MEDIUM",
+    "content": "Ensure that recovery protocols are in place to support future training loads, including appropriate rest days and active recovery sessions.",
+    "rationale": "Adequate recovery is essential for allowing physiological adaptations to occur and preparing the body for subsequent training loads.",
+    "verdict": "INVALID",
+    "weekInCycle": 1,
+    "trainingPhase": "AEROBIC_BASE",
+    "applied": false,
+    "createdAt": "2026-03-08T16:00:46.053780Z",
+    "expiresAt": "2026-03-15T16:00:46.053781Z"
+  }
+]
