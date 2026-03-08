@@ -1,0 +1,83 @@
+.report-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+:host ::ng-deep .report-meta-card .p-card-body {
+  padding: 1.25rem;
+}
+
+.report-meta {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meta-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+:host ::ng-deep .report-content-card .p-card-body {
+  padding: 1.5rem;
+}
+
+.markdown-body {
+  line-height: 1.7;
+  color: var(--p-text-color);
+
+  h1, h2, h3, h4 {
+    color: var(--p-text-color);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+
+  p {
+    margin-bottom: 1rem;
+  }
+
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  li {
+    margin-bottom: 0.25rem;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--p-content-border-color);
+    margin: 1.5rem 0;
+  }
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--p-text-muted-color);
+}

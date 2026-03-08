@@ -1,0 +1,28 @@
+@if (report(); as r) {
+  <div class="report-tab">
+
+    <p-card styleClass="report-meta-card">
+      <div class="report-meta">
+        <div class="meta-item">
+          <span class="meta-label">Athlete</span>
+          <span class="meta-value">{{ r.athleteName }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Week</span>
+          <span class="meta-value">{{ r.weekNumber }}/{{ r.year }}</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Goal</span>
+          <span class="meta-value">{{ r.currentGoal }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="report-content-card">
+      <div class="markdown-body" [innerHTML]="renderedMarkdown()"></div>
+    </p-card>
+
+  </div>
+} @else {
+  <div class="loading">Loading report...</div>
+}
