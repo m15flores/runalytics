@@ -1,0 +1,22 @@
+@if (recommendations().length > 0) {
+  <div class="coach-tab">
+
+    @for (rec of recommendations(); track rec.id) {
+      <p-card styleClass="rec-card">
+        <div class="rec-header">
+          <div class="rec-badges">
+            <p-tag [value]="formatType(rec.type)" severity="secondary" />
+            <p-tag [value]="rec.priority" [severity]="prioritySeverity(rec.priority)" />
+            <p-tag [value]="rec.verdict" [severity]="verdictSeverity(rec.verdict)" />
+          </div>
+          <span class="rec-phase">{{ rec.trainingPhase.replace('_', ' ') }} · Week {{ rec.weekInCycle }}/4</span>
+        </div>
+        <p class="rec-content">{{ rec.content }}</p>
+        <p class="rec-rationale">{{ rec.rationale }}</p>
+      </p-card>
+    }
+
+  </div>
+} @else {
+  <div class="loading">Loading recommendations...</div>
+}

@@ -7,9 +7,12 @@ import { environment } from '../../../environments/environment';
 export class ActivityService {
   private readonly http = inject(HttpClient);
 
-  uploadFit(file: File): Observable<{ activityId: string }> {
+  uploadFit(file: File, userId: string): Observable<{ userId: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    return this.http.post<{ activityId: string }>(`${environment.activityServiceUrl}/activities`, formData);
+    formData.append('userId', userId);
+    formData.append('device', 'garmin');
+    formData.append('source', 'fit');
+    return this.http.post<{ userId: string }>(`${environment.activityServiceUrl}/activities/fit`, formData);
   }
 }
