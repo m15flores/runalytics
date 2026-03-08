@@ -3,9 +3,29 @@
     <span class="app-title">Runalytics</span>
     <div class="header-actions">
       <p-tag severity="secondary" value="demo mode" />
-      <p-button label="Upload FIT" icon="pi pi-upload" (onClick)="onUploadClick()" />
+      <p-button
+        label="Upload FIT"
+        icon="pi pi-upload"
+        [loading]="uploadStatus() === 'uploading'"
+        [disabled]="uploadStatus() === 'uploading'"
+        (onClick)="onUploadClick()" />
     </div>
   </header>
+
+  <input #fileInput type="file" accept=".fit" style="display:none" (change)="onFileSelected($event)" />
+
+  @if (uploadStatus() === 'success') {
+    <div class="upload-banner upload-banner--success">
+      <i class="pi pi-check-circle"></i>
+      FIT file uploaded — pipeline started. Results will appear shortly.
+    </div>
+  }
+  @if (uploadStatus() === 'error') {
+    <div class="upload-banner upload-banner--error">
+      <i class="pi pi-times-circle"></i>
+      Upload failed. Make sure the backend is running.
+    </div>
+  }
 
   <main class="dashboard-content">
     <p-tabs value="0">

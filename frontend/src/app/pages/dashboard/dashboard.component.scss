@@ -31,3 +31,23 @@
   flex: 1;
   padding: 1.5rem 2rem;
 }
+
+.upload-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
+
+  &--success {
+    background: color-mix(in srgb, var(--p-green-500) 15%, transparent);
+    color: var(--p-green-400);
+    border-bottom: 1px solid color-mix(in srgb, var(--p-green-500) 30%, transparent);
+  }
+
+  &--error {
+    background: color-mix(in srgb, var(--p-red-500) 15%, transparent);
+    color: var(--p-red-400);
+    border-bottom: 1px solid color-mix(in srgb, var(--p-red-500) 30%, transparent);
+  }
+}
