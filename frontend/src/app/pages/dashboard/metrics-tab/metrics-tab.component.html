@@ -1,0 +1,58 @@
+@if (metrics(); as m) {
+  <div class="metrics-tab">
+
+    <div class="kpi-grid">
+      <p-card styleClass="kpi-card">
+        <div class="kpi-label">Distance</div>
+        <div class="kpi-value">{{ formatDistance(m.totalDistance) }} <span class="kpi-unit">km</span></div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-label">Duration</div>
+        <div class="kpi-value">{{ formatDuration(m.totalDuration) }}</div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-label">Avg Pace</div>
+        <div class="kpi-value">{{ formatPace(m.averagePace) }} <span class="kpi-unit">/km</span></div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-label">Avg Heart Rate</div>
+        <div class="kpi-value">{{ m.averageHeartRate }} <span class="kpi-unit">bpm</span></div>
+      </p-card>
+    </div>
+
+    <p-table [value]="m.laps" styleClass="p-datatable-sm" [stripedRows]="true">
+      <ng-template #header>
+        <tr>
+          <th>Lap</th>
+          <th>Dist (km)</th>
+          <th>Time</th>
+          <th>Pace /km</th>
+          <th>GAP /km</th>
+          <th>HR (bpm)</th>
+          <th>Cadence</th>
+          <th>Type</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-lap>
+        <tr>
+          <td>{{ lap.lapNumber }}</td>
+          <td>{{ formatDistance(lap.distance) }}</td>
+          <td>{{ formatDuration(lap.duration) }}</td>
+          <td>{{ formatPace(lap.averagePace) }}</td>
+          <td>{{ formatPace(lap.averageGAP) }}</td>
+          <td>{{ lap.averageHeartRate }}</td>
+          <td>{{ lap.averageCadence }}</td>
+          <td>
+            <p-tag [value]="lap.lapName" [severity]="intensitySeverity(lap.intensity)" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+} @else {
+  <div class="loading">Loading metrics...</div>
+}

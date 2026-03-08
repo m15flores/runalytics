@@ -1,0 +1,51 @@
+.metrics-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+:host ::ng-deep .kpi-card {
+  text-align: center;
+
+  .p-card-body {
+    padding: 1.25rem;
+  }
+}
+
+.kpi-label {
+  font-size: 0.8rem;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--p-text-color);
+  line-height: 1;
+}
+
+.kpi-unit {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--p-text-muted-color);
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--p-text-muted-color);
+}
