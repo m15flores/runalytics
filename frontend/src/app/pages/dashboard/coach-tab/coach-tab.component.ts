@@ -1,8 +1,10 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { catchError, of, switchMap } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { Recommendation } from '../../../core/models/recommendation/recommendation.model';
+import { RecommendationService } from '../../../core/services/recommendation.service';
 
 @Component({
   selector: 'app-coach-tab',
@@ -11,15 +13,28 @@ import { Recommendation } from '../../../core/models/recommendation/recommendati
   templateUrl: './coach-tab.component.html',
   styleUrl: './coach-tab.component.scss'
 })
-export class CoachTabComponent implements OnInit {
+export class CoachTabComponent {
 
+  private recommendationService = inject(RecommendationService);
   private http = inject(HttpClient);
 
+  refreshTrigger = input<number>(0);
   recommendations = signal<Recommendation[]>([]);
 
-  ngOnInit(): void {
-    this.http.get<Recommendation[]>('assets/demo-data/recommendations.json')
-      .subscribe(data => this.recommendations.set(data));
+  constructor() {
+    effect(() => {
+      this.refreshTrigger();
+      this.load();
+    });
+  }
+
+  private load(): void {
+    this.recommendationService.getRecommendations('demo').pipe(
+      switchMap(data => data.length > 0
+        ? of(data)
+        : this.http.get<Recommendation[]>('assets/demo-data/recommendations.json')),
+      catchError(() => this.http.get<Recommendation[]>('assets/demo-data/recommendations.json'))
+    ).subscribe(data => this.recommendations.set(data));
   }
 
   verdictSeverity(verdict: string): 'success' | 'warn' | 'danger' | 'secondary' {
