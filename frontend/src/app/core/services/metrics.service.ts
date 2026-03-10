@@ -11,4 +11,8 @@ export class MetricsService {
   getActivityMetrics(activityId: string): Observable<ActivityMetrics> {
     return this.http.get<ActivityMetrics>(`${environment.metricsServiceUrl}/activities/${activityId}/metrics`);
   }
+
+  getLatestMetrics(userId: string): Observable<ActivityMetrics> {
+    return this.http.get<ActivityMetrics>(`${environment.metricsServiceUrl}/activities/users/${userId}/latest`);
+  }
 }
