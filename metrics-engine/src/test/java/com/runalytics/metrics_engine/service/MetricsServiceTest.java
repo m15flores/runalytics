@@ -1,13 +1,16 @@
 package com.runalytics.metrics_engine.service;
 
 import com.runalytics.metrics_engine.dto.ActivityMetricsDto;
+import com.runalytics.metrics_engine.dto.ActivitySampleDto;
 import com.runalytics.metrics_engine.dto.LapMetricsDto;
 import com.runalytics.metrics_engine.entity.ActivityMetrics;
+import com.runalytics.metrics_engine.entity.ActivitySample;
 import com.runalytics.metrics_engine.entity.LapMetrics;
 import com.runalytics.metrics_engine.kafka.MetricsProducer;
 import com.runalytics.metrics_engine.mapper.ActivityMetricsMapper;
 import com.runalytics.metrics_engine.mapper.LapMetricsMapper;
 import com.runalytics.metrics_engine.repository.ActivityMetricsRepository;
+import com.runalytics.metrics_engine.repository.ActivitySampleRepository;
 import com.runalytics.metrics_engine.repository.LapMetricsRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +19,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -29,6 +34,7 @@ class MetricsServiceTest {
     @Mock private ActivityMetricsCalculator activityCalculator;
     @Mock private ActivityMetricsRepository activityRepository;
     @Mock private LapMetricsRepository lapRepository;
+    @Mock private ActivitySampleRepository sampleRepository;
     @Mock private MetricsProducer producer;
     @Mock private ActivityMetricsMapper activityMapper;
     @Mock private LapMetricsMapper lapMapper;
@@ -129,6 +135,67 @@ class MetricsServiceTest {
                 null, null,
                 List.of(), null
         );
+    }
+
+    @Test
+    void shouldReturnSamplesForActivity() {
+        // Given
+        UUID activityId = UUID.randomUUID();
+        List<ActivitySample> entities = List.of(buildSampleEntity(activityId), buildSampleEntity(activityId));
+        when(sampleRepository.findByActivityIdOrderByTimestampAsc(activityId)).thenReturn(entities);
+
+        // When
+        List<ActivitySampleDto> result = metricsService.getSamples(activityId);
+
+        // Then
+        assertThat(result).hasSize(2);
+        assertThat(result.get(0).heartRate()).isEqualTo(145);
+        assertThat(result.get(0).latitude()).isEqualTo(40.4);
+        verify(sampleRepository).findByActivityIdOrderByTimestampAsc(activityId);
+    }
+
+    @Test
+    void shouldReturnEmptySamplesWhenNoneExist() {
+        // Given
+        UUID activityId = UUID.randomUUID();
+        when(sampleRepository.findByActivityIdOrderByTimestampAsc(activityId)).thenReturn(List.of());
+
+        // When
+        List<ActivitySampleDto> result = metricsService.getSamples(activityId);
+
+        // Then
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void shouldDownsampleToMaxWhenTooManySamples() {
+        // Given
+        UUID activityId = UUID.randomUUID();
+        List<ActivitySample> bigList = IntStream.range(0, 1000)
+                .mapToObj(i -> buildSampleEntity(activityId))
+                .collect(java.util.stream.Collectors.toList());
+        when(sampleRepository.findByActivityIdOrderByTimestampAsc(activityId)).thenReturn(bigList);
+
+        // When
+        List<ActivitySampleDto> result = metricsService.getSamples(activityId);
+
+        // Then
+        assertThat(result).hasSizeLessThanOrEqualTo(500);
+    }
+
+    private ActivitySample buildSampleEntity(UUID activityId) {
+        ActivitySample s = new ActivitySample();
+        s.setActivityId(activityId);
+        s.setTimestamp(Instant.parse("2025-01-01T10:00:00Z"));
+        s.setLatitude(40.4);
+        s.setLongitude(-3.7);
+        s.setHeartRate(145);
+        s.setCadence(170);
+        s.setAltitude(650.0);
+        s.setSpeed(3.0);
+        s.setPower(null);
+        s.setDistance(1000.0);
+        return s;
     }
 
     private LapMetricsDto buildTestLapDto() {
