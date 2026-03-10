@@ -1,6 +1,7 @@
 package com.runalytics.metrics_engine.controller;
 
 import com.runalytics.metrics_engine.dto.ActivityMetricsDto;
+import com.runalytics.metrics_engine.dto.ActivitySampleDto;
 import com.runalytics.metrics_engine.service.MetricsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -34,5 +36,11 @@ public class MetricsController {
         return metricsService.getLatestActivityMetrics(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{activityId}/samples")
+    public ResponseEntity<List<ActivitySampleDto>> getActivitySamples(@PathVariable UUID activityId) {
+        log.info("GET /activities/{}/samples", activityId);
+        return ResponseEntity.ok(metricsService.getSamples(activityId));
     }
 }
