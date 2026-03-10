@@ -3,12 +3,21 @@
     <span class="app-title">Runalytics</span>
     <div class="header-actions">
       <p-tag severity="secondary" value="demo mode" />
-      <p-button
-        label="Upload FIT"
-        icon="pi pi-upload"
-        [loading]="uploadStatus() === 'uploading'"
-        [disabled]="uploadStatus() === 'uploading'"
-        (onClick)="onUploadClick()" />
+      @if (allowUpload) {
+        <p-button
+          label="Upload FIT"
+          icon="pi pi-upload"
+          [loading]="uploadStatus() === 'uploading'"
+          [disabled]="uploadStatus() === 'uploading'"
+          (onClick)="onUploadClick()" />
+      } @else {
+        <p-button
+          label="Upload FIT"
+          icon="pi pi-upload"
+          [disabled]="true"
+          pTooltip="Upload available when running locally. See README."
+          tooltipPosition="bottom" />
+      }
     </div>
   </header>
 
@@ -45,13 +54,13 @@
       </p-tablist>
       <p-tabpanels>
         <p-tabpanel value="0">
-          <app-metrics-tab />
+          <app-metrics-tab [metrics]="latestMetrics()" />
         </p-tabpanel>
         <p-tabpanel value="1">
-          <app-report-tab />
+          <app-report-tab [refreshTrigger]="refreshCounter()" />
         </p-tabpanel>
         <p-tabpanel value="2">
-          <app-coach-tab />
+          <app-coach-tab [refreshTrigger]="refreshCounter()" />
         </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
