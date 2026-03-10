@@ -41,6 +41,14 @@ public class MetricsService {
                 });
     }
 
+    public Optional<ActivityMetricsDto> getLatestActivityMetrics(String userId) {
+        return activityRepository.findFirstByUserIdOrderByCreatedAtDesc(userId)
+                .map(entity -> {
+                    List<LapMetrics> laps = lapRepository.findByActivityIdOrderByLapNumberAsc(entity.getActivityId());
+                    return activityMapper.toFullDto(entity, lapMapper.toDtoList(laps));
+                });
+    }
+
     @Transactional
     public void processActivity(ActivityNormalizedDto input) {
         log.info("Processing activity: {} for user: {}", input.activityId(), input.userId());

@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface ActivityMetricsRepository extends JpaRepository<ActivityMetrics, UUID> {
     Optional<ActivityMetrics> findByActivityId(UUID activityId);
     boolean existsByActivityId(UUID activityId);
+    Optional<ActivityMetrics> findFirstByUserIdOrderByCreatedAtDesc(String userId);
 }

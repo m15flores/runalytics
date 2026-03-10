@@ -76,6 +76,45 @@ class MetricsServiceTest {
         verifyNoInteractions(lapRepository, activityMapper, lapMapper);
     }
 
+    @Test
+    void shouldReturnLatestActivityMetricsForUser() {
+        // Given
+        String userId = "demo";
+        UUID activityId = UUID.randomUUID();
+        ActivityMetrics entity = new ActivityMetrics();
+        entity.setActivityId(activityId);
+        List<LapMetrics> lapEntities = List.of(new LapMetrics());
+        List<LapMetricsDto> lapDtos = List.of(buildTestLapDto());
+        ActivityMetricsDto expectedDto = buildTestDto(activityId);
+
+        when(activityRepository.findFirstByUserIdOrderByCreatedAtDesc(userId)).thenReturn(Optional.of(entity));
+        when(lapRepository.findByActivityIdOrderByLapNumberAsc(activityId)).thenReturn(lapEntities);
+        when(lapMapper.toDtoList(lapEntities)).thenReturn(lapDtos);
+        when(activityMapper.toFullDto(entity, lapDtos)).thenReturn(expectedDto);
+
+        // When
+        Optional<ActivityMetricsDto> result = metricsService.getLatestActivityMetrics(userId);
+
+        // Then
+        assertThat(result).isPresent().contains(expectedDto);
+        verify(activityRepository).findFirstByUserIdOrderByCreatedAtDesc(userId);
+        verify(lapRepository).findByActivityIdOrderByLapNumberAsc(activityId);
+    }
+
+    @Test
+    void shouldReturnEmptyLatestWhenNoActivityForUser() {
+        // Given
+        String userId = "demo";
+        when(activityRepository.findFirstByUserIdOrderByCreatedAtDesc(userId)).thenReturn(Optional.empty());
+
+        // When
+        Optional<ActivityMetricsDto> result = metricsService.getLatestActivityMetrics(userId);
+
+        // Then
+        assertThat(result).isEmpty();
+        verifyNoInteractions(lapRepository, activityMapper, lapMapper);
+    }
+
     private ActivityMetricsDto buildTestDto(UUID activityId) {
         return new ActivityMetricsDto(
                 activityId, "user-1", null,

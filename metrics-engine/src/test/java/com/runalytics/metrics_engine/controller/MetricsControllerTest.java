@@ -51,6 +51,32 @@ class MetricsControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void shouldReturn200WithLatestMetricsWhenFound() throws Exception {
+        // Given
+        String userId = "demo";
+        UUID activityId = UUID.randomUUID();
+        ActivityMetricsDto dto = buildTestDto(activityId);
+        when(metricsService.getLatestActivityMetrics(userId)).thenReturn(Optional.of(dto));
+
+        // When / Then
+        mockMvc.perform(get("/activities/users/{userId}/latest", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.activityId").value(activityId.toString()))
+                .andExpect(jsonPath("$.userId").value("user-1"));
+    }
+
+    @Test
+    void shouldReturn404WhenNoActivityForUser() throws Exception {
+        // Given
+        String userId = "demo";
+        when(metricsService.getLatestActivityMetrics(userId)).thenReturn(Optional.empty());
+
+        // When / Then
+        mockMvc.perform(get("/activities/users/{userId}/latest", userId))
+                .andExpect(status().isNotFound());
+    }
+
     // --- test fixtures ---
 
     private ActivityMetricsDto buildTestDto(UUID activityId) {

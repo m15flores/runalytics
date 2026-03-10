@@ -27,4 +27,12 @@ public class MetricsController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/users/{userId}/latest")
+    public ResponseEntity<ActivityMetricsDto> getLatestActivityMetrics(@PathVariable String userId) {
+        log.info("GET /activities/users/{}/latest", userId);
+        return metricsService.getLatestActivityMetrics(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
