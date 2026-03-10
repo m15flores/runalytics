@@ -1,5 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, input } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -12,16 +11,9 @@ import { ActivityMetrics } from '../../../core/models/metrics/activity-metrics.m
   templateUrl: './metrics-tab.component.html',
   styleUrl: './metrics-tab.component.scss'
 })
-export class MetricsTabComponent implements OnInit {
+export class MetricsTabComponent {
 
-  private http = inject(HttpClient);
-
-  metrics = signal<ActivityMetrics | null>(null);
-
-  ngOnInit(): void {
-    this.http.get<ActivityMetrics>('assets/demo-data/metrics.json')
-      .subscribe(data => this.metrics.set(data));
-  }
+  metrics = input<ActivityMetrics | null>(null);
 
   formatPace(secPerKm: number | null): string {
     if (secPerKm == null) return '—';
