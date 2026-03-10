@@ -119,6 +119,27 @@ CREATE INDEX idx_lap_metrics_activity_id ON lap_metrics(activity_id);
 CREATE INDEX idx_lap_metrics_user_id ON lap_metrics(user_id);
 CREATE INDEX idx_lap_metrics_lap_number ON lap_metrics(activity_id, lap_number);
 
+-- Activity Samples (raw GPS/HR/cadence data points from FIT RECORD messages)
+CREATE TABLE IF NOT EXISTS activity_samples (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    activity_id UUID NOT NULL,
+
+    sample_timestamp TIMESTAMPTZ,                -- from FIT RECORD timestamp
+    latitude DECIMAL(10,7),                      -- degrees
+    longitude DECIMAL(10,7),                     -- degrees
+    heart_rate INTEGER,                          -- bpm
+    cadence INTEGER,                             -- spm (steps per minute)
+    altitude DECIMAL(8,2),                       -- meters
+    speed DECIMAL(7,4),                          -- m/s
+    power INTEGER,                               -- watts
+    distance DECIMAL(12,3),                      -- meters (accumulated)
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_activity_samples_activity_id ON activity_samples(activity_id);
+CREATE INDEX idx_activity_samples_timestamp ON activity_samples(activity_id, sample_timestamp);
+
 -- Weekly Aggregated Metrics
 CREATE TABLE IF NOT EXISTS weekly_metrics (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
