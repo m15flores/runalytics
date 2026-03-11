@@ -6,6 +6,9 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
+import { registerChartPlugins } from './core/chart/chart-plugins';
+
+registerChartPlugins();
 
 export const appConfig: ApplicationConfig = {
   providers: [
