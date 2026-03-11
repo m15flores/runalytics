@@ -1,14 +1,1 @@
-[
-  {
-    "id": "2ce6f27b-6eb5-41ac-80c2-6bf94a40ec98",
-    "userId": "demo",
-    "weekNumber": 49,
-    "year": 2025,
-    "markdownContent": "# Training Report - Week 49/2025\n**Athlete**: Demo Runner\n\n## This Week Summary\n- Total Activities: 1\n- Total Distance: 8.2 km\n- Total Duration: 0h 53m\n- Average Pace: 6:28 /km\n- Average Heart Rate: 132 bpm\n- Average Cadence: 76 spm\n\n## Last 4 Weeks Comparison\n| Week | Activities | Distance | Duration | Avg Pace |\n|------|------------|----------|----------|----------|\n| 49/2025 | 1 | 8.2 km | 0h 53m | 6:28 /km |\n| 48/2025 | 0 | 0.0 km | 0h 00m | N/A |\n| 47/2025 | 0 | 0.0 km | 0h 00m | N/A |\n| 46/2025 | 0 | 0.0 km | 0h 00m | N/A |\n\n## Detailed Analysis\n**Volume**: Low volume (< 30 km). Consider gradually increasing weekly mileage.\n\n**Pace**: Average pace 6:28 /km. Focus on Zone 2 consistency over pace targets.\n\n**Heart Rate**: Average HR 132 bpm. Monitor cardiac drift during longer sessions.\n\n## Heart Rate Zones\nHR zone data not available for this activity.\n\n## Goals\n**Current Goal**: Aerobic base building\n\nFocus on Zone 2 compliance. Pace is a consequence of fitness, not a goal.\n",
-    "summaryJson": "{\"totalDuration\":3182,\"year\":2025,\"totalKm\":8.2,\"totalActivities\":1,\"weekNumber\":49,\"averagePace\":388,\"trend\":\"stable\"}",
-    "createdAt": "2026-03-08T15:59:00Z",
-    "triggerActivityId": "85c18ea2-7f9c-4a14-b2cb-0c028444e86f",
-    "athleteName": "Demo Runner",
-    "currentGoal": "Aerobic base building"
-  }
-]
+[]
