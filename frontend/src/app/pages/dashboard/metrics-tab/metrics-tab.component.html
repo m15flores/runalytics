@@ -23,6 +23,12 @@
       </p-card>
     </div>
 
+    <app-map [samples]="samples()" />
+
+    <app-hr-chart [samples]="samples()" />
+
+    <app-pace-chart [samples]="samples()" />
+
     <p-table [value]="m.laps" styleClass="p-datatable-sm" [stripedRows]="true">
       <ng-template #header>
         <tr>
@@ -32,7 +38,7 @@
           <th>Pace /km</th>
           <th>GAP /km</th>
           <th>HR (bpm)</th>
-          <th>Cadence</th>
+          <th>Cadence (spm)</th>
           <th>Type</th>
         </tr>
       </ng-template>

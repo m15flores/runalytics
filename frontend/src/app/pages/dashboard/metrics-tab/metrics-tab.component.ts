@@ -1,19 +1,48 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input, signal, effect } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ActivityMetrics } from '../../../core/models/metrics/activity-metrics.model';
+import { ActivitySample } from '../../../core/models/metrics/activity-sample.model';
+import { MetricsService } from '../../../core/services/metrics.service';
+import { MapComponent } from '../../../shared/components/map/map.component';
+import { HrChartComponent } from '../../../shared/components/hr-chart/hr-chart.component';
+import { PaceChartComponent } from '../../../shared/components/pace-chart/pace-chart.component';
 
 @Component({
   selector: 'app-metrics-tab',
   standalone: true,
-  imports: [CardModule, TableModule, TagModule],
+  imports: [CardModule, TableModule, TagModule, MapComponent, HrChartComponent, PaceChartComponent],
   templateUrl: './metrics-tab.component.html',
   styleUrl: './metrics-tab.component.scss'
 })
 export class MetricsTabComponent {
 
+  private readonly metricsService = inject(MetricsService);
+  private readonly http = inject(HttpClient);
+
   metrics = input<ActivityMetrics | null>(null);
+  samples = signal<ActivitySample[]>([]);
+
+  constructor() {
+    effect(() => {
+      const m = this.metrics();
+      if (m) {
+        this.loadSamples(m.activityId);
+      }
+    });
+  }
+
+  private loadSamples(activityId: string): void {
+    this.metricsService.getSamples(activityId).pipe(
+      catchError(() => this.http.get<ActivitySample[]>('assets/demo-data/samples.json'))
+    ).subscribe({
+      next: data => this.samples.set(data),
+      error: () => {}
+    });
+  }
 
   formatPace(secPerKm: number | null): string {
     if (secPerKm == null) return '—';
