@@ -72,7 +72,7 @@ class MetricsEngineComplexTest {
                 new BigDecimal("10000"), // 10km
                 3600, 3600, 500,
                 null, null, // avgHeartRate = null, maxHeartRate = null
-                160, 180, // cadence OK
+                80, 90, // cadence OK (strides/min → spm ×2 = 160, 180)
                 new BigDecimal("2.78"), new BigDecimal("4.17"),
                 null, null, null, null, null, null, null,
                 100, 80, null, null, null, null, null,
@@ -238,7 +238,7 @@ class MetricsEngineComplexTest {
                 new BigDecimal("8000"),
                 3600, 3600, 400,
                 140, 165,
-                145, 180, // avg cadence is low (many walk pauses)
+                72, 90, // avg cadence is low (many walk pauses) — strides/min, ×2 = 144, 180 spm
                 new BigDecimal("2.22"), new BigDecimal("3.33"),
                 null, null, null, null, null, null, null,
                 50, 40, null, null, null, null, null,
@@ -262,8 +262,8 @@ class MetricsEngineComplexTest {
                     var metrics = activityRepository.findByActivityId(activityId)
                             .orElseThrow();
 
-                    assertEquals(145, metrics.getAverageCadence());
-                    assertEquals(180, metrics.getMaxCadence());
+                    assertEquals(144, metrics.getAverageCadence()); // 72 strides/min * 2
+                    assertEquals(180, metrics.getMaxCadence()); // 90 strides/min * 2
 
                     // Pace is slower due to walk breaks
                     assertTrue(metrics.getAveragePace() > 360,
@@ -286,7 +286,7 @@ class MetricsEngineComplexTest {
         var lap1 = new ActivityNormalizedDto.LapData(
                 1, startTime,
                 new BigDecimal("2000"), 720, 720, 120,
-                135, 145, 155, 165,
+                135, 145, 78, 83, // strides/min → spm ×2 = 156, 166
                 new BigDecimal("2.78"), new BigDecimal("3.05"),
                 null, null, null, null, null, null, null,
                 20, 15, "warmup", 1
@@ -295,7 +295,7 @@ class MetricsEngineComplexTest {
         var lap2 = new ActivityNormalizedDto.LapData(
                 2, startTime.plusSeconds(720),
                 new BigDecimal("5000"), 1500, 1500, 300,
-                165, 178, 170, 185,
+                165, 178, 85, 93, // strides/min → spm ×2 = 170, 186
                 new BigDecimal("3.33"), new BigDecimal("3.89"),
                 null, null, null, null, null, null, null,
                 60, 50, "active", 2
@@ -304,7 +304,7 @@ class MetricsEngineComplexTest {
         var lap3 = new ActivityNormalizedDto.LapData(
                 3, startTime.plusSeconds(2220),
                 new BigDecimal("3000"), 1080, 1080, 150,
-                140, 155, 158, 170,
+                140, 155, 79, 85, // strides/min → spm ×2 = 158, 170
                 new BigDecimal("2.78"), new BigDecimal("3.20"),
                 null, null, null, null, null, null, null,
                 20, 18, "cooldown", 3
@@ -312,7 +312,7 @@ class MetricsEngineComplexTest {
 
         var session = new ActivityNormalizedDto.SessionData(
                 new BigDecimal("10000"), 3300, 3300, 570,
-                150, 178, 165, 185,
+                150, 178, 83, 93, // strides/min → spm ×2 = 166, 186
                 new BigDecimal("3.03"), new BigDecimal("3.89"),
                 null, null, null, null, null, null, null,
                 100, 83, null, null, null, null, null,
@@ -369,7 +369,7 @@ class MetricsEngineComplexTest {
                 new BigDecimal("10000"),
                 4200, 4200, 600, // 70min (slower due to elevation)
                 155, 175,
-                158, 180,
+                79, 90, // strides/min → spm ×2 = 158, 180
                 new BigDecimal("2.38"), new BigDecimal("3.33"), // avg 6 km/h
                 null, null, null, null, null, null, null,
                 450, 420, // significant ascent/descent

@@ -344,6 +344,9 @@ class ActivityMetricsCalculatorTest {
         assertNotNull(metrics.hrZonesPercentage());
         assertEquals(54, metrics.hrZonesPercentage().get("Z2"));
 
+        assertEquals(156, metrics.averageCadence()); // 78 strides/min * 2
+        assertEquals(168, metrics.maxCadence());    // 84 strides/min * 2
+
         assertEquals(92.7, metrics.averageVerticalOscillation());
         assertEquals(291.8, metrics.averageStanceTime());
 

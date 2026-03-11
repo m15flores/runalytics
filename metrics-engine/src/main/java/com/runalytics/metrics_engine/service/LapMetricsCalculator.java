@@ -109,8 +109,8 @@ public class LapMetricsCalculator {
                 null,  // minHeartRate (not available at lap level)
 
                 // Cadence
-                lapData.avgCadence(),
-                lapData.maxCadence(),
+                lapData.avgCadence() != null ? lapData.avgCadence() * 2 : null,
+                lapData.maxCadence() != null ? lapData.maxCadence() * 2 : null,
 
                 // Running Dynamics
                 lapData.avgVerticalOscillation(),

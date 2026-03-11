@@ -138,7 +138,7 @@ public class MetricsService {
                     e.setLatitude(s.latitude());
                     e.setLongitude(s.longitude());
                     e.setHeartRate(s.heartRate());
-                    e.setCadence(s.cadence());
+                    e.setCadence(s.cadence() != null ? s.cadence() * 2 : null);
                     e.setAltitude(s.altitude());
                     e.setSpeed(s.speed());
                     e.setPower(s.power());
