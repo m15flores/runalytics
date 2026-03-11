@@ -40,9 +40,21 @@ export function registerChartPlugins(): void {
 
     afterInit: (chart: any) => {
       chartRegistry.add(chart);
+
+      // Fix: when a parent tab is hidden (display:none), the canvas loses its
+      // dimensions. ResizeObserver fires when the canvas becomes visible again,
+      // allowing Chart.js to recalculate the correct size.
+      const observer = new ResizeObserver(() => {
+        if (chart.canvas.offsetWidth > 0 && chart.canvas.offsetHeight > 0) {
+          chart.resize();
+        }
+      });
+      observer.observe(chart.canvas);
+      chart._resizeObserver = observer;
     },
 
     beforeDestroy: (chart: any) => {
+      chart._resizeObserver?.disconnect();
       chartRegistry.delete(chart);
     },
 
@@ -65,7 +77,7 @@ export function registerChartPlugins(): void {
         } else {
           c.tooltip.setActiveElements([], { x: 0, y: 0 });
         }
-        c.draw();
+        c.update('none');
       });
     },
 
