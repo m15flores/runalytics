@@ -126,6 +126,8 @@ public class MetricsService {
         for (int i = 0; i < samples.size() && result.size() < maxPoints; i += step) {
             result.add(samples.get(i));
         }
+        // Always include the last sample so the chart covers the full activity duration
+        result.set(result.size() - 1, samples.get(samples.size() - 1));
         return result;
     }
 
