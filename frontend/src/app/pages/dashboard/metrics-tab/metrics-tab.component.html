@@ -25,9 +25,9 @@
 
     <app-map [samples]="samples()" />
 
-    <app-hr-chart [samples]="samples()" />
+    <app-hr-chart [samples]="samples()" [startedAt]="m.startedAt" />
 
-    <app-pace-chart [samples]="samples()" />
+    <app-pace-chart [samples]="samples()" [startedAt]="m.startedAt" />
 
     <p-table [value]="m.laps" styleClass="p-datatable-sm" [stripedRows]="true">
       <ng-template #header>

@@ -13,11 +13,27 @@ import { formatElapsedTime } from '../../../core/chart/chart-plugins';
 export class HrChartComponent {
 
   samples = input<ActivitySample[]>([]);
+  startedAt = input<string>('');
+
+  private firstTime = computed(() => {
+    const data = this.samples().filter(s => s.heartRate != null);
+    if (data.length === 0) return 0;
+    return this.startedAt()
+      ? new Date(this.startedAt()).getTime()
+      : new Date(data[0].timestamp).getTime();
+  });
+
+  private maxElapsed = computed(() => {
+    const data = this.samples().filter(s => s.heartRate != null);
+    if (data.length === 0) return undefined;
+    const last = data[data.length - 1];
+    return Math.round((new Date(last.timestamp).getTime() - this.firstTime()) / 1000);
+  });
 
   chartData = computed(() => {
     const data = this.samples().filter(s => s.heartRate != null);
     if (data.length === 0) return { datasets: [] };
-    const firstTime = new Date(data[0].timestamp).getTime();
+    const firstTime = this.firstTime();
     return {
       datasets: [{
         label: 'Heart Rate',
@@ -34,7 +50,7 @@ export class HrChartComponent {
     };
   });
 
-  chartOptions = {
+  chartOptions = computed(() => ({
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -54,6 +70,7 @@ export class HrChartComponent {
     scales: {
       x: {
         type: 'linear',
+        max: this.maxElapsed(),
         ticks: {
           maxTicksLimit: 8,
           maxRotation: 0,
@@ -66,5 +83,5 @@ export class HrChartComponent {
         min: 60,
       }
     }
-  };
+  }));
 }

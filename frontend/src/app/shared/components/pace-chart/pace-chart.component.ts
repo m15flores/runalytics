@@ -13,11 +13,27 @@ import { formatElapsedTime } from '../../../core/chart/chart-plugins';
 export class PaceChartComponent {
 
   samples = input<ActivitySample[]>([]);
+  startedAt = input<string>('');
+
+  private firstTime = computed(() => {
+    const data = this.samples().filter(s => s.speed != null && s.speed > 0.5);
+    if (data.length === 0) return 0;
+    return this.startedAt()
+      ? new Date(this.startedAt()).getTime()
+      : new Date(data[0].timestamp).getTime();
+  });
+
+  private maxElapsed = computed(() => {
+    const data = this.samples().filter(s => s.speed != null && s.speed > 0.5);
+    if (data.length === 0) return undefined;
+    const last = data[data.length - 1];
+    return Math.round((new Date(last.timestamp).getTime() - this.firstTime()) / 1000);
+  });
 
   private paceData = computed(() => {
     const data = this.samples().filter(s => s.speed != null && s.speed > 0.5);
     if (data.length === 0) return [];
-    const firstTime = new Date(data[0].timestamp).getTime();
+    const firstTime = this.firstTime();
     return data.map(s => ({
       x: Math.round((new Date(s.timestamp).getTime() - firstTime) / 1000),
       y: Math.round(1000 / s.speed!)
@@ -64,6 +80,7 @@ export class PaceChartComponent {
       scales: {
         x: {
           type: 'linear',
+          max: this.maxElapsed(),
           grid: { display: false },
           ticks: {
             maxTicksLimit: 8,
