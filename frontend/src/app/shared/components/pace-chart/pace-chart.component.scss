@@ -13,4 +13,14 @@
 
 .pace-chart-container {
   height: 220px;
+  overflow: hidden;
+
+  p-chart {
+    display: block;
+    height: 100%;
+  }
+
+  ::ng-deep p-chart > div {
+    height: 100%;
+  }
 }

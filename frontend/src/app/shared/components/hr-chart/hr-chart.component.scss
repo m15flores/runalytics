@@ -13,4 +13,16 @@
 
 .hr-chart-container {
   height: 220px;
+  overflow: hidden;
+
+  p-chart {
+    display: block;
+    height: 100%;
+  }
+
+  // PrimeNG renders an inner <div> wrapper that Chart.js reads for sizing;
+  // ::ng-deep is needed to pierce the component boundary
+  ::ng-deep p-chart > div {
+    height: 100%;
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, effect, inject, signal, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { EMPTY, catchError, filter, switchMap, take, takeUntil, timer } from 'rxjs';
 import { TabsModule } from 'primeng/tabs';
@@ -12,6 +12,7 @@ import { ActivityService } from '../../core/services/activity.service';
 import { MetricsService } from '../../core/services/metrics.service';
 import { ActivityMetrics } from '../../core/models/metrics/activity-metrics.model';
 import { environment } from '../../../environments/environment';
+import { resizeAllCharts } from '../../core/chart/chart-plugins';
 
 type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
 
@@ -34,6 +35,16 @@ export class DashboardComponent implements OnInit {
   uploadStatus = signal<UploadStatus>('idle');
   latestMetrics = signal<ActivityMetrics | null>(null);
   refreshCounter = signal<number>(0);
+  activeTab = signal<string>('0');
+
+  constructor() {
+    effect(() => {
+      if (this.activeTab() === '0') {
+        // Defer resize to let PrimeNG finish showing the tab panel before resizing
+        requestAnimationFrame(() => resizeAllCharts());
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loadLatestMetrics();
