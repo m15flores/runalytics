@@ -10,11 +10,13 @@ import { MetricsService } from '../../../core/services/metrics.service';
 import { MapComponent } from '../../../shared/components/map/map.component';
 import { HrChartComponent } from '../../../shared/components/hr-chart/hr-chart.component';
 import { PaceChartComponent } from '../../../shared/components/pace-chart/pace-chart.component';
+import { CadenceChartComponent } from '../../../shared/components/cadence-chart/cadence-chart.component';
+import { ElevationChartComponent } from '../../../shared/components/elevation-chart/elevation-chart.component';
 
 @Component({
   selector: 'app-metrics-tab',
   standalone: true,
-  imports: [CardModule, TableModule, TagModule, MapComponent, HrChartComponent, PaceChartComponent],
+  imports: [CardModule, TableModule, TagModule, MapComponent, HrChartComponent, PaceChartComponent, CadenceChartComponent, ElevationChartComponent],
   templateUrl: './metrics-tab.component.html',
   styleUrl: './metrics-tab.component.scss'
 })

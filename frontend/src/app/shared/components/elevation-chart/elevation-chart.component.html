@@ -1,0 +1,10 @@
+<div class="elevation-chart-wrapper">
+  <div class="elevation-chart-title">Elevation</div>
+  @if (chartData().datasets[0]?.data?.length) {
+    <div class="elevation-chart-container">
+      <p-chart type="line" [data]="chartData()" [options]="chartOptions()" />
+    </div>
+  } @else {
+    <div class="elevation-chart-empty">No elevation data available for this activity.</div>
+  }
+</div>

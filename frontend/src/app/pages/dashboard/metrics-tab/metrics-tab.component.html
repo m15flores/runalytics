@@ -29,6 +29,10 @@
 
     <app-pace-chart [samples]="samples()" [startedAt]="m.startedAt" />
 
+    <app-cadence-chart [samples]="samples()" [startedAt]="m.startedAt" />
+
+    <app-elevation-chart [samples]="samples()" [startedAt]="m.startedAt" />
+
     <p-table [value]="m.laps" styleClass="p-datatable-sm" [stripedRows]="true">
       <ng-template #header>
         <tr>

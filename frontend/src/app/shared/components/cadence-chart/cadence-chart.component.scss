@@ -1,0 +1,26 @@
+.cadence-chart-wrapper {
+  width: 100%;
+}
+
+.cadence-chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.cadence-chart-container {
+  height: 220px;
+  overflow: hidden;
+
+  p-chart {
+    display: block;
+    height: 100%;
+  }
+
+  ::ng-deep p-chart > div {
+    height: 100%;
+  }
+}

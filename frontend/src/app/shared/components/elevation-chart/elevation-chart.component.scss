@@ -1,0 +1,25 @@
+.elevation-chart-wrapper {
+  width: 100%;
+}
+
+.elevation-chart-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--p-text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.elevation-chart-container {
+  height: 220px;
+}
+
+.elevation-chart-empty {
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-text-muted-color);
+  font-size: 0.875rem;
+}
