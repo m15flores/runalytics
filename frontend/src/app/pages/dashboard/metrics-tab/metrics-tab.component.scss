@@ -7,40 +7,74 @@
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 1rem;
 
+  @media (max-width: 1280px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 :host ::ng-deep .kpi-card {
-  text-align: center;
-
   .p-card-body {
     padding: 1.25rem;
   }
 }
 
+.kpi-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  min-width: 0;
+  width: 100%;
+}
+
+.kpi-icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.375rem;
+
+  &--distance { color: var(--p-primary-color); }
+  &--duration { color: var(--p-cyan-500); }
+  &--pace     { color: var(--p-blue-500); }
+  &--hr       { color: var(--p-red-500); }
+  &--cadence  { color: var(--p-purple-500); }
+  &--ascent   { color: var(--p-green-500); }
+  &--calories { color: var(--p-orange-500); }
+  &--max-hr   { color: var(--p-pink-500); }
+}
+
 .kpi-label {
-  font-size: 0.8rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--p-text-muted-color);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
 }
 
 .kpi-value {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--p-text-color);
+  color: var(--p-primary-color);
   line-height: 1;
 }
 
 .kpi-unit {
-  font-size: 0.9rem;
-  font-weight: 400;
+  font-size: 0.75rem;
   color: var(--p-text-muted-color);
 }
 

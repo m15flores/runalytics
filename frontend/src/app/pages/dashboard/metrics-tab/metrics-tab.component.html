@@ -3,23 +3,90 @@
 
     <div class="kpi-grid">
       <p-card styleClass="kpi-card">
-        <div class="kpi-label">Distance</div>
-        <div class="kpi-value">{{ formatDistance(m.totalDistance) }} <span class="kpi-unit">km</span></div>
+        <div class="kpi-inner">
+          <i class="pi pi-map-marker kpi-icon kpi-icon--distance"></i>
+          <span class="kpi-label">Distance</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ formatDistance(m.totalDistance) }}</span>
+            <span class="kpi-unit">km</span>
+          </div>
+        </div>
       </p-card>
 
       <p-card styleClass="kpi-card">
-        <div class="kpi-label">Duration</div>
-        <div class="kpi-value">{{ formatDuration(m.totalDuration) }}</div>
+        <div class="kpi-inner">
+          <i class="pi pi-clock kpi-icon kpi-icon--duration"></i>
+          <span class="kpi-label">Duration</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ formatDuration(m.totalDuration) }}</span>
+          </div>
+        </div>
       </p-card>
 
       <p-card styleClass="kpi-card">
-        <div class="kpi-label">Avg Pace</div>
-        <div class="kpi-value">{{ formatPace(m.averagePace) }} <span class="kpi-unit">/km</span></div>
+        <div class="kpi-inner">
+          <i class="pi pi-stopwatch kpi-icon kpi-icon--pace"></i>
+          <span class="kpi-label">Avg Pace</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ formatPace(m.averagePace) }}</span>
+            <span class="kpi-unit">/km</span>
+          </div>
+        </div>
       </p-card>
 
       <p-card styleClass="kpi-card">
-        <div class="kpi-label">Avg Heart Rate</div>
-        <div class="kpi-value">{{ m.averageHeartRate }} <span class="kpi-unit">bpm</span></div>
+        <div class="kpi-inner">
+          <i class="pi pi-heart kpi-icon kpi-icon--hr"></i>
+          <span class="kpi-label">Avg HR</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ m.averageHeartRate }}</span>
+            <span class="kpi-unit">bpm</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-inner">
+          <i class="pi pi-refresh kpi-icon kpi-icon--cadence"></i>
+          <span class="kpi-label">Cadence</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ m.averageCadence }}</span>
+            <span class="kpi-unit">spm</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-inner">
+          <i class="pi pi-arrow-up kpi-icon kpi-icon--ascent"></i>
+          <span class="kpi-label">Ascent</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ m.totalAscent }}</span>
+            <span class="kpi-unit">m</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-inner">
+          <i class="pi pi-bolt kpi-icon kpi-icon--calories"></i>
+          <span class="kpi-label">Calories</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ m.totalCalories }}</span>
+            <span class="kpi-unit">kcal</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="kpi-card">
+        <div class="kpi-inner">
+          <i class="pi pi-heart kpi-icon kpi-icon--max-hr"></i>
+          <span class="kpi-label">Max HR</span>
+          <div class="kpi-value-row">
+            <span class="kpi-value">{{ m.maxHeartRate }}</span>
+            <span class="kpi-unit">bpm</span>
+          </div>
+        </div>
       </p-card>
     </div>
 
