@@ -79,7 +79,12 @@ export class DashboardComponent implements OnInit {
     this.metricsService.getLatestMetrics('demo').pipe(
       catchError(() => this.http.get<ActivityMetrics>('assets/demo-data/metrics.json'))
     ).subscribe({
-      next: data => this.latestMetrics.set(data),
+      next: data => {
+        this.latestMetrics.set(data);
+        // Charts are created after this change detection cycle — resize after next two frames
+        // to ensure canvases have the correct dimensions once rendered into the DOM
+        requestAnimationFrame(() => requestAnimationFrame(() => resizeAllCharts()));
+      },
       error: () => {}
     });
   }
