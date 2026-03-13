@@ -128,7 +128,7 @@ public class ReportGeneratorService {
         summary.put("weekNumber", weekStats.getWeekNumber());
         summary.put("year", weekStats.getYear());
         summary.put("totalActivities", weekStats.getTotalActivities());
-        summary.put("totalKm", weekStats.getTotalDistance());
+        summary.put("totalKm", weekStats.getTotalDistance().doubleValue() / 1000.0);
         summary.put("totalDuration", weekStats.getTotalDuration());
 
         if (weekStats.getAveragePace() != null) {

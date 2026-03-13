@@ -18,7 +18,7 @@ public class WeeklyStats {
 
     // Basic aggregations
     private Integer totalActivities;
-    private BigDecimal totalDistance; // km
+    private BigDecimal totalDistance; // meters
     private Integer totalDuration; // seconds
     private Integer totalCalories;
 
