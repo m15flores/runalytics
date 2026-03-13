@@ -206,6 +206,41 @@ public class RecommendationGeneratorServiceTest {
     }
 
     @Test
+    void shouldSkipAiCallWhenRecommendationsAlreadyExistForReport() {
+        // Given
+        UUID reportId = UUID.randomUUID();
+        TrainingReportDto report = TrainingReportDto.builder()
+                .id(reportId)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .summaryJson("{}")
+                .markdownContent("# Report")
+                .build();
+
+        TrainingCycleContext context = TrainingCycleContext.builder()
+                .weekInCycle(1)
+                .phase(TrainingCycleContext.TrainingPhase.AEROBIC_BASE)
+                .build();
+
+        Recommendation existing = Recommendation.builder()
+                .userId("test-user")
+                .reportId(reportId)
+                .build();
+
+        when(recommendationRepository.findByReportId(reportId)).thenReturn(List.of(existing));
+
+        // When
+        List<Recommendation> result = recommendationGeneratorService.generateRecommendations(report, context);
+
+        // Then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0)).isSameAs(existing);
+        verifyNoInteractions(openAiApiService, promptTemplateService);
+        verify(recommendationRepository, never()).saveAll(any());
+    }
+
+    @Test
     void shouldSetExpirationDateCorrectly() {
         // Given
         UUID reportId = UUID.randomUUID();

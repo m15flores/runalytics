@@ -63,6 +63,13 @@ public class RecommendationGeneratorService {
         log.info("Generating recommendations for report: {}, userId: {}, week: {}/{}",
                 report.getId(), report.getUserId(), report.getWeekNumber(), report.getYear());
 
+        List<Recommendation> existing = recommendationRepository.findByReportId(report.getId());
+        if (!existing.isEmpty()) {
+            log.info("Recommendations already exist for reportId={}, skipping AI call (count={})",
+                    report.getId(), existing.size());
+            return existing;
+        }
+
         try {
             // Step 1: Build prompts
             String systemPrompt = promptTemplateService.buildSystemPrompt(cycleContext);
