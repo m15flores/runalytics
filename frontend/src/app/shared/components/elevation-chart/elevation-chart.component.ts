@@ -39,7 +39,7 @@ export class ElevationChartComponent {
         label: 'Elevation',
         data: data.map(s => ({
           x: Math.round((new Date(s.timestamp).getTime() - firstTime) / 1000),
-          y: s.altitude
+          y: Math.round(s.altitude!)
         })),
         fill: true,
         borderColor: '#10B981',
@@ -63,7 +63,7 @@ export class ElevationChartComponent {
       tooltip: {
         callbacks: {
           title: (items: any) => formatElapsedTime(items[0].parsed.x),
-          label: (ctx: any) => `${ctx.parsed.y} m`
+          label: (ctx: any) => `${Math.round(ctx.parsed.y)} m`
         }
       }
     },

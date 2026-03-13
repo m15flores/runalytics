@@ -14,6 +14,7 @@
 .cadence-chart-container {
   height: 220px;
   overflow: hidden;
+  position: relative;
 
   p-chart {
     display: block;
@@ -21,6 +22,6 @@
   }
 
   ::ng-deep p-chart > div {
-    height: 100%;
+    height: 220px;
   }
 }
