@@ -1,8 +1,7 @@
 package com.runalitycs.report_generator.controller;
 
-import com.runalitycs.report_generator.entity.TrainingReport;
+import com.runalitycs.report_generator.dto.TrainingReportDto;
 import com.runalitycs.report_generator.exception.GlobalExceptionHandler;
-import com.runalitycs.report_generator.mapper.TrainingReportMapperImpl;
 import com.runalitycs.report_generator.service.TrainingReportService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TrainingReportController.class)
-@Import({TrainingReportMapperImpl.class, GlobalExceptionHandler.class})
+@Import({GlobalExceptionHandler.class})
 class TrainingReportControllerTest {
 
     @Autowired
@@ -37,8 +36,8 @@ class TrainingReportControllerTest {
     void shouldGetReportsByUserId() throws Exception {
         // Given
         String userId = "mario-runner";
-        List<TrainingReport> reports = List.of(
-                TrainingReport.builder()
+        List<TrainingReportDto> reports = List.of(
+                TrainingReportDto.builder()
                         .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                         .userId(userId)
                         .weekNumber(10)
@@ -46,7 +45,7 @@ class TrainingReportControllerTest {
                         .markdownContent("# Report week 10")
                         .createdAt(Instant.parse("2026-03-06T10:00:00Z"))
                         .build(),
-                TrainingReport.builder()
+                TrainingReportDto.builder()
                         .id(UUID.fromString("22222222-2222-2222-2222-222222222222"))
                         .userId(userId)
                         .weekNumber(9)
@@ -83,7 +82,7 @@ class TrainingReportControllerTest {
     void shouldGetReportByUserIdAndWeek() throws Exception {
         // Given
         String userId = "mario-runner";
-        TrainingReport report = TrainingReport.builder()
+        TrainingReportDto report = TrainingReportDto.builder()
                 .id(UUID.fromString("11111111-1111-1111-1111-111111111111"))
                 .userId(userId)
                 .weekNumber(10)

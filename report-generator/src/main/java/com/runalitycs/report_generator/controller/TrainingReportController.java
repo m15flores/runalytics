@@ -1,8 +1,6 @@
 package com.runalitycs.report_generator.controller;
 
 import com.runalitycs.report_generator.dto.TrainingReportDto;
-import com.runalitycs.report_generator.entity.TrainingReport;
-import com.runalitycs.report_generator.mapper.TrainingReportMapper;
 import com.runalitycs.report_generator.service.TrainingReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,17 +16,11 @@ import java.util.List;
 public class TrainingReportController {
 
     private final TrainingReportService trainingReportService;
-    private final TrainingReportMapper mapper;
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<List<TrainingReportDto>> getReportsByUserId(@PathVariable String userId) {
         log.info("GET /api/reports/users/{} - Fetching reports", userId);
-
-        List<TrainingReportDto> dtos = trainingReportService.getReportsByUserId(userId).stream()
-                .map(mapper::toDto)
-                .toList();
-
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(trainingReportService.getReportsByUserId(userId));
     }
 
     @GetMapping("/users/{userId}/{weekNumber}/{year}")
@@ -38,10 +30,7 @@ public class TrainingReportController {
             @PathVariable int year) {
 
         log.info("GET /api/reports/users/{}/{}/{} - Fetching report", userId, weekNumber, year);
-
-        TrainingReport report = trainingReportService.getReportByUserIdAndWeek(userId, weekNumber, year);
-
-        return ResponseEntity.ok(mapper.toDto(report));
+        return ResponseEntity.ok(trainingReportService.getReportByUserIdAndWeek(userId, weekNumber, year));
     }
 
 }
