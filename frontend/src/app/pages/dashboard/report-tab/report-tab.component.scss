@@ -1,83 +1,309 @@
 .report-tab {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   padding: 1rem 0;
 }
 
-:host ::ng-deep .report-meta-card .p-card-body {
-  padding: 1.25rem;
-}
+// ─── HEADER ──────────────────────────────────────────────────────────────────
 
-.report-meta {
+.report-header {
   display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  background: var(--p-surface-card);
+  border: 1px solid var(--p-content-border-color);
+  border-left: 4px solid var(--p-primary-color);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
 }
 
-.meta-item {
+.week-emblem {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--p-primary-color);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--p-primary-color) 8%, transparent);
+  flex-shrink: 0;
+  min-width: 80px;
+  text-align: center;
+  gap: 0.1rem;
 }
 
-.meta-label {
-  font-size: 0.8rem;
-  color: var(--p-text-muted-color);
+.week-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  color: var(--p-primary-color);
+  opacity: 0.8;
+}
+
+.week-number {
+  font-size: 2.75rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--p-primary-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.week-year {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--p-text-muted-color);
   letter-spacing: 0.05em;
 }
 
-.meta-value {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--p-text-color);
+.report-identity {
+  flex: 1;
+  min-width: 0;
 }
 
-:host ::ng-deep .report-content-card .p-card-body {
-  padding: 1.5rem;
+.identity-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
 }
 
-.markdown-body {
-  line-height: 1.7;
+.athlete-name {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--p-text-color);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
 
-  h1, h2, h3, h4 {
-    color: var(--p-text-color);
-    margin-top: 1.5rem;
-    margin-bottom: 0.5rem;
+.athlete-goal {
+  font-size: 0.875rem;
+  color: var(--p-text-muted-color);
+  margin: 0;
+}
+
+.trend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+
+  .pi { font-size: 0.7rem; }
+
+  &--improving {
+    background: color-mix(in srgb, var(--p-green-500) 15%, transparent);
+    color: var(--p-green-500);
+    border: 1px solid color-mix(in srgb, var(--p-green-500) 35%, transparent);
   }
 
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.25rem; }
-  h3 { font-size: 1.1rem; }
+  &--stable {
+    background: color-mix(in srgb, var(--p-primary-color) 15%, transparent);
+    color: var(--p-primary-color);
+    border: 1px solid color-mix(in srgb, var(--p-primary-color) 35%, transparent);
+  }
+
+  &--declining {
+    background: color-mix(in srgb, var(--p-red-500) 15%, transparent);
+    color: var(--p-red-500);
+    border: 1px solid color-mix(in srgb, var(--p-red-500) 35%, transparent);
+  }
+}
+
+// ─── QUICK STATS ─────────────────────────────────────────────────────────────
+
+.quick-stats {
+  display: flex;
+  align-items: center;
+  background: var(--p-surface-card);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.stat-icon {
+  font-size: 1rem;
+  color: var(--p-primary-color);
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.stat-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--p-text-color);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  color: var(--p-text-muted-color);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 36px;
+  background: var(--p-content-border-color);
+  flex-shrink: 0;
+  margin: 0 0.25rem;
+}
+
+// ─── DOCUMENT ────────────────────────────────────────────────────────────────
+
+.report-document {
+  background: var(--p-surface-card);
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 10px;
+  padding: 1.75rem 2rem;
+}
+
+:host ::ng-deep .markdown-body {
+  line-height: 1.75;
+  color: var(--p-text-color);
+  font-size: 0.9375rem;
+
+  // H1 is shown in our designed header — hide the one inside the markdown
+  h1 { display: none; }
+
+  h2 {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--p-primary-color);
+    margin: 2rem 0 0.875rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--p-content-border-color);
+
+    &:first-of-type { margin-top: 0; }
+  }
+
+  h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+    margin: 1.25rem 0 0.5rem;
+  }
 
   p {
-    margin-bottom: 1rem;
+    margin: 0 0 0.875rem;
   }
 
   ul, ol {
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
+    padding-left: 1.375rem;
+    margin: 0 0 0.875rem;
   }
 
   li {
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.375rem;
+    line-height: 1.65;
   }
 
   strong {
     font-weight: 700;
+    color: var(--p-text-color);
+  }
+
+  // Tables (4-week comparison, HR zones)
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.25rem 0 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--p-text-muted-color);
+    border-bottom: 2px solid var(--p-primary-color);
+  }
+
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--p-content-border-color);
+    color: var(--p-text-color);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: color-mix(in srgb, var(--p-primary-color) 4%, transparent);
   }
 
   hr {
     border: none;
     border-top: 1px solid var(--p-content-border-color);
-    margin: 1.5rem 0;
+    margin: 1.75rem 0;
   }
 }
 
-.loading {
-  padding: 2rem;
-  text-align: center;
+// ─── LOADING ─────────────────────────────────────────────────────────────────
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 3rem;
   color: var(--p-text-muted-color);
+
+  .pi-spinner { font-size: 1.25rem; }
+}
+
+// ─── RESPONSIVE ──────────────────────────────────────────────────────────────
+
+@media (max-width: 640px) {
+  .report-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .quick-stats {
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem;
+
+    .stat-divider { display: none; }
+
+    .stat-item {
+      flex: 0 0 calc(50% - 0.875rem);
+      justify-content: flex-start;
+    }
+  }
+
+  .report-document {
+    padding: 1.25rem;
+  }
 }

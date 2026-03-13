@@ -1,28 +1,75 @@
 @if (report(); as r) {
   <div class="report-tab">
 
-    <p-card styleClass="report-meta-card">
-      <div class="report-meta">
-        <div class="meta-item">
-          <span class="meta-label">Athlete</span>
-          <span class="meta-value">{{ r.athleteName }}</span>
+    <!-- Editorial Header -->
+    <div class="report-header">
+      <div class="week-emblem">
+        <span class="week-label">WEEK</span>
+        <span class="week-number">{{ r.weekNumber }}</span>
+        <span class="week-year">{{ r.year }}</span>
+      </div>
+      <div class="report-identity">
+        <div class="identity-main">
+          @if (r.athleteName) {
+            <h2 class="athlete-name">{{ r.athleteName }}</h2>
+          }
+          @if (parsedSummary(); as s) {
+            <span class="trend-pill trend-pill--{{ s.trend ?? 'stable' }}">
+              <i class="pi {{ trendIcon() }}"></i>
+              {{ formatTrend(s.trend) }}
+            </span>
+          }
         </div>
-        <div class="meta-item">
-          <span class="meta-label">Week</span>
-          <span class="meta-value">{{ r.weekNumber }}/{{ r.year }}</span>
+        <p class="athlete-goal">{{ r.currentGoal }}</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats Strip -->
+    @if (parsedSummary(); as s) {
+      <div class="quick-stats">
+        <div class="stat-item">
+          <i class="pi pi-calendar stat-icon"></i>
+          <div class="stat-body">
+            <span class="stat-value">{{ s.totalActivities ?? '—' }}</span>
+            <span class="stat-label">sessions</span>
+          </div>
         </div>
-        <div class="meta-item">
-          <span class="meta-label">Goal</span>
-          <span class="meta-value">{{ r.currentGoal }}</span>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="pi pi-map-marker stat-icon"></i>
+          <div class="stat-body">
+            <span class="stat-value">{{ formatKm(s.totalKm) }}</span>
+            <span class="stat-label">km</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="pi pi-clock stat-icon"></i>
+          <div class="stat-body">
+            <span class="stat-value">{{ formattedDuration() }}</span>
+            <span class="stat-label">total time</span>
+          </div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <i class="pi pi-chart-line stat-icon"></i>
+          <div class="stat-body">
+            <span class="stat-value">{{ formattedPace() }}</span>
+            <span class="stat-label">min/km</span>
+          </div>
         </div>
       </div>
-    </p-card>
+    }
 
-    <p-card styleClass="report-content-card">
+    <!-- Markdown Document -->
+    <div class="report-document">
       <div class="markdown-body" [innerHTML]="renderedMarkdown()"></div>
-    </p-card>
+    </div>
 
   </div>
 } @else {
-  <div class="loading">Loading report...</div>
+  <div class="loading-state">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Loading weekly report...</span>
+  </div>
 }
