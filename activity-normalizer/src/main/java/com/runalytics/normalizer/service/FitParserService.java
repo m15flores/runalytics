@@ -96,10 +96,11 @@ public class FitParserService {
                     ? mesg.getAvgHeartRate().intValue() : null;
             Integer maxHR = mesg.getMaxHeartRate() != null
                     ? mesg.getMaxHeartRate().intValue() : null;
+            // FIT cadence = strides/min (one foot) — multiply by 2 for total steps/min (SPM)
             Integer avgCadence = mesg.getAvgCadence() != null
-                    ? mesg.getAvgCadence().intValue() : null;
+                    ? mesg.getAvgCadence().intValue() * 2 : null;
             Integer maxCadence = mesg.getMaxCadence() != null
-                    ? mesg.getMaxCadence().intValue() : null;
+                    ? mesg.getMaxCadence().intValue() * 2 : null;
 
             BigDecimal enhancedAvgSpeed = mesg.getEnhancedAvgSpeed() != null
                     ? BigDecimal.valueOf(mesg.getEnhancedAvgSpeed()) : null;
@@ -198,10 +199,11 @@ public class FitParserService {
                     ? mesg.getAvgHeartRate().intValue() : null;
             Integer maxHR = mesg.getMaxHeartRate() != null
                     ? mesg.getMaxHeartRate().intValue() : null;
+            // FIT cadence = strides/min (one foot) — multiply by 2 for total steps/min (SPM)
             Integer avgCadence = mesg.getAvgCadence() != null
-                    ? mesg.getAvgCadence().intValue() : null;
+                    ? mesg.getAvgCadence().intValue() * 2 : null;
             Integer maxCadence = mesg.getMaxCadence() != null
-                    ? mesg.getMaxCadence().intValue() : null;
+                    ? mesg.getMaxCadence().intValue() * 2 : null;
 
             BigDecimal enhancedAvgSpeed = mesg.getEnhancedAvgSpeed() != null
                     ? BigDecimal.valueOf(mesg.getEnhancedAvgSpeed()) : null;
@@ -276,12 +278,15 @@ public class FitParserService {
                     ? (int) (1000.0 / speedMs)
                     : null;
 
-            Double altitude = mesg.getAltitude() != null
-                    ? mesg.getAltitude().doubleValue()
-                    : null;
+            // Prefer enhanced_altitude (field 78, higher precision) — modern Garmin devices write here.
+            // Fall back to standard altitude (field 2) for older devices.
+            Double altitude = mesg.getEnhancedAltitude() != null
+                    ? mesg.getEnhancedAltitude()
+                    : (mesg.getAltitude() != null ? mesg.getAltitude().doubleValue() : null);
 
+            // FIT cadence = strides/min (one foot) — multiply by 2 for total steps/min (SPM)
             Integer cadence = mesg.getCadence() != null
-                    ? mesg.getCadence().intValue()
+                    ? mesg.getCadence().intValue() * 2
                     : null;
 
             Integer power = mesg.getPower() != null
