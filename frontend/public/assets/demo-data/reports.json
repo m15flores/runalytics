@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "id": "11698963-8216-41f6-9498-25aff42451f2",
+    "userId": "demo",
+    "weekNumber": 10,
+    "year": 2026,
+    "athleteName": "Demo Runner",
+    "currentGoal": "Improve aerobic base and Z2 consistency",
+    "summaryJson": "{\"weekNumber\":10,\"year\":2026,\"totalActivities\":1,\"totalKm\":11.82,\"totalDuration\":3856,\"averagePace\":326,\"trend\":\"improving\"}",
+    "markdownContent": "# Training Report - Week 10/2026\n**Athlete**: Demo Runner\n\n## This Week Summary\n- Total Activities: 1\n- Total Distance: 11.8 km\n- Total Duration: 1h 04m\n- Average Pace: 5:26 min/km\n- Average Heart Rate: 158 bpm\n- Average Cadence: 156 spm\n\n## Last 4 Weeks Comparison\n| Week | Activities | Distance | Duration | Avg Pace |\n|------|------------|----------|----------|----------|\n| 10/2026 | 1 | 11.8 km | 1h 04m | 5:26 min/km |\n| 9/2026 | 0 | 0.0 km | 0h 00m | N/A |\n| 8/2026 | 0 | 0.0 km | 0h 00m | N/A |\n| 7/2026 | 0 | 0.0 km | 0h 00m | N/A |\n\n## Detailed Analysis\n**Volume**: Low volume (< 30 km). Consider gradually increasing weekly mileage.\n\n**Pace**: Moderate pace (5:26 min/km). Within aerobic range but trending toward upper zone boundary.\n\n**Cadence**: Low cadence (156 spm). Target 170-180 spm to reduce ground contact time and injury risk.\n\n## Heart Rate Zones Distribution\n| Zone | Time | Percentage |\n|------|------|------------|\n| Z1 | 0h 03m | 4.2% |\n| Z2 | 0h 12m | 17.8% |\n| Z3 | 0h 25m | 37.0% |\n| Z4 | 0h 19m | 28.2% |\n| Z5 | 0h 05m | 7.4% |\n\n**Zone Analysis**: Low Z2 time (17.8%). Consider more easy runs for aerobic base building. The high Z3/Z4 distribution indicates the effort was above target intensity.\n\n## Goals\n**Current Goal**: Improve aerobic base and Z2 consistency\n",
+    "createdAt": "2026-03-10T18:00:00Z",
+    "triggerActivityId": "005c4c62-4080-434f-ad71-a5a72d1ac6d7"
+  }
+]
