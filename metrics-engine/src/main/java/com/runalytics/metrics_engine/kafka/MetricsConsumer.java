@@ -1,5 +1,6 @@
 package com.runalytics.metrics_engine.kafka;
 
+import com.runalytics.metrics_engine.dto.ActivityMetricsDto;
 import com.runalytics.metrics_engine.dto.ActivityNormalizedDto;
 import com.runalytics.metrics_engine.service.MetricsService;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +12,15 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MetricsConsumer {
 
     private final MetricsService metricsService;
+    private final MetricsProducer metricsProducer;
 
     @KafkaListener(
             topics = "${runalytics.kafka.topics.normalized}",
@@ -30,7 +34,11 @@ public class MetricsConsumer {
 
         try {
             validateActivity(message);
-            metricsService.processActivity(message);
+            // processActivity() runs in its own @Transactional scope and returns after DB commit.
+            // We publish to Kafka here, outside the transaction, so downstream consumers
+            // always see the committed data when they query the DB.
+            Optional<ActivityMetricsDto> result = metricsService.processActivity(message);
+            result.ifPresent(metricsProducer::publishMetrics);
             log.info("Message processed successfully: {}", key);
             if (acknowledgment != null) {
                 acknowledgment.acknowledge();

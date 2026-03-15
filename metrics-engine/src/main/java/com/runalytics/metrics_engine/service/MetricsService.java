@@ -6,7 +6,6 @@ import com.runalytics.metrics_engine.dto.ActivitySampleDto;
 import com.runalytics.metrics_engine.entity.ActivityMetrics;
 import com.runalytics.metrics_engine.entity.ActivitySample;
 import com.runalytics.metrics_engine.entity.LapMetrics;
-import com.runalytics.metrics_engine.kafka.MetricsProducer;
 import com.runalytics.metrics_engine.mapper.ActivityMetricsMapper;
 import com.runalytics.metrics_engine.mapper.LapMetricsMapper;
 import com.runalytics.metrics_engine.repository.ActivityMetricsRepository;
@@ -35,7 +34,6 @@ public class MetricsService {
     private final ActivityMetricsRepository activityRepository;
     private final LapMetricsRepository lapRepository;
     private final ActivitySampleRepository sampleRepository;
-    private final MetricsProducer producer;
     private final ActivityMetricsMapper activityMapper;
     private final LapMetricsMapper lapMapper;
     private final Clock clock;
@@ -57,12 +55,12 @@ public class MetricsService {
     }
 
     @Transactional
-    public void processActivity(ActivityNormalizedDto input) {
+    public Optional<ActivityMetricsDto> processActivity(ActivityNormalizedDto input) {
         log.info("Processing activity: {} for user: {}", input.activityId(), input.userId());
 
         if (activityRepository.existsByActivityId(input.activityId())) {
             log.warn("activity=already-processed activityId={}", input.activityId());
-            return;
+            return Optional.empty();
         }
 
         try {
@@ -93,8 +91,8 @@ public class MetricsService {
                 log.info("Saved {} samples to database", input.samples().size());
             }
 
-            producer.publishMetrics(activityMetricsDto);
-            log.info("Successfully processed activity: {}", input.activityId());
+            log.info("Successfully persisted activity: {}", input.activityId());
+            return Optional.of(activityMetricsDto);
         } catch (Exception e) {
             log.error("Error processing activity: {}", input.activityId(), e);
             throw e;
