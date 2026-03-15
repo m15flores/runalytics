@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000001",
+    "userId": "demo",
+    "reportId": "11698963-8216-41f6-9498-25aff42451f2",
+    "type": "ZONE_COMPLIANCE",
+    "priority": "HIGH",
+    "content": "Your Z2 time was only 18% of total run duration. During aerobic base phase, the target is >70% Z2. This session counts as INVALID for aerobic development.",
+    "rationale": "The physiological adaptation from aerobic base training — increased mitochondrial density, fat oxidation efficiency, and capillary density — requires sustained effort in Z2. Time spent in Z3/Z4 stimulates a different energy system and does not substitute for Z2 volume.",
+    "verdict": "INVALID",
+    "weekInCycle": 3,
+    "trainingPhase": "AEROBIC_BASE",
+    "createdAt": "2026-03-03T14:00:00Z",
+    "expiresAt": "2026-03-10T14:00:00Z",
+    "applied": false,
+    "metadata": "{\"category\": \"Zone Quality\", \"verdict_rationale\": \"Only 18% Z2 time against a 70%+ target. 65% of the run was spent in Z3/Z4, indicating the effort was too intense for an aerobic base session.\"}"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000002",
+    "userId": "demo",
+    "reportId": "11698963-8216-41f6-9498-25aff42451f2",
+    "type": "CARDIAC_DRIFT",
+    "priority": "HIGH",
+    "content": "Heart rate drifted from 148 bpm (km 0-4) to 165 bpm (km 8-12) at similar pace. This 17 bpm drift at constant pace is a clear sign the aerobic system was stressed beyond its current capacity.",
+    "rationale": "Cardiac drift at constant pace indicates the cardiovascular system is working harder over time to maintain the same output — a hallmark of running above the aerobic threshold. True Z2 training should show minimal drift (<5-8 bpm over a standard session).",
+    "verdict": "INVALID",
+    "weekInCycle": 3,
+    "trainingPhase": "AEROBIC_BASE",
+    "createdAt": "2026-03-03T14:00:00Z",
+    "expiresAt": "2026-03-10T14:00:00Z",
+    "applied": false,
+    "metadata": "{\"category\": \"Cardiac Efficiency\", \"verdict_rationale\": \"17 bpm cardiac drift over 11.8 km at constant pace. Threshold exceeded from the first kilometre.\"}"
+  },
+  {
+    "id": "a1b2c3d4-0001-4000-8000-000000000003",
+    "userId": "demo",
+    "reportId": "11698963-8216-41f6-9498-25aff42451f2",
+    "type": "RECOVERY",
+    "priority": "MEDIUM",
+    "content": "Next session must be at true Z2 effort. Use heart rate as your only guide: if HR exceeds your Z2 ceiling, slow down — walk if necessary. Target pace is secondary to zone.",
+    "rationale": "After a session where the aerobic system was over-stressed, the following workout should reinforce proper zone discipline. Running by heart rate (not pace) in the next session will train the habit of effort-based pacing.",
+    "verdict": "INVALID",
+    "weekInCycle": 3,
+    "trainingPhase": "AEROBIC_BASE",
+    "createdAt": "2026-03-03T14:00:00Z",
+    "expiresAt": "2026-03-10T14:00:00Z",
+    "applied": false,
+    "metadata": "{\"category\": \"Recovery & Planning\", \"verdict_rationale\": \"Session invalidated for aerobic base purpose. Corrective easy run prescribed.\"}"
+  }
+]
