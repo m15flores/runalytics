@@ -17,6 +17,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -55,6 +56,10 @@ public class RecommendationGeneratorService {
      * @param cycleContext Current training cycle context
      * @return List of generated recommendations
      */
+    public boolean hasRecommendationsForReport(UUID reportId) {
+        return !recommendationRepository.findByReportId(reportId).isEmpty();
+    }
+
     @Transactional
     public List<Recommendation> generateRecommendations(
             TrainingReportDto report,

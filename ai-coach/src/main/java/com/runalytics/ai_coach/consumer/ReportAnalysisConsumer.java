@@ -67,14 +67,21 @@ public class ReportAnalysisConsumer {
                     .triggerActivityId(event.getTriggerActivityId())
                     .build();
 
-            // Step 3: Generate recommendations
+            // Step 3: Skip if recommendations already exist for this report (idempotency)
+            if (recommendationGeneratorService.hasRecommendationsForReport(event.getReportId())) {
+                log.info("Recommendations already exist for reportId={}, skipping generation and publish",
+                        event.getReportId());
+                return;
+            }
+
+            // Step 4: Generate recommendations
             List<Recommendation> recommendations = recommendationGeneratorService
                     .generateRecommendations(report, cycleContext);
 
             log.info("Generated {} recommendations for report: {}",
                     recommendations.size(), event.getReportId());
 
-            // Step 4: Publish recommendations event
+            // Step 5: Publish recommendations event
             recommendationProducer.publishRecommendations(event, recommendations);
 
         } catch (Exception e) {
