@@ -54,7 +54,7 @@ public class MarkdownTemplateService {
     private void appendWeeklySummary(StringBuilder markdown, WeeklyStats week) {
         markdown.append("## This Week Summary\n");
         markdown.append(String.format("- Total Activities: %d%n", week.getTotalActivities()));
-        markdown.append(String.format(Locale.US, "- Total Distance: %.1f km%n", week.getTotalDistance()));
+        markdown.append(String.format(Locale.US, "- Total Distance: %.1f km%n", week.getTotalDistance().doubleValue() / 1000.0));
         markdown.append(String.format("- Total Duration: %s%n", formatDuration(week.getTotalDuration())));
 
         if (week.getAveragePace() != null) {
@@ -82,7 +82,7 @@ public class MarkdownTemplateService {
                     week.getWeekNumber(),
                     week.getYear(),
                     week.getTotalActivities(),
-                    week.getTotalDistance(),
+                    week.getTotalDistance().doubleValue() / 1000.0,
                     formatDuration(week.getTotalDuration()),
                     week.getAveragePace() != null ? formatPace(week.getAveragePace()) + " min/km" : "N/A"
             ));
@@ -95,7 +95,7 @@ public class MarkdownTemplateService {
         markdown.append("## Detailed Analysis\n");
 
         // Volume analysis
-        double distance = week.getTotalDistance().doubleValue();
+        double distance = week.getTotalDistance().doubleValue() / 1000.0;
         String volumeAnalysis;
         if (distance < 30) {
             volumeAnalysis = "Low volume (< 30 km). Consider gradually increasing weekly mileage.";

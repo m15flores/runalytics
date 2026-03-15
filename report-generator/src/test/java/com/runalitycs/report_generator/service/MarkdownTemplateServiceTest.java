@@ -33,7 +33,7 @@ public class MarkdownTemplateServiceTest {
                 .weekNumber(49)
                 .year(2024)
                 .totalActivities(4)
-                .totalDistance(new BigDecimal("52.0"))
+                .totalDistance(new BigDecimal("52000.0"))
                 .totalDuration(15600) // 4h 20m
                 .totalCalories(3200)
                 .averagePace(300) // 5:00 min/km
@@ -78,19 +78,19 @@ public class MarkdownTemplateServiceTest {
         // Given - 4 weeks of data
         WeeklyStats week48 = WeeklyStats.builder()
                 .weekNumber(48).year(2024)
-                .totalActivities(4).totalDistance(new BigDecimal("48.0"))
+                .totalActivities(4).totalDistance(new BigDecimal("48000.0"))
                 .totalDuration(14400).averagePace(300)
                 .build();
 
         WeeklyStats week47 = WeeklyStats.builder()
                 .weekNumber(47).year(2024)
-                .totalActivities(3).totalDistance(new BigDecimal("45.0"))
+                .totalActivities(3).totalDistance(new BigDecimal("45000.0"))
                 .totalDuration(13500).averagePace(300)
                 .build();
 
         WeeklyStats week46 = WeeklyStats.builder()
                 .weekNumber(46).year(2024)
-                .totalActivities(3).totalDistance(new BigDecimal("42.0"))
+                .totalActivities(3).totalDistance(new BigDecimal("42000.0"))
                 .totalDuration(12600).averagePace(300)
                 .build();
 
@@ -178,7 +178,7 @@ public class MarkdownTemplateServiceTest {
                 .weekNumber(50)
                 .year(2024)
                 .totalActivities(1)
-                .totalDistance(new BigDecimal("10.0"))
+                .totalDistance(new BigDecimal("10000.0"))
                 .totalDuration(3600)
                 .build(); // No pace, HR, cadence, zones
 
