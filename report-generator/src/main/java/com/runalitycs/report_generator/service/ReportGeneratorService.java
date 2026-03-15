@@ -74,7 +74,10 @@ public class ReportGeneratorService {
             throw new IllegalStateException("No weekly stats available for userId: " + activityMetrics.userId());
         }
 
-        WeeklyStats currentWeek = weeklyStats.get(0); // Most recent week
+        WeeklyStats currentWeek = weeklyStats.stream()
+                .filter(ws -> ws.getWeekNumber() == weekNumber && ws.getYear() == year)
+                .findFirst()
+                .orElse(weeklyStats.get(0));
 
         // 5. Generate markdown content
         String markdownContent = markdownTemplateService.generateWeeklyReport(

@@ -227,7 +227,7 @@ class KafkaIntegrationTest extends BaseKafkaIntegrationTest {
         // Verify report was saved to database
         var reports = trainingReportRepository.findByUserIdAndWeekNumberAndYear("test-user", 49, 2024);
         assertThat(reports).isPresent();
-        assertThat(reports.get().getMarkdownContent()).contains("# Training Report - Week 50/2024");
+        assertThat(reports.get().getMarkdownContent()).contains("# Training Report - Week 49/2024");
     }
 
     @Test
