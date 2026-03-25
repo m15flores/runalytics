@@ -48,8 +48,10 @@ management:
     defaults:
       enabled: true
 
-# Custom Kafka Topics
+# Custom configuration
 runalytics:
+  rate-limit:
+    enabled: true          # Set to false to disable per-IP upload rate limiting
   kafka:
     topics:
       raw-ingested: activities.raw.ingested
