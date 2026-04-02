@@ -1,0 +1,239 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Runalytics — Production Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# External managed services (NOT in this compose file):
+#   - PostgreSQL x4  → Neon (connection strings via NEON_*_URL env vars)
+#   - MongoDB        → Atlas free M0 (connection string via ATLAS_MONGODB_URI)
+#
+# Self-hosted on VPS:
+#   - Redpanda       → Kafka-compatible broker, KRaft mode, no JVM (~100-150 MB RAM)
+#   - Redpanda Console → Web UI for topic inspection
+#   - 5 Java microservices
+#
+# Usage:
+#   cp .env.prod.example .env.prod
+#   # fill in secrets in .env.prod
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+#
+# Required env vars (defined in .env.prod):
+#   OPENAI_API_KEY
+#   NEON_ACTIVITY_SERVICE_URL
+#   NEON_ACTIVITY_NORMALIZER_URL
+#   NEON_METRICS_ENGINE_URL
+#   NEON_REPORT_GENERATOR_URL
+#   NEON_AI_COACH_URL
+#   ATLAS_MONGODB_URI
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+
+  # ═══════════════════════════════════════════════════════
+  # REDPANDA — Kafka-compatible broker (KRaft, no Zookeeper, no JVM)
+  # Docs: https://docs.redpanda.com/current/deploy/deployment-option/self-hosted/docker-image/
+  # ═══════════════════════════════════════════════════════
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    container_name: redpanda-runalytics
+    command:
+      - redpanda
+      - start
+      - --mode dev-container
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
+      - --advertise-pandaproxy-addr internal://redpanda:8082,external://localhost:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
+      - --rpc-addr redpanda:33145
+      - --advertise-rpc-addr redpanda:33145
+      - --smp 1
+      - --memory 512M
+      - --default-log-level=info
+    ports:
+      - "19092:19092"   # external Kafka protocol (for local dev tools on the host)
+      - "9644:9644"     # admin API
+      - "18082:18082"   # Pandaproxy external
+      - "18081:18081"   # Schema Registry external
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -E 'Healthy:.+true' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # ═══════════════════════════════════════════════════════
+  # REDPANDA CONSOLE — Web UI (topic browser, consumer groups, schema registry)
+  # Accessible at http://<vps-ip>:8080  (protect with firewall / Caddy auth in prod)
+  # ═══════════════════════════════════════════════════════
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:latest
+    container_name: redpanda-console-runalytics
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+      REDPANDA_ADMINAPI_ENABLED: "true"
+      REDPANDA_ADMINAPI_URLS: http://redpanda:9644
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════
+  # ACTIVITY SERVICE
+  # DB: Atlas MongoDB (raw FIT storage)
+  # Port: 8082
+  # ═══════════════════════════════════════════════════════
+  activity-service:
+    image: ghcr.io/m15flores/runalytics/activity-service:latest
+    container_name: activity-service-runalytics
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      MONGODB_URI: ${ATLAS_MONGODB_URI}
+      SERVER_PORT: 8082
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8082/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ═══════════════════════════════════════════════════════
+  # ACTIVITY NORMALIZER
+  # DB: Neon PostgreSQL (activity-normalizer schema)
+  # No HTTP port exposed — Kafka consumer only
+  # ═══════════════════════════════════════════════════════
+  activity-normalizer:
+    image: ghcr.io/m15flores/runalytics/activity-normalizer:latest
+    container_name: activity-normalizer-runalytics
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      POSTGRES_URL: ${NEON_ACTIVITY_NORMALIZER_URL}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════
+  # METRICS ENGINE
+  # DB: Neon PostgreSQL (metrics-engine schema)
+  # Port: 8083
+  # ═══════════════════════════════════════════════════════
+  metrics-engine:
+    image: ghcr.io/m15flores/runalytics/metrics-engine:latest
+    container_name: metrics-engine-runalytics
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      POSTGRES_URL: ${NEON_METRICS_ENGINE_URL}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8083
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8083/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ═══════════════════════════════════════════════════════
+  # REPORT GENERATOR
+  # DB: Neon PostgreSQL (report-generator schema)
+  # Port: 8084
+  # ═══════════════════════════════════════════════════════
+  report-generator:
+    image: ghcr.io/m15flores/runalytics/report-generator:latest
+    container_name: report-generator-runalytics
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      POSTGRES_URL: ${NEON_REPORT_GENERATOR_URL}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8084
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8084/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ═══════════════════════════════════════════════════════
+  # AI COACH
+  # DB: Neon PostgreSQL (ai-coach schema)
+  # Port: 8085
+  # ═══════════════════════════════════════════════════════
+  ai-coach:
+    image: ghcr.io/m15flores/runalytics/ai-coach:latest
+    container_name: ai-coach-runalytics
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      POSTGRES_URL: ${NEON_AI_COACH_URL}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      SERVER_PORT: 8085
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - runalytics-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8085/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+# ═══════════════════════════════════════════════════════
+# VOLUMES
+# ═══════════════════════════════════════════════════════
+volumes:
+  redpanda-data:
+    driver: local
+
+# ═══════════════════════════════════════════════════════
+# NETWORKS
+# ═══════════════════════════════════════════════════════
+networks:
+  runalytics-net:
+    driver: bridge
