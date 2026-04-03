@@ -1,0 +1,5 @@
+name = "runalytics"
+pages_build_output_dir = "dist/frontend/browser"
+
+[build]
+command = "npm run build -- --configuration production"
