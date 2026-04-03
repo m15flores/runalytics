@@ -1,5 +1,5 @@
 name = "runalytics"
-pages_build_output_dir = "dist/frontend/browser"
+compatibility_date = "2026-04-03"
 
-[build]
-command = "npm run build -- --configuration production"
+[assets]
+directory = "./dist/frontend/browser"
