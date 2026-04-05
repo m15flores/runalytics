@@ -1,0 +1,17 @@
+package com.runalytics.report_generator.mapper;
+
+import com.runalytics.report_generator.dto.TrainingReportDto;
+import com.runalytics.report_generator.entity.TrainingReport;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+@Mapper(componentModel = "spring")
+public interface TrainingReportMapper {
+
+    @Mapping(target = "createdAt", ignore = true)
+    TrainingReport toEntity(TrainingReportDto dto);
+
+    @Mapping(target = "athleteName", ignore = true)
+    @Mapping(target = "currentGoal", ignore = true)
+    TrainingReportDto toDto(TrainingReport entity);
+}

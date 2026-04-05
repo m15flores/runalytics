@@ -9,13 +9,13 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
-        spring.json.type.mapping: metricsCalculated:com.runalitycs.report_generator.dto.ActivityMetricsDto
+        spring.json.type.mapping: metricsCalculated:com.runalytics.report_generator.dto.ActivityMetricsDto
 
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
-        spring.json.type.mapping: reportGenerated:com.runalitycs.report_generator.dto.ReportGeneratedEventDto,metricsCalculated:com.runalitycs.report_generator.dto.ActivityMetricsDto
+        spring.json.type.mapping: reportGenerated:com.runalytics.report_generator.dto.ReportGeneratedEventDto,metricsCalculated:com.runalytics.report_generator.dto.ActivityMetricsDto
 
   datasource:
     url: jdbc:tc:postgresql:15-alpine:///testdb
