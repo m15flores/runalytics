@@ -1,0 +1,267 @@
+package com.runalytics.report_generator.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.runalytics.report_generator.entity.WeeklyStats;
+import com.runalytics.report_generator.dto.ActivityMetricsDto;
+import com.runalytics.report_generator.dto.TrainingReportDto;
+import com.runalytics.report_generator.entity.AthleteProfile;
+import com.runalytics.report_generator.entity.TrainingReport;
+import com.runalytics.report_generator.repository.TrainingReportRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+@ExtendWith(MockitoExtension.class)
+public class ReportGeneratorServiceTest {
+
+    @Mock
+    private Clock clock;
+
+    @Mock
+    private AthleteProfileService athleteProfileService;
+
+    @Mock
+    private WeeklyAggregationService weeklyAggregationService;
+
+    @Mock
+    private MarkdownTemplateService markdownTemplateService;
+
+    @Mock
+    private TrainingReportRepository trainingReportRepository;
+
+    @Mock
+    private ObjectMapper objectMapper;
+
+    @InjectMocks
+    private ReportGeneratorService reportGeneratorService;
+
+    private ActivityMetricsDto activityMetricsDto;
+    private AthleteProfile athleteProfile;
+    private List<WeeklyStats> weeklyStats;
+    private String generatedMarkdown;
+
+    private static final Instant FIXED_NOW = Instant.parse("2024-12-10T12:00:00Z");
+
+    @BeforeEach
+    void setUp() throws JsonProcessingException {
+        lenient().when(clock.instant()).thenReturn(FIXED_NOW);
+        lenient().when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+
+        activityMetricsDto = ActivityMetricsDto.builder()
+                .activityId(UUID.randomUUID())
+                .userId("test-user")
+                .startedAt(Instant.parse("2024-12-08T10:00:00Z")) // Week 49, 2024
+                .totalDistance(new BigDecimal("10.5"))
+                .totalDuration(3600)
+                .averagePace(343)
+                .averageHeartRate(145)
+                .averageCadence(170)
+                .build();
+
+        athleteProfile = AthleteProfile.builder()
+                .userId("test-user")
+                .name("Test Runner")
+                .age(30)
+                .currentGoal("Marathon sub-3:30")
+                .build();
+
+        WeeklyStats currentWeek = WeeklyStats.builder()
+                .weekNumber(49)
+                .year(2024)
+                .totalActivities(4)
+                .totalDistance(new BigDecimal("52.0"))
+                .totalDuration(15600)
+                .averagePace(300)
+                .averageHeartRate(145)
+                .build();
+
+        weeklyStats = List.of(currentWeek);
+
+        generatedMarkdown = "# Training Report - Week 49/2024\n**Athlete**: Test Runner\n";
+
+        /*
+        me queda por hacer :
+        que estos tests pasen, tests de los dtos añadidos, test del training report mapper, test de activityMetrics y WeeklyStats ?
+         */
+    }
+
+    @Test
+    void shouldGenerateReportWithValidActivity() throws JsonProcessingException {
+        // Given
+        when(athleteProfileService.getProfileByUserId("test-user"))
+                .thenReturn(athleteProfile);
+
+        when(weeklyAggregationService.getWeeklyStats("test-user", 4))
+                .thenReturn(weeklyStats);
+
+        when(markdownTemplateService.generateWeeklyReport(
+                eq(athleteProfile),
+                any(WeeklyStats.class),
+                eq(weeklyStats)
+        )).thenReturn(generatedMarkdown);
+
+        TrainingReport savedReport = TrainingReport.builder()
+                .id(UUID.randomUUID())
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent(generatedMarkdown)
+                .summaryJson("{\"totalKm\":52.0}")
+                .triggerActivityId(activityMetricsDto.activityId())
+                .build();
+
+        when(trainingReportRepository.save(any(TrainingReport.class)))
+                .thenReturn(savedReport);
+
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"totalKm\":52.0}");
+
+        // When
+        TrainingReportDto result = reportGeneratorService.generateReport(activityMetricsDto);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.userId()).isEqualTo("test-user");
+        assertThat(result.weekNumber()).isEqualTo(49);
+        assertThat(result.year()).isEqualTo(2024);
+        assertThat(result.markdownContent()).isEqualTo(generatedMarkdown);
+        assertThat(result.triggerActivityId()).isEqualTo(activityMetricsDto.activityId());
+        assertThat(result.athleteName()).isEqualTo("Test Runner");
+        assertThat(result.currentGoal()).isEqualTo("Marathon sub-3:30");
+
+        verify(athleteProfileService).getProfileByUserId("test-user");
+        verify(weeklyAggregationService).getWeeklyStats("test-user", 4);
+        verify(markdownTemplateService).generateWeeklyReport(any(), any(), any());
+        verify(trainingReportRepository).save(any(TrainingReport.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProfileNotFound() {
+        // Given
+        when(athleteProfileService.getProfileByUserId("test-user"))
+                .thenThrow(new IllegalArgumentException("Profile not found for userId: test-user"));
+
+        // When & Then
+        assertThatThrownBy(() -> reportGeneratorService.generateReport(activityMetricsDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Profile not found");
+
+        verify(athleteProfileService).getProfileByUserId("test-user");
+        verify(weeklyAggregationService, never()).getWeeklyStats(anyString(), anyInt());
+        verify(trainingReportRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldUpdateExistingReportForSameWeek() throws JsonProcessingException {
+        // Given - Report already exists for this week
+        UUID existingId = UUID.randomUUID();
+        TrainingReport existingReport = TrainingReport.builder()
+                .id(existingId)
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent("Old content")
+                .summaryJson("{}")
+                .build();
+
+        when(athleteProfileService.getProfileByUserId("test-user"))
+                .thenReturn(athleteProfile);
+
+        when(trainingReportRepository.findByUserIdAndWeekNumberAndYear("test-user", 49, 2024))
+                .thenReturn(Optional.of(existingReport));
+
+        when(weeklyAggregationService.getWeeklyStats("test-user", 4))
+                .thenReturn(weeklyStats);
+
+        when(markdownTemplateService.generateWeeklyReport(any(), any(), any()))
+                .thenReturn(generatedMarkdown);
+
+        TrainingReport updatedReport = TrainingReport.builder()
+                .id(existingId) // same id — it's an UPDATE, not INSERT
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent(generatedMarkdown)
+                .summaryJson("{\"totalKm\":52.0}")
+                .build();
+
+        when(trainingReportRepository.save(any(TrainingReport.class)))
+                .thenReturn(updatedReport);
+
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"totalKm\":52.0}");
+
+        // When
+        TrainingReportDto result = reportGeneratorService.generateReport(activityMetricsDto);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.markdownContent()).isEqualTo(generatedMarkdown);
+
+        verify(trainingReportRepository, never()).delete(any()); // no delete — UPDATE only
+        verify(trainingReportRepository).save(any(TrainingReport.class));
+    }
+
+    @Test
+    void shouldCreateSummaryJson() throws Exception {
+        // Given
+        when(athleteProfileService.getProfileByUserId("test-user"))
+                .thenReturn(athleteProfile);
+
+        WeeklyStats statsWithTrend = WeeklyStats.builder()
+                .weekNumber(49)
+                .year(2024)
+                .totalActivities(4)
+                .totalDistance(new BigDecimal("52.0"))
+                .totalDuration(15600)
+                .averagePace(300)
+                .trend("improving")
+                .build();
+
+        when(weeklyAggregationService.getWeeklyStats("test-user", 4))
+                .thenReturn(List.of(statsWithTrend));
+
+        when(markdownTemplateService.generateWeeklyReport(any(), any(), any()))
+                .thenReturn(generatedMarkdown);
+
+        TrainingReport savedReport = TrainingReport.builder()
+                .id(UUID.randomUUID())
+                .userId("test-user")
+                .weekNumber(49)
+                .year(2024)
+                .markdownContent(generatedMarkdown)
+                .summaryJson("{\"weekNumber\":49,\"year\":2024,\"totalActivities\":4,\"totalKm\":52.0,\"totalDuration\":15600,\"averagePace\":300,\"trend\":\"improving\"}")
+                .build();
+
+        when(trainingReportRepository.save(any(TrainingReport.class)))
+                .thenReturn(savedReport);
+
+        when(objectMapper.writeValueAsString(any()))
+                .thenReturn("{\"weekNumber\":49,\"year\":2024,\"totalActivities\":4,\"totalKm\":52.0,\"totalDuration\":15600,\"averagePace\":300,\"trend\":\"improving\"}");
+
+        // When
+        TrainingReportDto result = reportGeneratorService.generateReport(activityMetricsDto);
+
+        // Then
+        assertThat(result.summaryJson()).isNotNull();
+        assertThat(result.summaryJson()).contains("\"weekNumber\":49");
+        assertThat(result.summaryJson()).contains("\"totalKm\":52");
+        assertThat(result.summaryJson()).contains("\"trend\":\"improving\"");
+    }
+
+}
